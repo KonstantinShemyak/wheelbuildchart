@@ -1,0 +1,31 @@
+body {
+	margin: 1em;
+}
+
+#valuesTable {
+	border: 1px solid black;
+	margin-top: 1em;
+	margin-right: 20px;
+	table-layout: fixed;
+}
+
+#radarChart {
+}
+
+/* Two first colors from d3.scale.category10(), lightened */
+.driveSideColor {
+	background: #72c5ff; /* #1f77b4; */
+}
+
+.nonDriveSideColor {
+	background: #ff7f0e;
+}
+
+.bordered {
+	border: 1px solid black;
+}
+
+input.readInput {
+	width: 3em;
+	font-size: 18px;
+}

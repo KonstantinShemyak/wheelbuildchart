@@ -1,0 +1,73 @@
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16">
+		<link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32">
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css" />
+		<link rel="stylesheet" href="wheelchart.css" />
+		<title>Wheelbuilding chart: what is this</title>
+	</head> 
+
+	<body>
+		<h1><a href="index.html">Wheelbuilding chart</a>: what is this</h1>
+
+		<p>When building or truing a bicycle wheel, one should monitor two aspects:</p>
+		<ul>
+			<li>The wheel must be true.</li>
+			<li>The spokes must be tightened equally (on each side).</li>
+		</ul>
+		<p>It may be nontrivial to satisfy <strong>both</strong> conditions: when you
+		tighten all spokes equally, the wheel is <strong>not</strong> true! So you need
+		to balance between the two imperfections.<p>
+		<p>Folklore calls this "art". With this tool, you likely find that the term "accuracy" is
+		more relevant.</p>
+
+		<h2>What does this tool do</h2>
+
+		<p>When you input tension values, they are shown on a radar chart. This gives you
+		an overal picture, how much tension inequality you have and what are the biggest
+		"painpoints" (most overtightened or slack spokes). You'll know better whether
+		you should tighten or weaken something on your next spoke wrench attempt.</p>
+
+		<h2>What this tool does NOT do</h2>
+
+		<p>There is no magic. This is only visualization of the data you already have.</p>
+
+		<ul>
+			<li>It does not measure tension. You need a <strong>tensometer</strong> for that.</li>
+			<li>It does not show the deviations of the wheel. It only shows the spoke tension.</li>
+			<li>It does not show tell you which spoke to tighten/release. You must check the
+			wheel deformation (both radial and lateral) and make the decision.</li>
+		</ul>
+
+		<h2>Usage hints</h2>
+
+		<ul>
+			<li>Number your spokes. For rim brake wheels, marker on the braking
+				surface works good. For disk brake wheels, marker on white
+				aluminium or corrector paste on black works kind of OK.</li>
+			<li>Do one round: measure all spokes and input values.</li>
+			<li>Rotate the wheel and record (or remember) the biggest "problem":
+				radial distortion (inside/outside) or side deflection (drive/non-drive).
+				Mark approximate spoke number where it happens.</li>
+			<li>In case of radial distortion: deside, do you need to tighten/release the
+				spokes at the "problematic region" or to tighten/release all
+				other spokes. For example, if you have a buldge at about spoke 10,
+				and spoke 10 is too slack, then spoke 10 should be tensioned.
+				If spoke 10 is too tight, then all other spokes should be released.</li>
+			<li>During each step, do only one half-turn. Repeat until tension deviations
+				are under 10%.</li>
+		</ul>
+		<p>The author was able to build in practice perfect wheels: maximal tension as
+			allowed by the rim manufacturer, deviations under 5%, no visible deflections.</p>
+
+		<h2>Contact</h2>
+
+		<p>Bugs, suggestions and ideas are welcome: <b>konstantin -near- shemyak.com</b></p>
+
+	</body>
+</html>
+

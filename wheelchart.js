@@ -1,4 +1,5 @@
 $(document).ready(function() {
+	'use strict';
 	
 	var config = {
 			INITIAL_VALUE_DRIVE_SIDE: 20,
@@ -9,27 +10,18 @@ $(document).ready(function() {
 			/* Do some locales use comma as decimal separator? */
 			ALLOWED_INPUT_REGEXP: /^\d{1,2}(\.\d{1,2})?$/
 	};
+	Object.freeze(config);
 
 	// Global arrays:
 	var driveSideSpokes, nonDriveSideSpokes;
 
 	// Fill dropdown lists with values
 	var $spokesList = $('#nSpokes');
-
-	for (var i = 0; i < config.SUPPORTED_SPOKE_COUNTS.length; i++)
-		$('<option value="' + config.SUPPORTED_SPOKE_COUNTS[i] + '">' 
-				+ config.SUPPORTED_SPOKE_COUNTS[i] + '</option>')
-		.appendTo($spokesList);
-	$spokesList.val(config.DEFAULT_SPOKES);
+	fillSelectFromArray($spokesList, config.SUPPORTED_SPOKE_COUNTS, config.DEFAULT_SPOKES);
 
 	var $spokeThickness = $('#spokeThickness');
 	var knownSpokeThickness = TensionTable.getKnownSpokeThickness();
-	for (var i = 0; i <  knownSpokeThickness.length; i++) {
-		var s = knownSpokeThickness[i];
-		$('<option value="' + s + '">' + s + '</option>')
-		.appendTo($spokeThickness);
-	}
-	$spokeThickness.val(config.DEFAULT_SPOKE_THICKNESS);
+	fillSelectFromArray($spokeThickness, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
 	
 	// Emulate click, which will draw everything
 	$('#startButton').on('click', function() {
@@ -151,9 +143,18 @@ $(document).ready(function() {
 		};
 	}
 	
+	// Utilities
+
 	function round2(number) {
 		/* round up to 2 decimals */
 		return Math.round(number * 100) / 100;
 	}
-});
 
+	function fillSelectFromArray(select, array, initialValue) {
+		for (var i = 0; i < array.length; i++)
+			$('<option value="' + array[i] + '">'
+					+ array[i] + '</option>')
+			.appendTo(select);
+		select.val(initialValue);
+	}
+});

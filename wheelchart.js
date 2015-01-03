@@ -1,18 +1,26 @@
 $(document).ready(function() {
 	
-	var INITIAL_VALUE_DRIVE_SIDE = 20;
-	var INITIAL_VALUE_NON_DRIVE_SIDE = 18;
-	var DEFAULT_SPOKES = 32;
+	var config = {
+			INITIAL_VALUE_DRIVE_SIDE: 20,
+			INITIAL_VALUE_NON_DRIVE_SIDE: 18,
+			SUPPORTED_SPOKE_COUNTS: [16, 18, 20, 24, 28, 32, 36, 40],
+			DEFAULT_SPOKES: 32,
+			DEFAULT_SPOKE_THICKNESS: 2,
+			/* Do some locales use comma as decimal separator? */
+			ALLOWED_INPUT_REGEXP: /^\d{1,2}(\.\d{1,2})?$/
+	};
+
 	// Global arrays:
 	var driveSideSpokes, nonDriveSideSpokes;
 
-        // Fill dropdown lists with values
+	// Fill dropdown lists with values
 	var $spokesList = $('#nSpokes');
-	var SUPPORTED_SPOKE_COUNTS = [16, 18, 20, 24, 28, 32, 36, 40];
-	for (var i = 0; i < SUPPORTED_SPOKE_COUNTS.length; i++)
-		$('<option value="' + SUPPORTED_SPOKE_COUNTS[i] + '">' + SUPPORTED_SPOKE_COUNTS[i] + '</option>')
+
+	for (var i = 0; i < config.SUPPORTED_SPOKE_COUNTS.length; i++)
+		$('<option value="' + config.SUPPORTED_SPOKE_COUNTS[i] + '">' 
+				+ config.SUPPORTED_SPOKE_COUNTS[i] + '</option>')
 		.appendTo($spokesList);
-	$spokesList.val(DEFAULT_SPOKES);
+	$spokesList.val(config.DEFAULT_SPOKES);
 
 	var $spokeThickness = $('#spokeThickness');
 	var knownSpokeThickness = TensionTable.getKnownSpokeThickness();
@@ -21,7 +29,7 @@ $(document).ready(function() {
 		$('<option value="' + s + '">' + s + '</option>')
 		.appendTo($spokeThickness);
 	}
-	$spokeThickness.val("2");
+	$spokeThickness.val(config.DEFAULT_SPOKE_THICKNESS);
 	
 	// Emulate click, which will draw everything
 	$('#startButton').on('click', function() {
@@ -44,11 +52,11 @@ $(document).ready(function() {
 		for (var i = 0; i < nSpokes; i++) {
 			driveSideSpokes.push({
 				axis: nSpokes - i,
-				value: tensionFunction(INITIAL_VALUE_DRIVE_SIDE)
+				value: tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE)
 			});
 			nonDriveSideSpokes.push({
 				axis: nSpokes - i,
-				value: tensionFunction(INITIAL_VALUE_NON_DRIVE_SIDE)
+				value: tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE)
 			});
 		}
 
@@ -63,11 +71,11 @@ $(document).ready(function() {
 				$('<td class="driveSideColor"/>')
 				.text('#' + i + ':').appendTo($row);
 				$('<td class="driveSideColor"/>')
-				.append($input.val(INITIAL_VALUE_DRIVE_SIDE))
+				.append($input.val(config.INITIAL_VALUE_DRIVE_SIDE))
 				.appendTo($row);
 				$('<td class="driveSideColor"/>')
 				.attr("id", "tension" + i).attr("side", "drive")
-				.text(tensionFunction(INITIAL_VALUE_DRIVE_SIDE))
+				.text(tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE))
 				.appendTo($row);
 				$('<td colspan="3"/>').appendTo($row);
 			} else {
@@ -75,11 +83,11 @@ $(document).ready(function() {
 				$('<td class="nonDriveSideColor"/>')
 				.text('#' + i + ':').appendTo($row);
 				$('<td class="nonDriveSideColor"/>')
-				.append($input.val(INITIAL_VALUE_NON_DRIVE_SIDE))
+				.append($input.val(config.INITIAL_VALUE_NON_DRIVE_SIDE))
 				.appendTo($row);
 				$('<td class="nonDriveSideColor"/>')
 				.attr("id", "tension" + i)
-				.text(tensionFunction(INITIAL_VALUE_NON_DRIVE_SIDE))
+				.text(tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE))
 				.appendTo($row);
 			}
 			$row.insertBefore($('#average'));
@@ -94,12 +102,10 @@ $(document).ready(function() {
 	}
 
 	function handleUserInput(targetSpoke, nSpokes) {
-		/* Do some locales use comma as decimal separator? */
-		var ALLOWED_INPUT_REGEXP = /^\d{1,2}(\.\d{1,2})?$/;
 		return function() {
 			var userInput = $('#spoke' + targetSpoke).val();
 			/* Restrict user input just for safety: */			
-			if (!ALLOWED_INPUT_REGEXP.test(userInput)) {
+			if (!config.ALLOWED_INPUT_REGEXP.test(userInput)) {
 				alert("Invalid input: " + userInput + " (a number like '23' or '23.2' expected)");
 				$('#spoke' + targetSpoke).focus().select();
 				return;

@@ -14,7 +14,7 @@ $(document).ready(function() {
 	Object.freeze(config);
 
 	// Global arrays:
-	var driveSideSpokes, nonDriveSideSpokes;
+	var driveSideSpokes = [], nonDriveSideSpokes = [];
 
 	// Fill dropdown lists with values
 	var $spokesList = $('#nSpokes');
@@ -40,18 +40,6 @@ $(document).ready(function() {
 
 	function initValuesTable(nSpokes) {
 		$('[role="valueRow"]').remove();
-		driveSideSpokes = [];
-		nonDriveSideSpokes = [];
-		for (var i = 0; i < nSpokes; i++) {
-			driveSideSpokes.push({
-				axis: nSpokes - i,
-				value: tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE)
-			});
-			nonDriveSideSpokes.push({
-				axis: nSpokes - i,
-				value: tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE)
-			});
-		}
 
 		for (var i = 1; i <= nSpokes; i++) {
 			var $row = $('<tr role="valueRow"/>');
@@ -88,6 +76,19 @@ $(document).ready(function() {
 	}
 
 	function initWheelChart(nSpokes) {
+		driveSideSpokes = [];
+		nonDriveSideSpokes = [];
+		
+		for (var i = 0; i < nSpokes; i++) {
+			driveSideSpokes.push({
+				axis: nSpokes - i,
+				value: tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE)
+			});
+			nonDriveSideSpokes.push({
+				axis: nSpokes - i,
+				value: tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE)
+			});
+		}
 		/* Emulate user input, to do the first-time drawing */
 		handleUserInput(1, nSpokes)();
 		handleUserInput(2, nSpokes)();

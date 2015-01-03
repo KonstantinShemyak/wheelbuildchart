@@ -8,7 +8,8 @@ $(document).ready(function() {
 			DEFAULT_SPOKES: 32,
 			DEFAULT_SPOKE_THICKNESS: 2,
 			/* Do some locales use comma as decimal separator? */
-			ALLOWED_INPUT_REGEXP: /^\d{1,2}(\.\d{1,2})?$/
+			ALLOWED_INPUT_REGEXP: /^\d{1,2}(\.\d{1,2})?$/,
+			ERROR_STRING_INVALID_INPUT: ": invalid input (a number like '23' or '23.2' expected)"
 	};
 	Object.freeze(config);
 
@@ -98,7 +99,7 @@ $(document).ready(function() {
 			var userInput = $('#spoke' + targetSpoke).val();
 			/* Restrict user input just for safety: */			
 			if (!config.ALLOWED_INPUT_REGEXP.test(userInput)) {
-				alert("Invalid input: " + userInput + " (a number like '23' or '23.2' expected)");
+				alert(userInput + config.ERROR_STRING_INVALID_INPUT);
 				$('#spoke' + targetSpoke).focus().select();
 				return;
 			}

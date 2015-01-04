@@ -2,7 +2,7 @@
 // In addition to radar chart's own method 'draw', offers also 'update'.
 var tensionChart = (function() {
 	'use strict';
-	var driveSideSpokes = [], nonDriveSideSpokes = [];
+	var driveSideSpokes, nonDriveSideSpokes;
 	var location = undefined;
 	var nSpokes = undefined;
 	
@@ -10,6 +10,8 @@ var tensionChart = (function() {
 		init: function(id, n, driveSideTension, nonDriveSideTension) {
 			location = id;
 			nSpokes = n;
+			driveSideSpokes = [];
+			nonDriveSideSpokes = [];
 			for (var i = 0; i < nSpokes; i++) {
 				driveSideSpokes.push({
 					axis: nSpokes - i,

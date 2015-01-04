@@ -3,7 +3,7 @@
 // After that call update() as needed, passing the changed spoke and new tension.
 var tensionChart = (function() {
 	'use strict';
-	var driveSideSpokes, nonDriveSideSpokes;
+	var driveSideSpokes = undefined, nonDriveSideSpokes = undefined;
 	var location = undefined;
 	var nSpokes = undefined;
 	
@@ -27,7 +27,7 @@ var tensionChart = (function() {
 		},
 		
 		update: function(targetSpoke, value) {
-			if (typeof location === undefined)
+			if (typeof driveSideSpokes === undefined)
 				throw Error("tension-chart.js: update() called before init()");
 			
 			// We draw the tension chart as a radar chart with two data sets.

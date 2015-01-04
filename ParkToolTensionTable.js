@@ -104,6 +104,9 @@ var TensionTable = (function() {
 		/* x1 and x2 are the lower and higher neighbors of x in 'values' */
 		var x1 = min;
 		var x2 = max;
+		if (x1 === x2)
+			return x1;
+
 		for (v in values) {
 			if (v < index && v > x1)
 				x1 = v;

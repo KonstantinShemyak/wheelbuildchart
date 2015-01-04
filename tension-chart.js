@@ -1,5 +1,6 @@
 // A radar chart with state.
-// In addition to radar chart's own method 'draw', offers also 'update'.
+// First call init(), defining the location, size, and initial values.
+// After that call update() as needed, passing the changed spoke and new tension.
 var tensionChart = (function() {
 	'use strict';
 	var driveSideSpokes, nonDriveSideSpokes;
@@ -29,6 +30,10 @@ var tensionChart = (function() {
 			if (typeof location === undefined)
 				throw Error("tension-chart.js: update() called before init()");
 			
+			// We draw the tension chart as a radar chart with two data sets.
+			// They can have only one set of axis. Say that axis 1 belongs to
+			// drive-side spoke. But then we must also draw some value for the
+			// non-drive side on that axis. Use arithmetic mean of neighbors.
 			var axisNumber = nSpokes - targetSpoke;
 			var nextPseudoSpokeNumber = (axisNumber + 1) % nSpokes;
 			var prevPseudoSpokeNumber = 

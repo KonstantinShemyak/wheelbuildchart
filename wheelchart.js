@@ -13,9 +13,6 @@ $(document).ready(function() {
 	};
 	Object.freeze(config);
 
-	// Global arrays:
-	var driveSideSpokes = [], nonDriveSideSpokes = [];
-
 	// Fill dropdown lists with values
 	var $spokesList = $('#nSpokes');
 	fillSelectFromArray($spokesList, config.SUPPORTED_SPOKE_COUNTS, config.DEFAULT_SPOKES);
@@ -24,19 +21,22 @@ $(document).ready(function() {
 	var knownSpokeThickness = TensionTable.getKnownSpokeThickness();
 	fillSelectFromArray($spokeThickness, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
 	
-	// Emulate click, which will draw everything
-	$('#startButton').on('click', function() {
-		var nSpokes = $spokesList.val();
-		initValuesTable(nSpokes);
-		initWheelChart(nSpokes);
-	}).click();
-
-	// Functions
-
 	// Tension value from the table, for the selected spoke thickness
 	function tensionFunction(r) {
 		return TensionTable.parkToolTension($spokeThickness.val(), r);
 	};
+
+	// Emulate click, which will draw everything
+	$('#startButton').on('click', function() {
+		var nSpokes = $spokesList.val();
+		initValuesTable(nSpokes);
+		console.log("table initialized");
+		tensionChart.init('#radarChart', nSpokes,
+				tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE),
+				tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE));
+	}).click();
+
+	// Functions
 
 	function initValuesTable(nSpokes) {
 		$('[role="valueRow"]').remove();
@@ -73,25 +73,11 @@ $(document).ready(function() {
 			}
 			$row.insertBefore($('#average'));
 		}
-	}
-
-	function initWheelChart(nSpokes) {
-		driveSideSpokes = [];
-		nonDriveSideSpokes = [];
+		$('#avgDriveReading').text(config.INITIAL_VALUE_DRIVE_SIDE);
+		$('#avgDriveTension').text(tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE));
+		$('#avgNondriveReading').text(config.INITIAL_VALUE_NON_DRIVE_SIDE);
+		$('#avgNondriveTension').text(tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE));
 		
-		for (var i = 0; i < nSpokes; i++) {
-			driveSideSpokes.push({
-				axis: nSpokes - i,
-				value: tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE)
-			});
-			nonDriveSideSpokes.push({
-				axis: nSpokes - i,
-				value: tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE)
-			});
-		}
-		/* Emulate user input, to do the first-time drawing */
-		handleUserInput(1, nSpokes)();
-		handleUserInput(2, nSpokes)();
 		$('#spoke1').focus().select();
 	}
 
@@ -131,17 +117,7 @@ $(document).ready(function() {
 				nextSameSideSpoke = 2;
 			$('#spoke' + nextSameSideSpoke).focus().select();
 			
-			/* Update the radar chart: */
-			var axisNumber = nSpokes - targetSpoke;
-			var nextPseudoSpokeNumber = (axisNumber + 1) % nSpokes;
-			var prevPseudoSpokeNumber = 
-				axisNumber > 0 ? (axisNumber - 1) % nSpokes : nSpokes - 1;
-			var spokeSide = targetSpoke % 2 == 1 ? driveSideSpokes : nonDriveSideSpokes;
-			var increment = newTension - spokeSide[axisNumber].value;
-			spokeSide[axisNumber].value = newTension;
-			spokeSide[nextPseudoSpokeNumber].value += increment / 2;
-			spokeSide[prevPseudoSpokeNumber].value += increment / 2;
-			RadarChart.draw("#radarChart", [driveSideSpokes, nonDriveSideSpokes]);
+			tensionChart.update(targetSpoke, newTension);
 		};
 	}
 	

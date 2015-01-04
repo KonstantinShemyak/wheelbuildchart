@@ -2,8 +2,8 @@ $(document).ready(function() {
 	'use strict';
 	
 	var config = {
-			INITIAL_VALUE_DRIVE_SIDE: 20,
-			INITIAL_VALUE_NON_DRIVE_SIDE: 18,
+			INITIAL_READING_DRIVE_SIDE: 20,
+			INITIAL_READING_NON_DRIVE_SIDE: 18,
 			SUPPORTED_SPOKE_COUNTS: [16, 18, 20, 24, 28, 32, 36, 40],
 			DEFAULT_SPOKES: 32,
 			DEFAULT_SPOKE_THICKNESS: 2,
@@ -17,13 +17,13 @@ $(document).ready(function() {
 	var $spokesList = $('#nSpokes');
 	fillSelectFromArray($spokesList, config.SUPPORTED_SPOKE_COUNTS, config.DEFAULT_SPOKES);
 
-	var $spokeThickness = $('#spokeThickness');
+	var $spokeThicknessList = $('#spokeThickness');
 	var knownSpokeThickness = TensionTable.getKnownSpokeThickness();
-	fillSelectFromArray($spokeThickness, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
+	fillSelectFromArray($spokeThicknessList, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
 	
 	// Tension value from the table, for the selected spoke thickness
 	function tensionFunction(r) {
-		return TensionTable.parkToolTension($spokeThickness.val(), r);
+		return TensionTable.parkToolTension($spokeThicknessList.val(), r);
 	};
 
 	// Emulate click, which will draw everything
@@ -32,8 +32,8 @@ $(document).ready(function() {
 		initValuesTable(nSpokes);
 		console.log("table initialized");
 		tensionChart.init('#radarChart', nSpokes,
-				tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE),
-				tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE));
+				tensionFunction(config.INITIAL_READING_DRIVE_SIDE),
+				tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE));
 	}).click();
 
 	// Functions
@@ -52,11 +52,11 @@ $(document).ready(function() {
 				$('<td class="driveSideColor"/>')
 				.text('#' + i + ':').appendTo($row);
 				$('<td class="driveSideColor"/>')
-				.append($input.val(config.INITIAL_VALUE_DRIVE_SIDE))
+				.append($input.val(config.INITIAL_READING_DRIVE_SIDE))
 				.appendTo($row);
 				$('<td class="driveSideColor"/>')
 				.attr("id", "tension" + i).attr("side", "drive")
-				.text(tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE))
+				.text(tensionFunction(config.INITIAL_READING_DRIVE_SIDE))
 				.appendTo($row);
 				$('<td colspan="3"/>').appendTo($row);
 			} else {
@@ -64,19 +64,19 @@ $(document).ready(function() {
 				$('<td class="nonDriveSideColor"/>')
 				.text('#' + i + ':').appendTo($row);
 				$('<td class="nonDriveSideColor"/>')
-				.append($input.val(config.INITIAL_VALUE_NON_DRIVE_SIDE))
+				.append($input.val(config.INITIAL_READING_NON_DRIVE_SIDE))
 				.appendTo($row);
 				$('<td class="nonDriveSideColor"/>')
 				.attr("id", "tension" + i)
-				.text(tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE))
+				.text(tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE))
 				.appendTo($row);
 			}
 			$row.insertBefore($('#average'));
 		}
-		$('#avgDriveReading').text(config.INITIAL_VALUE_DRIVE_SIDE);
-		$('#avgDriveTension').text(tensionFunction(config.INITIAL_VALUE_DRIVE_SIDE));
-		$('#avgNondriveReading').text(config.INITIAL_VALUE_NON_DRIVE_SIDE);
-		$('#avgNondriveTension').text(tensionFunction(config.INITIAL_VALUE_NON_DRIVE_SIDE));
+		$('#avgDriveReading').text(config.INITIAL_READING_DRIVE_SIDE);
+		$('#avgDriveTension').text(tensionFunction(config.INITIAL_READING_DRIVE_SIDE));
+		$('#avgNondriveReading').text(config.INITIAL_READING_NON_DRIVE_SIDE);
+		$('#avgNondriveTension').text(tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE));
 		
 		$('#spoke1').focus().select();
 	}

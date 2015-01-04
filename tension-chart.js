@@ -7,8 +7,8 @@ var tensionChart = (function() {
 	var nSpokes = undefined;
 	
 	return {
-		init: function(selector, n, driveSideTension, nonDriveSideTension) {
-			location = selector;
+		init: function(id, n, driveSideTension, nonDriveSideTension) {
+			location = id;
 			nSpokes = n;
 			for (var i = 0; i < nSpokes; i++) {
 				driveSideSpokes.push({

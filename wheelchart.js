@@ -28,12 +28,7 @@ $(document).ready(function() {
 
 	// Emulate click, which will draw everything
 	$('#startButton').on('click', function() {
-		var nSpokes = $spokesList.val();
-		initValuesTable(nSpokes);
-		console.log("table initialized");
-		tensionChart.init('#radarChart', nSpokes,
-				tensionFunction(config.INITIAL_READING_DRIVE_SIDE),
-				tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE));
+		initValuesTable($spokesList.val());
 	}).click();
 
 	// Functions
@@ -44,7 +39,7 @@ $(document).ready(function() {
 		for (var i = 1; i <= nSpokes; i++) {
 			var $row = $('<tr role="valueRow"/>');
 
-			var $input = $('<input type="text" id="spoke' + i + '"/>')
+			var $input = $('<input type="text" id="reading' + i + '"/>')
 			.addClass("readInput")
 			.on('change', handleUserInput(i, nSpokes));
 
@@ -78,22 +73,24 @@ $(document).ready(function() {
 		$('#avgNondriveReading').text(config.INITIAL_READING_NON_DRIVE_SIDE);
 		$('#avgNondriveTension').text(tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE));
 		
-		$('#spoke1').focus().select();
+		$('#reading1').focus().select();
+		tensionChart.init('#radarChart', nSpokes,
+				tensionFunction(config.INITIAL_READING_DRIVE_SIDE),
+				tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE));
 	}
 
 	function handleUserInput(targetSpoke, nSpokes) {
 		return function() {
-			var userInput = $('#spoke' + targetSpoke).val();
+			var userInput = $('#reading' + targetSpoke).val();
 			/* Restrict user input just for safety: */			
 			if (!config.ALLOWED_INPUT_REGEXP.test(userInput)) {
 				alert(userInput + config.ERROR_STRING_INVALID_INPUT);
-				$('#spoke' + targetSpoke).focus().select();
+				$('#reading' + targetSpoke).focus().select();
 				return;
 			}
 				
 			/* Calculate the new value: */
-			var newTension = tensionFunction(userInput);
-			
+			var newTension = tensionFunction(userInput);			
 			$('#tension' + targetSpoke).text(round2(newTension));
 			
 			/* Update the averages: */
@@ -102,7 +99,7 @@ $(document).ready(function() {
 			
 			var startingSpoke = targetSpoke % 2 == 1 ? 1 : 2;
 			for (var i = startingSpoke; i <= nSpokes; i += 2) {
-				sumReading += parseFloat($('#spoke' + i).val());
+				sumReading += parseFloat($('#reading' + i).val());
 				sumValue += parseFloat($('#tension' + i).text());
 			}
 
@@ -115,7 +112,7 @@ $(document).ready(function() {
 				nextSameSideSpoke = 1;
 			else if (nextSameSideSpoke == Number(nSpokes) + 2)
 				nextSameSideSpoke = 2;
-			$('#spoke' + nextSameSideSpoke).focus().select();
+			$('#reading' + nextSameSideSpoke).focus().select();
 			
 			tensionChart.update(targetSpoke, newTension);
 		};

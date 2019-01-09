@@ -44,6 +44,7 @@ $(document).ready(function() {
 			.on('change', handleUserInput(i, nSpokes));
 
 			if (i % 2 != 0) {
+				$input.attr("tabindex", (i - 1) / 2 + 1);
 				$('<td class="driveSideColor"/>')
 				.text('#' + i + ':').appendTo($row);
 				$('<td class="driveSideColor"/>')
@@ -55,6 +56,7 @@ $(document).ready(function() {
 				.appendTo($row);
 				$('<td colspan="3"/>').appendTo($row);
 			} else {
+				$input.attr("tabindex", nSpokes / 2 + (i - 1) / 2 + 1);
 				$('<td colspan="3"/>').appendTo($row);
 				$('<td class="nonDriveSideColor"/>')
 				.text('#' + i + ':').appendTo($row);

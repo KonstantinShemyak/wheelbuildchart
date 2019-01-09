@@ -57,6 +57,14 @@ $(document).ready(function() {
 		var nSpokes = Number($spokesList.val());
 		$('[role="valueRow"]').remove();
 
+		// Vertical offset between left and right columns:
+		// * Each data cell is spanned on 1 column and 2 lines
+		// * This first set of cells creates the offset:
+		// ** Left cell is spanned on 1 line
+		// ** Right cell is spanned on 2 lines
+		// * There are no empty cells except at the top and at the bottom
+		$('<tr role="valueRow"><td class="driveSideColor" colspan="3"/><td class="nonDriveSideColor" colspan="3" rowspan="2"/></tr>').insertBefore($('#average'));
+
 		for (var i = 1; i <= nSpokes; i++) {
 			var $row = $('<tr role="valueRow"/>');
 
@@ -66,31 +74,31 @@ $(document).ready(function() {
 
 			if (i % 2 != 0) {
 				$input.attr("tabindex", (i - 1) / 2 + 1);
-				$('<td class="driveSideColor"/>')
+				$('<td class="driveSideColor" rowspan="2"/>')
 				.text('#' + i + ':').appendTo($row);
-				$('<td class="driveSideColor"/>')
+				$('<td class="driveSideColor" rowspan="2"/>')
 				.append($input.val(readings[i - 1]))
 				.appendTo($row);
-				$('<td class="driveSideColor"/>')
+				$('<td class="driveSideColor" rowspan="2"/>')
 				.attr("id", "tension" + i).attr("side", "drive")
 				.text(tensionFunction(config.INITIAL_READING_DRIVE_SIDE))
 				.appendTo($row);
-				$('<td colspan="3"/>').appendTo($row);
 			} else {
 				$input.attr("tabindex", nSpokes / 2 + (i - 1) / 2 + 1);
-				$('<td colspan="3"/>').appendTo($row);
-				$('<td class="nonDriveSideColor"/>')
+				$('<td class="nonDriveSideColor" rowspan="2"/>')
 				.text('#' + i + ':').appendTo($row);
-				$('<td class="nonDriveSideColor"/>')
+				$('<td class="nonDriveSideColor" rowspan="2"/>')
 				.append($input.val(readings[i - 1]))
 				.appendTo($row);
-				$('<td class="nonDriveSideColor"/>')
+				$('<td class="nonDriveSideColor" rowspan="2"/>')
 				.attr("id", "tension" + i)
 				.text(tensionFunctionNDS(config.INITIAL_READING_NON_DRIVE_SIDE))
 				.appendTo($row);
 			}
 			$row.insertBefore($('#average'));
 		}
+		// End the vertical offset with a left-side one-line cell
+		$('<tr role="valueRow"><td class="driveSideColor" colspan="3"/></tr>').insertBefore($('#average'));
 		$('#reading1').focus().select();
 
 		tensionChart.init('#radarChart', nSpokes,

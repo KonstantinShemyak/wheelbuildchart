@@ -126,14 +126,6 @@ $(document).ready(function() {
 			$('#' + selector + 'Reading').text(round2(sumReading / nSpokes * 2));
 			$('#' + selector + 'Tension').text(round2(sumValue / nSpokes * 2));
 
-			/* Move the focus: e.g. for 32-spoke wheel, 31 -> 1, 32 -> 2 */
-			var nextSameSideSpoke = targetSpoke + 2;
-			if (nextSameSideSpoke == Number(nSpokes) + 1)
-				nextSameSideSpoke = 1;
-			else if (nextSameSideSpoke == Number(nSpokes) + 2)
-				nextSameSideSpoke = 2;
-			$('#reading' + nextSameSideSpoke).focus().select();
-			
 			tensionChart.update(targetSpoke, newTension);
 		};
 	}

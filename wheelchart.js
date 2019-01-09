@@ -17,13 +17,20 @@ $(document).ready(function() {
 	var $spokesList = $('#nSpokes');
 	fillSelectFromArray($spokesList, config.SUPPORTED_SPOKE_COUNTS, config.DEFAULT_SPOKES);
 
-	var $spokeThicknessList = $('#spokeThickness');
 	var knownSpokeThickness = TensionTable.getKnownSpokeThickness();
+
+	var $spokeThicknessList = $('#spokeThickness');
 	fillSelectFromArray($spokeThicknessList, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
+
+	var $spokeThicknessNDSList = $('#spokeThicknessNDS');
+	fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
 	
 	// Tension value from the table, for the selected spoke thickness
 	function tensionFunction(r) {
 		return TensionTable.parkToolTension($spokeThicknessList.val(), r);
+	};
+	function tensionFunctionNDS(r) {
+		return TensionTable.parkToolTension($spokeThicknessNDSList.val(), r);
 	};
 
 	// Emulate click, which will draw everything
@@ -63,7 +70,7 @@ $(document).ready(function() {
 				.appendTo($row);
 				$('<td class="nonDriveSideColor"/>')
 				.attr("id", "tension" + i)
-				.text(tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE))
+				.text(tensionFunctionNDS(config.INITIAL_READING_NON_DRIVE_SIDE))
 				.appendTo($row);
 			}
 			$row.insertBefore($('#average'));
@@ -71,7 +78,7 @@ $(document).ready(function() {
 		$('#avgDriveReading').text(config.INITIAL_READING_DRIVE_SIDE);
 		$('#avgDriveTension').text(tensionFunction(config.INITIAL_READING_DRIVE_SIDE));
 		$('#avgNondriveReading').text(config.INITIAL_READING_NON_DRIVE_SIDE);
-		$('#avgNondriveTension').text(tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE));
+		$('#avgNondriveTension').text(tensionFunctionNDS(config.INITIAL_READING_NON_DRIVE_SIDE));
 		
 		$('#reading1').focus().select();
 		tensionChart.init('#radarChart', nSpokes,
@@ -90,7 +97,11 @@ $(document).ready(function() {
 			}
 				
 			/* Calculate the new value: */
-			var newTension = tensionFunction(userInput);			
+			var newTension;
+			if (targetSpoke % 2 == 1)
+				newTension = tensionFunction(userInput);
+			else
+				newTension = tensionFunctionNDS(userInput);
 			$('#tension' + targetSpoke).text(round2(newTension));
 			
 			/* Update the averages: */

@@ -7,6 +7,8 @@ $(document).ready(function() {
 			SUPPORTED_SPOKE_COUNTS: [16, 18, 20, 24, 28, 32, 36, 40],
 			DEFAULT_SPOKES: 32,
 			DEFAULT_SPOKE_THICKNESS: 2,
+			SUPPORTED_TOLERANCES: [5, 7.5, 10, 15, 20],
+			DEFAULT_TOLERANCE: 20,
 			ERROR_STRING_INVALID_INPUT: ": invalid input (a number like '23' or '23.2' expected)"
 	};
 	Object.freeze(config);
@@ -26,6 +28,9 @@ $(document).ready(function() {
 	fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
 	$spokeThicknessNDSList.on('change', updateCalculations);
 	
+	var $toleranceInput = $('#toleranceInput');
+	fillSelectFromArray($toleranceInput, config.SUPPORTED_TOLERANCES, config.DEFAULT_TOLERANCE);
+
 	// Tension value from the table, for the selected spoke thickness
 	function tensionFunction(r) {
 		return TensionTable.parkToolTension($spokeThicknessList.val(), r);
@@ -111,7 +116,7 @@ $(document).ready(function() {
 				$('#reading' + targetSpoke).focus().select();
 				return;
 			}
-				
+
 			readings[targetSpoke - 1] = parseFloat(inputValue);
 			updateCalculations();
 
@@ -127,6 +132,7 @@ $(document).ready(function() {
 
 	function updateCalculations() {
 		var nSpokes = Number($spokesList.val());
+        var tolerance = Number($toleranceInput.val());
 
 		var tensions = [];
 		var sumReadings = [0, 0]; // [nds, ds]
@@ -149,9 +155,15 @@ $(document).ready(function() {
 		$('#avgNondriveReading').text(round2(avgReadings[0]));
 		$('#avgNondriveTension').text(round2(avgTensions[0]));
 
+		var minTensions = [avgTensions[0] * ((100 - tolerance) / 100), avgTensions[1] * ((100 - tolerance) / 100)]; // [nds, ds]
+		var maxTensions = [avgTensions[0] * ((100 + tolerance) / 100), avgTensions[1] * ((100 + tolerance) / 100)]; // [nds, ds]
+
 		// update each spoke
 		for (var i = 1; i <= nSpokes; ++i) {
-			$('#tension' + i).text(round2(tensions[i - 1]));
+			if (tensions[i - 1] > minTensions[i % 2] && tensions[i - 1] < maxTensions[i % 2])
+				$('#tension' + i).text(round2(tensions[i - 1]));
+			else
+				$('#tension' + i).html(round2(tensions[i - 1]) + " &#9888;");
 		}
 
 		tensionChart.updateAll(tensions);

@@ -9,8 +9,6 @@ $(document).ready(function() {
 			DEFAULT_SPOKE_THICKNESS: 2,
 			SUPPORTED_TOLERANCES: [5, 7.5, 10, 15, 20],
 			DEFAULT_TOLERANCE: 20,
-			/* Do some locales use comma as decimal separator? */
-			ALLOWED_INPUT_REGEXP: /^\d{1,2}(\.\d{1,2})?$/,
 			ERROR_STRING_INVALID_INPUT: ": invalid input (a number like '23' or '23.2' expected)"
 	};
 	Object.freeze(config);
@@ -105,15 +103,15 @@ $(document).ready(function() {
 	function handleUserInput(targetSpoke) {
 		return function() {
 			var nSpokes = Number($spokesList.val());
-			var userInput = $('#reading' + targetSpoke).val();
+			var inputValue = parseFloat($('#reading' + targetSpoke).val());
 			/* Restrict user input just for safety: */			
-			if (!config.ALLOWED_INPUT_REGEXP.test(userInput)) {
-				alert(userInput + config.ERROR_STRING_INVALID_INPUT);
+			if (isNaN(inputValue)) {
+				alert($('#reading' + targetSpoke).val() + config.ERROR_STRING_INVALID_INPUT);
 				$('#reading' + targetSpoke).focus().select();
 				return;
 			}
 				
-			readings[targetSpoke - 1] = parseFloat(userInput);
+			readings[targetSpoke - 1] = inputValue;
 			updateCalculations();
 
 			/* Move the focus: e.g. for 32-spoke wheel, 31 -> 1, 32 -> 2 */

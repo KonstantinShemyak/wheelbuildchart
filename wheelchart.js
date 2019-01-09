@@ -7,6 +7,8 @@ $(document).ready(function() {
 			SUPPORTED_SPOKE_COUNTS: [16, 18, 20, 24, 28, 32, 36, 40],
 			DEFAULT_SPOKES: 32,
 			DEFAULT_SPOKE_THICKNESS: 2,
+			SUPPORTED_TOLERANCES: [5, 7.5, 10, 15, 20],
+			DEFAULT_TOLERANCE: 20,
 			/* Do some locales use comma as decimal separator? */
 			ALLOWED_INPUT_REGEXP: /^\d{1,2}(\.\d{1,2})?$/,
 			ERROR_STRING_INVALID_INPUT: ": invalid input (a number like '23' or '23.2' expected)"
@@ -25,6 +27,9 @@ $(document).ready(function() {
 	var $spokeThicknessNDSList = $('#spokeThicknessNDS');
 	fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
 	
+	var $toleranceInput = $('#toleranceInput');
+	fillSelectFromArray($toleranceInput, config.SUPPORTED_TOLERANCES, config.DEFAULT_TOLERANCE);
+
 	// Tension value from the table, for the selected spoke thickness
 	function tensionFunction(r) {
 		return TensionTable.parkToolTension($spokeThicknessList.val(), r);
@@ -102,20 +107,33 @@ $(document).ready(function() {
 				newTension = tensionFunction(userInput);
 			else
 				newTension = tensionFunctionNDS(userInput);
-			$('#tension' + targetSpoke).text(round2(newTension));
 			
 			/* Update the averages: */
 			var selector = targetSpoke % 2 == 1 ? "avgDrive" : "avgNondrive";
-			var sumReading = 0, sumValue = 0;
+			var sumReading = 0, sumTension = 0;
 			
 			var startingSpoke = targetSpoke % 2 == 1 ? 1 : 2;
 			for (var i = startingSpoke; i <= nSpokes; i += 2) {
 				sumReading += parseFloat($('#reading' + i).val());
-				sumValue += parseFloat($('#tension' + i).text());
+				if (i != targetSpoke)
+					sumTension += parseFloat($('#tension' + i).text());
+				else
+					sumTension += newTension;
 			}
 
-			$('#' + selector + 'Reading').text(round2(sumReading / nSpokes * 2));
-			$('#' + selector + 'Tension').text(round2(sumValue / nSpokes * 2));
+			var avgReading =  sumReading / (nSpokes / 2);
+			var avgTension =  sumTension / (nSpokes / 2);
+
+			$('#' + selector + 'Reading').text(round2(avgReading));
+			$('#' + selector + 'Tension').text(round2(avgTension));
+
+			var minTension = avgTension * ((100 - $toleranceInput.val()) / 100);
+			var maxTension = avgTension * ((100 + $toleranceInput.val()) / 100);
+
+			if (newTension > minTension && newTension < maxTension)
+				$('#tension' + targetSpoke).text(round2(newTension));
+			else
+				$('#tension' + targetSpoke).html(round2(newTension) + " &#9888;");
 
 			/* Move the focus: e.g. for 32-spoke wheel, 31 -> 1, 32 -> 2 */
 			var nextSameSideSpoke = targetSpoke + 2;

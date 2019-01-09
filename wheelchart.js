@@ -72,6 +72,7 @@ $(document).ready(function() {
 			.on('change', handleUserInput(i));
 
 			if (i % 2 != 0) {
+				$input.attr("tabindex", (i - 1) / 2 + 1);
 				$('<td class="driveSideColor" rowspan="2"/>')
 				.text('#' + i + ':').appendTo($row);
 				$('<td class="driveSideColor" rowspan="2"/>')
@@ -82,6 +83,7 @@ $(document).ready(function() {
 				.text(tensionFunction(config.INITIAL_READING_DRIVE_SIDE))
 				.appendTo($row);
 			} else {
+				$input.attr("tabindex", nSpokes / 2 + (i - 1) / 2 + 1);
 				$('<td class="nonDriveSideColor" rowspan="2"/>')
 				.text('#' + i + ':').appendTo($row);
 				$('<td class="nonDriveSideColor" rowspan="2"/>')

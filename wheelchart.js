@@ -7,8 +7,6 @@ $(document).ready(function() {
 			SUPPORTED_SPOKE_COUNTS: [16, 18, 20, 24, 28, 32, 36, 40],
 			DEFAULT_SPOKES: 32,
 			DEFAULT_SPOKE_THICKNESS: 2,
-			/* Do some locales use comma as decimal separator? */
-			ALLOWED_INPUT_REGEXP: /^\d{1,2}(\.\d{1,2})?$/,
 			ERROR_STRING_INVALID_INPUT: ": invalid input (a number like '23' or '23.2' expected)"
 	};
 	Object.freeze(config);
@@ -97,10 +95,10 @@ $(document).ready(function() {
 
 	function handleUserInput(targetSpoke, nSpokes) {
 		return function() {
-			var userInput = $('#reading' + targetSpoke).val();
+			var inputValue = parseFloat($('#reading' + targetSpoke).val());
 			/* Restrict user input just for safety: */			
-			if (!config.ALLOWED_INPUT_REGEXP.test(userInput)) {
-				alert(userInput + config.ERROR_STRING_INVALID_INPUT);
+			if (isNaN(inputValue)) {
+				alert($('#reading' + targetSpoke).val() + config.ERROR_STRING_INVALID_INPUT);
 				$('#reading' + targetSpoke).focus().select();
 				return;
 			}

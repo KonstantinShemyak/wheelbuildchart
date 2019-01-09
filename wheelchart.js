@@ -68,7 +68,7 @@ $(document).ready(function() {
 		for (var i = 1; i <= nSpokes; i++) {
 			var $row = $('<tr role="valueRow"/>');
 
-			var $input = $('<input type="text" id="reading' + i + '"/>')
+			var $input = $('<input type="number" step="any" id="reading' + i + '"/>')
 			.addClass("readInput")
 			.on('change', handleUserInput(i));
 

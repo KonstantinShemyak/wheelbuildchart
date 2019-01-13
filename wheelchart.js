@@ -106,9 +106,9 @@ $(document).ready(function() {
 			/* Calculate the new value: */
 			var newTension;
 			if (targetSpoke % 2 == 1)
-				newTension = tensionFunction(userInput);
+				newTension = tensionFunction(inputValue);
 			else
-				newTension = tensionFunctionNDS(userInput);
+				newTension = tensionFunctionNDS(inputValue);
 			$('#tension' + targetSpoke).text(round2(newTension));
 			
 			/* Update the averages: */

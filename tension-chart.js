@@ -26,23 +26,25 @@ var tensionChart = (function() {
 			RadarChart.draw(location, [driveSideSpokes, nonDriveSideSpokes]);
 		},
 		
-		update: function(targetSpoke, value) {
+		updateAll: function(tensions) {
 			if (typeof driveSideSpokes === undefined)
-				throw Error("tension-chart.js: update() called before init()");
-			
-			// We draw the tension chart as a radar chart with two data sets.
-			// They can have only one set of axis. Say that axis 1 belongs to
-			// drive-side spoke. But then we must also draw some value for the
-			// non-drive side on that axis. Use arithmetic mean of neighbors.
-			var axisNumber = nSpokes - targetSpoke;
-			var nextPseudoSpokeNumber = (axisNumber + 1) % nSpokes;
-			var prevPseudoSpokeNumber = 
-				axisNumber > 0 ? (axisNumber - 1) % nSpokes : nSpokes - 1;
-			var spokeSide = targetSpoke % 2 == 1 ? driveSideSpokes : nonDriveSideSpokes;
-			var increment = value - spokeSide[axisNumber].value;
-			spokeSide[axisNumber].value = value;
-			spokeSide[nextPseudoSpokeNumber].value += increment / 2;
-			spokeSide[prevPseudoSpokeNumber].value += increment / 2;
+				throw Error("tension-chart.js: updateAll() called before init()");
+
+			for (var i = 0; i < nSpokes; i++) {
+				var tensionDS = undefined;
+				var tensionNDS = undefined;
+				if (i % 2 == 0) {
+					tensionDS = tensions[i];
+					tensionNDS = (tensions[(i == 0) ? (tensions.length - 1) : (i - 1)] + tensions[(i + 1) % nSpokes]) / 2;
+				}
+				else {
+					tensionDS = (tensions[(i == 0) ? (tensions.length - 1) : (i - 1)] + tensions[(i + 1) % nSpokes]) / 2;
+					tensionNDS = tensions[i];
+				}
+
+				driveSideSpokes[nSpokes - (i + 1)].value = tensionDS;
+				nonDriveSideSpokes[nSpokes - (i + 1)].value = tensionNDS;
+			}
 
 			// Actual update
 			RadarChart.draw(location, [driveSideSpokes, nonDriveSideSpokes]);

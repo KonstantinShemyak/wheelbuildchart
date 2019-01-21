@@ -134,7 +134,7 @@ $(document).ready(function() {
 
 	function updateCalculations() {
 		var nSpokes = Number($spokesList.val());
-        var tolerance = Number($toleranceInput.val());
+		var tolerance = Number($toleranceInput.val());
 
 		var tensions = [];
 		var sumReadings = [0, 0]; // [nds, ds]

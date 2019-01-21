@@ -6,7 +6,13 @@ var tensionChart = (function() {
 	var driveSideSpokes = undefined, nonDriveSideSpokes = undefined;
 	var location = undefined;
 	var nSpokes = undefined;
-	
+
+	// Length of a bisector in a triangle with sides "a" and "b"
+	function bisector(a, b, nSpokes) {
+		var halfAngle = 2 * Math.PI / nSpokes;
+		return 2 * a * b * Math.cos(halfAngle) / (a + b);
+	}
+
 	return {
 		init: function(id, n, driveSideTension, nonDriveSideTension) {
 			location = id;
@@ -33,12 +39,14 @@ var tensionChart = (function() {
 			for (var i = 0; i < nSpokes; i++) {
 				var tensionDS = undefined;
 				var tensionNDS = undefined;
+				var neighbor_l = (i == 0) ? (nSpokes - 1) : (i - 1);
+				var neighbor_r = (i + 1) % nSpokes;
 				if (i % 2 == 0) {
 					tensionDS = tensions[i];
-					tensionNDS = (tensions[(i == 0) ? (tensions.length - 1) : (i - 1)] + tensions[(i + 1) % nSpokes]) / 2;
+					tensionNDS = bisector(tensions[neighbor_l], tensions[neighbor_r], nSpokes);
 				}
 				else {
-					tensionDS = (tensions[(i == 0) ? (tensions.length - 1) : (i - 1)] + tensions[(i + 1) % nSpokes]) / 2;
+					tensionDS = bisector(tensions[neighbor_l], tensions[neighbor_r], nSpokes);
 					tensionNDS = tensions[i];
 				}
 

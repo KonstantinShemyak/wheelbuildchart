@@ -14,6 +14,9 @@ $(document).ready(function() {
 	Object.freeze(config);
 
 	// Fill dropdown lists with values
+	var $usedTensometer = $("#usedTensometer");
+	fillSelectFromArray($usedTensometer, tensionLookup.getTensometers(), tensionLookup.default_tensometer);
+
 	var $spokesList = $('#nSpokes');
 	fillSelectFromArray($spokesList, config.SUPPORTED_SPOKE_COUNTS, config.DEFAULT_SPOKES);
 	$spokesList.on('change', initValuesTable);

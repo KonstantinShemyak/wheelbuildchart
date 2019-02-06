@@ -41,12 +41,13 @@ var tensionChart = (function() {
 				var tensionNDS = undefined;
 				var neighbor_l = (i == 0) ? (nSpokes - 1) : (i - 1);
 				var neighbor_r = (i + 1) % nSpokes;
+				var bisector_neighbors = bisector(tensions[neighbor_l], tensions[neighbor_r], nSpokes);
 				if (i % 2 == 0) {
 					tensionDS = tensions[i];
-					tensionNDS = bisector(tensions[neighbor_l], tensions[neighbor_r], nSpokes);
+					tensionNDS = bisector_neighbors;
 				}
 				else {
-					tensionDS = bisector(tensions[neighbor_l], tensions[neighbor_r], nSpokes);
+					tensionDS = bisector_neighbors;
 					tensionNDS = tensions[i];
 				}
 

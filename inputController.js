@@ -14,25 +14,32 @@ $(document).ready(function() {
 	Object.freeze(config);
 
 	// Fill dropdown lists with values
-	var $usedTensometer = $("#usedTensometer");
-	fillSelectFromArray($usedTensometer, tensionLookup.getTensometers(), tensionLookup.default_tensometer);
+	var $toleranceInput = $('#toleranceInput');
+	fillSelectFromArray($toleranceInput, config.SUPPORTED_TOLERANCES, config.DEFAULT_TOLERANCE);
 
 	var $spokesList = $('#nSpokes');
 	fillSelectFromArray($spokesList, config.SUPPORTED_SPOKE_COUNTS, config.DEFAULT_SPOKES);
 	$spokesList.on('change', initValuesTable);
 
-	var knownSpokeThickness = tensionLookup.getKnownSpokeThickness();
-
 	var $spokeThicknessList = $('#spokeThickness');
-	fillSelectFromArray($spokeThicknessList, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
 	$spokeThicknessList.on('change', updateCalculations);
 
 	var $spokeThicknessNDSList = $('#spokeThicknessNDS');
-	fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
 	$spokeThicknessNDSList.on('change', updateCalculations);
 	
-	var $toleranceInput = $('#toleranceInput');
-	fillSelectFromArray($toleranceInput, config.SUPPORTED_TOLERANCES, config.DEFAULT_TOLERANCE);
+	var $usedTensometer = $("#usedTensometer");
+	fillSelectFromArray($usedTensometer, tensionLookup.getTensometers(), tensionLookup.default_tensometer);
+	$usedTensometer.on('change', function() {
+		tensionLookup.setTensometer($usedTensometer.val());
+		var knownSpokeThickness = tensionLookup.getKnownSpokeThickness();
+		fillSelectFromArray($spokeThicknessList, knownSpokeThickness, knownSpokeThickness[0]);
+		fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, knownSpokeThickness[0]);
+		// TODO: We'd like to update tension values for the new spoke thickness, but not everything is
+		// initialized before the following change() call...
+		//updateCalculations();
+	})
+	// Initially fill spoke thickness lists
+	$usedTensometer.change();
 
 	// Tension value from the table, for the selected spoke thickness
 	function tensionFunction(r) {
@@ -182,6 +189,7 @@ $(document).ready(function() {
 	}
 
 	function fillSelectFromArray(select, array, initialValue) {
+		select.empty();
 		for (var i = 0; i < array.length; i++)
 			$('<option value="' + array[i] + '">'
 					+ array[i] + '</option>')

@@ -1,4 +1,4 @@
-var TensionTable = (function() {
+var tensionLookup = (function() {
 
 	DEFAULT_TENSOMETER = "ParkTool TM-1";
 	tensometer = DEFAULT_TENSOMETER;
@@ -6,7 +6,7 @@ var TensionTable = (function() {
 	// Source: http://www.parktool.com/documents/85161752fcd5df39d15205f80776303d05e6c84c.pdf
 	// (linked from http://www.parktool.com/blog/repair-help/wheel-tension-measurement)
 
-	var ParkToolTensionTable = {
+	var tensionTable = {
 
 		"ParkTool TM-1" : {
 			"2.3" : {
@@ -298,17 +298,17 @@ var TensionTable = (function() {
 
 	/* Interface: */
 	return {
-		parkToolTension: function(spokeThickness, reading) {
-			var lookupTable = ParkToolTensionTable[tensometer][spokeThickness];
+		tension: function(spokeThickness, reading) {
+			var lookupTable = tensionTable[tensometer][spokeThickness];
 			return interpolate(lookupTable, reading);
 		},
 
 		getKnownSpokeThickness: function() {
-			return Object.keys(ParkToolTensionTable[tensometer]).sort();
+			return Object.keys(tensionTable[tensometer]).sort();
 		},
 
 		getTensometers: function() {
-			return Object.keys(ParkToolTensionTable).sort();
+			return Object.keys(tensionTable).sort();
 		},
 
 		setTensometer: function(t) {

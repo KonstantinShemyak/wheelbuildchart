@@ -18,7 +18,7 @@ $(document).ready(function() {
 	fillSelectFromArray($spokesList, config.SUPPORTED_SPOKE_COUNTS, config.DEFAULT_SPOKES);
 	$spokesList.on('change', initValuesTable);
 
-	var knownSpokeThickness = TensionTable.getKnownSpokeThickness();
+	var knownSpokeThickness = tensionLookup.getKnownSpokeThickness();
 
 	var $spokeThicknessList = $('#spokeThickness');
 	fillSelectFromArray($spokeThicknessList, knownSpokeThickness, config.DEFAULT_SPOKE_THICKNESS);
@@ -33,10 +33,10 @@ $(document).ready(function() {
 
 	// Tension value from the table, for the selected spoke thickness
 	function tensionFunction(r) {
-		return TensionTable.parkToolTension($spokeThicknessList.val(), r);
+		return tensionLookup.tension($spokeThicknessList.val(), r);
 	};
 	function tensionFunctionNDS(r) {
-		return TensionTable.parkToolTension($spokeThicknessNDSList.val(), r);
+		return tensionLookup.tension($spokeThicknessNDSList.val(), r);
 	};
 
 	// Fill readings array up to the max possible number of spokes

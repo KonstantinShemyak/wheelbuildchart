@@ -41,14 +41,6 @@ $(document).ready(function() {
 	// Initially fill spoke thickness lists
 	$usedTensometer.change();
 
-	// Tension value from the table, for the selected spoke thickness
-	function tensionFunction(r) {
-		return tensionLookup.tension($spokeThicknessList.val(), r);
-	};
-	function tensionFunctionNDS(r) {
-		return tensionLookup.tension($spokeThicknessNDSList.val(), r);
-	};
-
 	// Fill readings array up to the max possible number of spokes
 	var readings = [];
 	for (var i = 1; i <= config.SUPPORTED_SPOKE_COUNTS[config.SUPPORTED_SPOKE_COUNTS.length - 1]; ++i) {
@@ -61,6 +53,14 @@ $(document).ready(function() {
 	initValuesTable();
 
 	// Functions
+
+	// Tension value from the table, for the selected spoke thickness
+	function tensionFunction(r) {
+		return tensionLookup.tension($spokeThicknessList.val(), r);
+	};
+	function tensionFunctionNDS(r) {
+		return tensionLookup.tension($spokeThicknessNDSList.val(), r);
+	};
 
 	function initValuesTable() {
 		var nSpokes = Number($spokesList.val());

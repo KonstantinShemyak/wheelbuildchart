@@ -1,3 +1,5 @@
+// I do not know the origin of this code.
+
 var RadarChart = {
   draw: function(id, d, options){
     var cfg = {

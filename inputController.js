@@ -121,7 +121,7 @@ $(document).ready(function() {
 	function handleUserInput(targetSpoke) {
 		return function() {
 			var nSpokes = Number($spokesList.val());
-			var inputValue = parseFloat($('#reading' + targetSpoke).val());
+			var inputValue = $('#reading' + targetSpoke).val();
 			/* Restrict user input just for safety: */			
 			if (isNaN(inputValue)) {
 				alert($('#reading' + targetSpoke).val() + config.ERROR_STRING_INVALID_INPUT);

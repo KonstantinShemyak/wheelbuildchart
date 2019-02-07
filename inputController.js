@@ -172,10 +172,10 @@ $(document).ready(function() {
 
 		// update each spoke
 		for (var i = 1; i <= nSpokes; ++i) {
-			if (tensions[i - 1] > minTensions[i % 2] && tensions[i - 1] < maxTensions[i % 2])
-				$('#tension' + i).text(round2(tensions[i - 1]));
-			else
-				$('#tension' + i).html(round2(tensions[i - 1]) + " &#9888;");
+			var tension = round2(tensions[i - 1]);
+			if (tensions[i - 1] < minTensions[i % 2] || tensions[i - 1] > maxTensions[i % 2])
+				tension += " &#9888;";
+			$('#tension' + i).html(tension);
 		}
 
 		tensionChart.updateAll(tensions);

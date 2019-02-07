@@ -133,11 +133,7 @@ $(document).ready(function() {
 			updateCalculations();
 
 			/* Move the focus: e.g. for 32-spoke wheel, 31 -> 1, 32 -> 2 */
-			var nextSameSideSpoke = targetSpoke + 2;
-			if (nextSameSideSpoke == nSpokes + 1)
-				nextSameSideSpoke = 1;
-			else if (nextSameSideSpoke == nSpokes + 2)
-				nextSameSideSpoke = 2;
+			var nextSameSideSpoke = (targetSpoke + 2) % nSpokes;
 			$('#reading' + nextSameSideSpoke).focus().select();
 		};
 	}

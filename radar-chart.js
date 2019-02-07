@@ -9,7 +9,8 @@ var RadarChart = {
      factor: .95,
      factorLegend: 1,
      levels: 3,
-     maxValue: 0,
+     maxValue: 1,	// The value that the biggest circle will represent.
+			// Needed when all data points are <=0.
      radians: 2 * Math.PI,
      opacityArea: 0,
      color: d3.scale.category10(),

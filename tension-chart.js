@@ -9,6 +9,8 @@ var tensionChart = (function() {
 
 	// Length of a bisector in a triangle with sides "a" and "b"
 	function bisector(a, b, nSpokes) {
+		if (a <= 0 || b <= 0)
+			return 0;
 		var halfAngle = 2 * Math.PI / nSpokes;
 		return 2 * a * b * Math.cos(halfAngle) / (a + b);
 	}
@@ -22,11 +24,11 @@ var tensionChart = (function() {
 			for (var i = 0; i < nSpokes; i++) {
 				driveSideSpokes.push({
 					axis: nSpokes - i,
-					value: driveSideTension
+					value: Math.max(driveSideTension, 0)
 				});
 				nonDriveSideSpokes.push({
 					axis: nSpokes - i,
-					value: nonDriveSideTension
+					value: Math.max(nonDriveSideTension, 0)
 				});
 			}
 			RadarChart.draw(location, [driveSideSpokes, nonDriveSideSpokes]);
@@ -51,8 +53,8 @@ var tensionChart = (function() {
 					tensionNDS = tensions[i];
 				}
 
-				driveSideSpokes[nSpokes - (i + 1)].value = tensionDS;
-				nonDriveSideSpokes[nSpokes - (i + 1)].value = tensionNDS;
+				driveSideSpokes[nSpokes - (i + 1)].value = Math.max(tensionDS, 0);
+				nonDriveSideSpokes[nSpokes - (i + 1)].value = Math.max(tensionNDS, 0);
 			}
 
 			// Actual update

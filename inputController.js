@@ -13,6 +13,15 @@ $(document).ready(function() {
 	};
 	Object.freeze(config);
 
+	// Fill readings array up to the max possible number of spokes
+	var readings = [];
+	for (var i = 1; i <= config.SUPPORTED_SPOKE_COUNTS[config.SUPPORTED_SPOKE_COUNTS.length - 1]; ++i) {
+		if (i % 2 == 1)
+			readings.push(config.INITIAL_READING_DRIVE_SIDE);
+		else
+			readings.push(config.INITIAL_READING_NON_DRIVE_SIDE);
+	}
+
 	// Fill dropdown lists with values
 	var $toleranceInput = $('#toleranceInput');
 	fillSelectFromArray($toleranceInput, config.SUPPORTED_TOLERANCES, config.DEFAULT_TOLERANCE);
@@ -34,21 +43,14 @@ $(document).ready(function() {
 		var knownSpokeThickness = tensionLookup.getKnownSpokeThickness();
 		fillSelectFromArray($spokeThicknessList, knownSpokeThickness, knownSpokeThickness[0]);
 		fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, knownSpokeThickness[0]);
-		// TODO: We'd like to update tension values for the new spoke thickness, but not everything is
-		// initialized before the following change() call...
-		//updateCalculations();
+		updateCalculations();
 	})
-	// Initially fill spoke thickness lists
-	$usedTensometer.change();
 
-	// Fill readings array up to the max possible number of spokes
-	var readings = [];
-	for (var i = 1; i <= config.SUPPORTED_SPOKE_COUNTS[config.SUPPORTED_SPOKE_COUNTS.length - 1]; ++i) {
-		if (i % 2 == 1)
-			readings.push(config.INITIAL_READING_DRIVE_SIDE);
-		else
-			readings.push(config.INITIAL_READING_NON_DRIVE_SIDE);
-	}
+	// Initially fill spoke thickness lists. Can't fire change() on $usedTensometer,
+	// TODO: understand why
+	var knownSpokeThickness = tensionLookup.getKnownSpokeThickness();
+	fillSelectFromArray($spokeThicknessList, knownSpokeThickness, knownSpokeThickness[0]);
+	fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, knownSpokeThickness[0]);
 
 	initValuesTable();
 

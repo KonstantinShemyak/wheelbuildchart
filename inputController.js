@@ -55,11 +55,11 @@ $(document).ready(function() {
 	// Functions
 
 	// Tension value from the table, for the selected spoke thickness
-	function tensionFunction(r) {
-		return tensionLookup.tension($spokeThicknessList.val(), r);
-	};
-	function tensionFunctionNDS(r) {
-		return tensionLookup.tension($spokeThicknessNDSList.val(), r);
+	function tensionFunction(nSpoke, t) {
+		if (nSpoke % 2 == 1)
+			return tensionLookup.tension($spokeThicknessList.val(), t);
+		else
+			return tensionLookup.tension($spokeThicknessNDSList.val(), t);
 	};
 
 	function initValuesTable() {
@@ -90,7 +90,7 @@ $(document).ready(function() {
 				.appendTo($row);
 				$('<td class="driveSideColor" rowspan="2"/>')
 				.attr("id", "tension" + i).attr("side", "drive")
-				.text(tensionFunction(config.INITIAL_READING_DRIVE_SIDE))
+				.text(tensionFunction(i, config.INITIAL_READING_DRIVE_SIDE))
 				.appendTo($row);
 			} else {
 				$input.attr("tabindex", nSpokes / 2 + (i - 1) / 2 + 1);
@@ -101,7 +101,7 @@ $(document).ready(function() {
 				.appendTo($row);
 				$('<td class="nonDriveSideColor" rowspan="2"/>')
 				.attr("id", "tension" + i)
-				.text(tensionFunctionNDS(config.INITIAL_READING_NON_DRIVE_SIDE))
+				.text(tensionFunction(i, config.INITIAL_READING_NON_DRIVE_SIDE))
 				.appendTo($row);
 			}
 			$row.insertBefore($('#average'));
@@ -112,8 +112,8 @@ $(document).ready(function() {
 		$('#reading1').focus().select();
 
 		tensionChart.init('#radarChart', nSpokes,
-				tensionFunction(config.INITIAL_READING_DRIVE_SIDE),
-				tensionFunction(config.INITIAL_READING_NON_DRIVE_SIDE));
+				tensionFunction(1, config.INITIAL_READING_DRIVE_SIDE),
+				tensionFunction(0, config.INITIAL_READING_NON_DRIVE_SIDE));
 
 		updateCalculations();
 	}
@@ -147,10 +147,7 @@ $(document).ready(function() {
 		var sumTensions = [0, 0]; // [nds, ds]
 
 		for (var i = 1; i <= nSpokes; ++i) {
-			if (i % 2 == 1)
-				tensions[i - 1] = tensionFunction(readings[i - 1]);
-			else
-				tensions[i - 1] = tensionFunctionNDS(readings[i - 1]);
+			tensions[i - 1] = tensionFunction(i, readings[i - 1]);
 			sumReadings[i % 2] += readings[i - 1];
 			sumTensions[i % 2] += tensions[i - 1];
 		}

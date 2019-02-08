@@ -13,15 +13,6 @@ $(document).ready(function() {
 	};
 	Object.freeze(config);
 
-	// Fill readings array up to the max possible number of spokes
-	var readings = [];
-	for (var i = 1; i <= config.SUPPORTED_SPOKE_COUNTS[config.SUPPORTED_SPOKE_COUNTS.length - 1]; ++i) {
-		if (i % 2 == 1)
-			readings.push(config.INITIAL_READING_DRIVE_SIDE);
-		else
-			readings.push(config.INITIAL_READING_NON_DRIVE_SIDE);
-	}
-
 	// Fill dropdown lists with values
 	var $toleranceInput = $('#toleranceInput').change(updateCalculations);
 	fillSelectFromArray($toleranceInput, config.SUPPORTED_TOLERANCES, config.DEFAULT_TOLERANCE);
@@ -31,21 +22,27 @@ $(document).ready(function() {
 	
 	var $spokeThicknessList = $('#spokeThickness').change(updateCalculations);
 	var $spokeThicknessNDSList = $('#spokeThicknessNDS').change(updateCalculations);
+	var knownSpokeThickness = tensionLookup.getKnownSpokeThickness(); // default tensometer used
+	fillSelectFromArray($spokeThicknessList, knownSpokeThickness, knownSpokeThickness[0]);
+	fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, knownSpokeThickness[0]);
 
 	var $usedTensometer = $("#usedTensometer").change(function() {
 		tensionLookup.setTensometer($usedTensometer.val());
 		var knownSpokeThickness = tensionLookup.getKnownSpokeThickness();
 		fillSelectFromArray($spokeThicknessList, knownSpokeThickness, knownSpokeThickness[0]);
 		fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, knownSpokeThickness[0]);
-		updateCalculations();
+		updateCalculations();  // tensions must be set at this point
 	})
 	fillSelectFromArray($usedTensometer, tensionLookup.getTensometers(), tensionLookup.default_tensometer);
 
-	// Initially fill spoke thickness lists. Can't fire change() on $usedTensometer,
-	// TODO: understand why
-	var knownSpokeThickness = tensionLookup.getKnownSpokeThickness();
-	fillSelectFromArray($spokeThicknessList, knownSpokeThickness, knownSpokeThickness[0]);
-	fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, knownSpokeThickness[0]);
+	// Fill readings array up to the max possible number of spokes
+	var readings = [];
+	for (var i = 1; i <= config.SUPPORTED_SPOKE_COUNTS[config.SUPPORTED_SPOKE_COUNTS.length - 1]; ++i) {
+		var reading = config.INITIAL_READING_DRIVE_SIDE;
+		if (i % 2 == 0)
+			reading = config.INITIAL_READING_NON_DRIVE_SIDE;
+		readings.push(reading);
+	}
 
 	initValuesTable();
 

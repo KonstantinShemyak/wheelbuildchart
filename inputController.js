@@ -23,7 +23,7 @@ $(document).ready(function() {
 	}
 
 	// Fill dropdown lists with values
-	var $toleranceInput = $('#toleranceInput');
+	var $toleranceInput = $('#toleranceInput').change(updateCalculations);
 	fillSelectFromArray($toleranceInput, config.SUPPORTED_TOLERANCES, config.DEFAULT_TOLERANCE);
 
 	var $spokesList = $('#nSpokes').change(initValuesTable);

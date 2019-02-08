@@ -73,30 +73,20 @@ $(document).ready(function() {
 
 			var $input = $('<input type="text" id="reading' + i + '"/>')
 			.addClass("readInput")
+			.val(readings[i - 1])
 			.on('change', handleUserInput(i));
 
+			$('<td rowspan="2"/>').text('#' + i + ':').appendTo($row);
+			$('<td rowspan="2"/>').append($input).appendTo($row);
+			$('<td rowspan="2"/>').attr("id", "tension" + i).appendTo($row);
 			if (i % 2 != 0) {
 				$input.attr("tabindex", (i - 1) / 2 + 1);
-				$('<td class="driveSideColor" rowspan="2"/>')
-				.text('#' + i + ':').appendTo($row);
-				$('<td class="driveSideColor" rowspan="2"/>')
-				.append($input.val(readings[i - 1]))
-				.appendTo($row);
-				$('<td class="driveSideColor" rowspan="2"/>')
-				.attr("id", "tension" + i).attr("side", "drive")
-				.text(tensionFunction(i, config.INITIAL_READING_DRIVE_SIDE))
-				.appendTo($row);
+				$('tension' + i).text(tensionFunction(i, config.INITIAL_READING_DRIVE_SIDE))
+				$row.addClass("driveSideColor");
 			} else {
 				$input.attr("tabindex", nSpokes / 2 + (i - 1) / 2 + 1);
-				$('<td class="nonDriveSideColor" rowspan="2"/>')
-				.text('#' + i + ':').appendTo($row);
-				$('<td class="nonDriveSideColor" rowspan="2"/>')
-				.append($input.val(readings[i - 1]))
-				.appendTo($row);
-				$('<td class="nonDriveSideColor" rowspan="2"/>')
-				.attr("id", "tension" + i)
-				.text(tensionFunction(i, config.INITIAL_READING_NON_DRIVE_SIDE))
-				.appendTo($row);
+				$('tension' + i).text(tensionFunction(i, config.INITIAL_READING_NON_DRIVE_SIDE))
+				$row.addClass("nonDriveSideColor");
 			}
 			$row.insertBefore($('#average'));
 		}

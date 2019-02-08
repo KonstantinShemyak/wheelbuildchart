@@ -26,25 +26,20 @@ $(document).ready(function() {
 	var $toleranceInput = $('#toleranceInput');
 	fillSelectFromArray($toleranceInput, config.SUPPORTED_TOLERANCES, config.DEFAULT_TOLERANCE);
 
-	var $spokesList = $('#nSpokes');
+	var $spokesList = $('#nSpokes').change(initValuesTable);
 	fillSelectFromArray($spokesList, config.SUPPORTED_SPOKE_COUNTS, config.DEFAULT_SPOKES);
-	$spokesList.on('change', initValuesTable);
-
-	var $spokeThicknessList = $('#spokeThickness');
-	$spokeThicknessList.on('change', updateCalculations);
-
-	var $spokeThicknessNDSList = $('#spokeThicknessNDS');
-	$spokeThicknessNDSList.on('change', updateCalculations);
 	
-	var $usedTensometer = $("#usedTensometer");
-	fillSelectFromArray($usedTensometer, tensionLookup.getTensometers(), tensionLookup.default_tensometer);
-	$usedTensometer.on('change', function() {
+	var $spokeThicknessList = $('#spokeThickness').change(updateCalculations);
+	var $spokeThicknessNDSList = $('#spokeThicknessNDS').change(updateCalculations);
+
+	var $usedTensometer = $("#usedTensometer").change(function() {
 		tensionLookup.setTensometer($usedTensometer.val());
 		var knownSpokeThickness = tensionLookup.getKnownSpokeThickness();
 		fillSelectFromArray($spokeThicknessList, knownSpokeThickness, knownSpokeThickness[0]);
 		fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, knownSpokeThickness[0]);
 		updateCalculations();
 	})
+	fillSelectFromArray($usedTensometer, tensionLookup.getTensometers(), tensionLookup.default_tensometer);
 
 	// Initially fill spoke thickness lists. Can't fire change() on $usedTensometer,
 	// TODO: understand why

@@ -33,7 +33,7 @@ $(document).ready(function() {
 		fillSelectFromArray($spokeThicknessNDSList, knownSpokeThickness, knownSpokeThickness[0]);
 		updateCalculations();  // tensions must be set at this point
 	})
-	fillSelectFromArray($usedTensometer, tensionLookup.getTensometers(), tensionLookup.default_tensometer);
+	fillSelectFromArray($usedTensometer, tensionLookup.getTensometers(), tensionLookup.defaultTensometer);
 
 	// Fill readings array up to the max possible number of spokes
 	var readings = [];
@@ -66,7 +66,8 @@ $(document).ready(function() {
 		// ** Left cell is spanned on 1 line
 		// ** Right cell is spanned on 2 lines
 		// * There are no empty cells except at the top and at the bottom
-		$('<tr role="valueRow"><td class="driveSideColor" colspan="3"/><td class="nonDriveSideColor" colspan="3" rowspan="2"/></tr>').insertBefore($('#average'));
+		$('<tr role="valueRow"><td class="driveSideColor" colspan="3"/><td class="nonDriveSideColor" colspan="3" rowspan="2"/></tr>')
+		.insertBefore($('#average'));
 
 		for (var i = 1; i <= nSpokes; i++) {
 			var $row = $('<tr role="valueRow"/>');
@@ -144,13 +145,13 @@ $(document).ready(function() {
 		$('#avgNondriveReading').text(round2(avgReadings[0]));
 		$('#avgNondriveTension').text(round2(avgTensions[0]));
 
-		var minTensions = [avgTensions[0] * ((100 - tolerance) / 100), avgTensions[1] * ((100 - tolerance) / 100)]; // [nds, ds]
-		var maxTensions = [avgTensions[0] * ((100 + tolerance) / 100), avgTensions[1] * ((100 + tolerance) / 100)]; // [nds, ds]
+		var minTolerated = [avgTensions[0] * ((100 - tolerance) / 100), avgTensions[1] * ((100 - tolerance) / 100)]; // [nds, ds]
+		var maxTolerated = [avgTensions[0] * ((100 + tolerance) / 100), avgTensions[1] * ((100 + tolerance) / 100)]; // [nds, ds]
 
 		// update each spoke
 		for (var i = 1; i <= nSpokes; ++i) {
 			var tension = round2(tensions[i - 1]);
-			if (tensions[i - 1] < minTensions[i % 2] || tensions[i - 1] > maxTensions[i % 2])
+			if (tensions[i - 1] < minTolerated[i % 2] || tensions[i - 1] > maxTolerated[i % 2])
 				tension += " &#9888;";
 			$('#tension' + i).html(tension);
 		}

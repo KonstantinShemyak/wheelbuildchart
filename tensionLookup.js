@@ -315,6 +315,6 @@ var tensionLookup = (function() {
 			tensometer = t;
 		},
 
-		default_tensometer: DEFAULT_TENSOMETER
+		defaultTensometer: DEFAULT_TENSOMETER
 	};
 })();

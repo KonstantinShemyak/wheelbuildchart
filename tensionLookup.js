@@ -291,7 +291,7 @@ var tensionLookup = (function() {
 				40: 155,
 				41: 175,
 				42: 195
-				},
+			},
 
 			"bladed_0.9x3.5": {
 				27: 50,
@@ -312,7 +312,7 @@ var tensionLookup = (function() {
 				42: 160,
 				43: 175,
 				44: 195
-				},
+			},
 
 			"bladed_1.2x2.6": {
 				30: 50,
@@ -333,7 +333,7 @@ var tensionLookup = (function() {
 				45: 165,
 				46: 180,
 				47: 195
-				},
+			},
 
 			"bladed_1.2x2.2": {
 				31: 50,
@@ -354,7 +354,7 @@ var tensionLookup = (function() {
 				46: 175,
 				47: 190,
 				48: 200
-				},
+			},
 
 			"bladed_1.3x2.3": {
 				35: 50,

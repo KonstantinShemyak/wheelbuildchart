@@ -826,7 +826,7 @@ var tensionLookup = (function() {
 		if (values.length == 1)
 			return values[0];
 
-		var sortedKeys = Object.keys(values).sort();
+		var sortedKeys = Object.keys(values).sort((a, b) => a - b);
 		var nKeys = sortedKeys.length;
 
 		var min = sortedKeys[0];

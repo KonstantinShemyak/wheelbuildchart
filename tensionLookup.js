@@ -1255,8 +1255,8 @@ var tensionLookup = (function() {
 			},
 		},
 		"ZTTO TC-02": {
-			// Source:
-			// Linked from
+			// Source: https://aliexpress.com/item/4000048763228.html
+			// Linked from https://archive.org/download/ztto-tensiometer-chart/ztto-tensiometer-chart.png
 			"1.8": {
 				1.8: 50,
 				1.9: 54,
@@ -1319,7 +1319,7 @@ var tensionLookup = (function() {
 				1.1: 53,
 				1.2: 56,
 				1.3: 60,
-				1.4: 63,
+				1.4: 64,
 				1.5: 67,
 				1.6: 74,
 				1.7: 77,

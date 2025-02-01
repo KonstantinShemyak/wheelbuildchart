@@ -1,0 +1,26 @@
+name: Commit Message Check
+
+on: pull_request
+
+jobs:
+  check-commit-messages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100  # Enough history?
+
+      - name: Check commit messages
+        run: |
+          BASE_BRANCH=${{ github.event.pull_request.base.ref }}
+          commits=$(git log --pretty=format:%s -100 --no-merges $BASE_BRANCH..)
+          echo "Checking last 100 commit messages..."
+          type="chore|doc|feat|fix|refactor|style|test"
+          echo "$commits" | while read -r msg; do
+            if [[ ! "$msg" =~ ^($type) ]]; then
+              echo "❌ Commit message '$msg' does not start with 'type(scope):', where 'type' is $type and scope is optional"
+              exit 1
+            fi
+          done

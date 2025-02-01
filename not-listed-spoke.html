@@ -1,50 +1,83 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<link rel="icon" type="image/png" href="favicon-16x16.png" />
-		<link rel="stylesheet" href="resources/pure-min.css" />
-		<link rel="stylesheet" href="inputController.css" />
-		<title>Wheelbuilding chart: my spoke is not supported?</title>
-	</head>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="icon" type="image/png" href="favicon-16x16.png" />
+    <link rel="stylesheet" href="resources/pure-min.css" />
+    <link rel="stylesheet" href="inputController.css" />
+    <title>Wheelbuilding chart: my spoke is not supported?</title>
+  </head>
 
-	<body>
-		<h1><a href="index.html">Wheelbuilding chart</a>: what if my spoke is not supported?</h1>
+  <body>
+    <h1>
+      <a href="index.html">Wheelbuilding chart</a>: what if my spoke is not
+      supported?
+    </h1>
 
-		<p>If your <b>tensometer</b> is in the list, but your <b>spoke type</b> is not, you can
-		interpolate readings for your tensometer using some other tensometer which supports
-	  your spokes.</p>
+    <p>
+      If your <b>tensometer</b> is in the list, but your <b>spoke type</b> is
+      not, you can interpolate readings for your tensometer using some other
+      tensometer which supports your spokes.
+    </p>
 
-		<p>Here is my answer to a person asking this:</p>
+    <p>Here is my answer to a person asking this:</p>
 
-<blockquote>
-<pre>
+    <blockquote>
+      <pre>
 > By any chance, would you have conversion data for the tensometer ZTTO
 > TC-02 for DT Aero Comp 2.0/2.3x1.2 ?
-</pre>
+</pre
+      >
 
-<p>No. I got the data from the charts the vendors publish; so, ZTTO didn't include these spokes in their charts.</p>
+      <p>
+        No. I got the data from the charts the vendors publish; so, ZTTO didn't
+        include these spokes in their charts.
+      </p>
 
-<p>The "closest" spoke which ZTTO knows about is probably 1.8-1.5-1.8mm round. In your situation, I'd use the charts published by DT Swiss (for their own tensometer) to compare, how much more does the round 1.5mm spoke deflect the tensometer than the bladed one, and then use ZTTO with the round spoke:</p>
+      <p>
+        The "closest" spoke which ZTTO knows about is probably 1.8-1.5-1.8mm
+        round. In your situation, I'd use the charts published by DT Swiss (for
+        their own tensometer) to compare, how much more does the round 1.5mm
+        spoke deflect the tensometer than the bladed one, and then use ZTTO with
+        the round spoke:
+      </p>
 
+      <p>
+        1. Check the max tension allowed by the rim (it's almost always the rim
+        which limits how much the spokes can be tensioned). Let's say, for
+        example, 100kgf ~ 1000N.
+      </p>
 
-	<p>1. Check the max tension allowed by the rim (it's almost always the rim which limits how much the spokes can be tensioned). Let's say, for example, 100kgf ~ 1000N.</p>
+      <p>
+        2. Check in the DT chart, what value DT tensometer will show for DT Aero
+        Comp spokes for 1000N (find the chart on DTSwiss site). In the version
+        which I downloaded, these spokes are on page 28. We see that the DT
+        tensometer reading would be 0.98mm.
+      </p>
 
-<p>2. Check in the DT chart, what value DT tensometer will show for DT Aero Comp spokes for 1000N (find the chart on DTSwiss site). In the version which I downloaded, these spokes are on page 28. We see that the DT tensometer reading would be 0.98mm.</p>
+      <p>
+        3. From the same DT chart, see how much smaller tensometer reading does
+        1.8-1.5-1.8 spoke produce for the same tension (for me it was page 21).
+        We see that for this spoke, 1000N results in reading 1.21mm. So, around
+        1000N tension, (tensometer reading for DT Aero Comp) = 0.98 / 1.21 *
+        (tensometer reading for 1.5mm round spoke).
+      </p>
 
-<p>3. From the same DT chart, see how much smaller tensometer reading does 1.8-1.5-1.8 spoke produce for the same tension (for me it was page 21). We see that for this spoke, 1000N results in reading 1.21mm. So, around 1000N tension, (tensometer reading for DT Aero Comp) = 0.98 / 1.21 * (tensometer reading for 1.5mm round spoke).</p>
+      <p>
+        4. For 1.5mm spoke, tension of 100kgf will result in ZTTO tensometer
+        reading 2.1. (This can be checked in the "wheelbui lding chart".) Using
+        the above, we conclude that for DT Aero Comp the reading should be 2.1 *
+        0.98 / 1.21 ~ 1.7.
+      </p>
 
-<p>4. For 1.5mm spoke, tension of 100kgf will result in ZTTO tensometer reading 2.1. (This can be checked in the "wheelbui
-	lding chart".) Using the above, we conclude that for DT Aero Comp the reading should be 2.1 * 0.98 / 1.21 ~ 1.7.</p>
+      <p>
+        So, using DT Aero Comp spokes with ZTTO tensometer, don't exceed meter
+        reading 1.7 (or the one calculated for your rim's max allowed tension).
+        Otherwise just minimize the tension deviation with the wheelbuilding
+        chart as usual.
+      </p>
 
-
-	<p>So, using DT Aero Comp spokes with ZTTO tensometer, don't exceed meter reading 1.7 (or the one calculated for your rim's max allowed tension). Otherwise just minimize the tension deviation with the wheelbuilding chart as usual.</p>
-
-
-		<p>Hope this helps!</p>
-</blockquote>
-
-	</body>
+      <p>Hope this helps!</p>
+    </blockquote>
+  </body>
 </html>
-</p>
-</p>

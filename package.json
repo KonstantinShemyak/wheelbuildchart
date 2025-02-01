@@ -1,0 +1,24 @@
+{
+  "name": "wheelbuildchart",
+  "version": "1.0.0",
+  "description": "Visualization of spoke tension in bicycle wheel",
+  "main": "inputController.js",
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  },
+  "scripts": {
+    "format": "prettier --write '**/*.{html,js,css}'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KonstantinShemyak/wheelbuildchart.git"
+  },
+  "keywords": ["wheelbuilding"],
+  "author": "Konstantin Shemyak",
+  "license": "GPL-3.0-only",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KonstantinShemyak/wheelbuildchart/issues"
+  },
+  "homepage": "https://github.com/KonstantinShemyak/wheelbuildchart#readme"
+}

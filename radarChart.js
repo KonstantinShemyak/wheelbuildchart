@@ -1,6 +1,6 @@
 // I do not know the origin of this code.
 
-var RadarChart = {
+export const RadarChart = {
   draw: function (id, d, options) {
     var cfg = {
       radius: 7,
@@ -89,7 +89,7 @@ var RadarChart = {
         );
     }
 
-    series = 0;
+    var series = 0;
 
     var axis = g
       .selectAll(".axis")
@@ -136,6 +136,8 @@ var RadarChart = {
       .attr("y", function (d, i) {
         return getVerticalPosition(i, cfg.h / 2, cfg.factorLegend);
       });
+
+    var dataValues;
 
     d.forEach(function (y, x) {
       dataValues = [];

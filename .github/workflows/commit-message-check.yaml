@@ -1,0 +1,27 @@
+name: Commit Message Check
+
+on: pull_request
+
+jobs:
+  check-commit-messages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100  # workflow fails if PR has more commits
+
+      - name: Check commit messages
+        run: |
+          BASE=${{ github.event.pull_request.base.sha }}  # .ref does not work 🤔
+          HEAD=${{ github.event.pull_request.head.sha }}
+          commits=$(git log --pretty=format:%s --no-merges $BASE..$HEAD)
+          echo "Checking PR's commit messages..."
+          type="chore|doc|feat|fix|refactor|style|test"
+          echo "$commits" | while read -r msg; do
+            if [[ ! "$msg" =~ ^($type) ]]; then
+              echo "❌ Commit message '$msg' does not start with 'type(scope):', where 'type' is $type and scope is optional"
+              exit 1
+            fi
+          done

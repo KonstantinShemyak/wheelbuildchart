@@ -3,6 +3,13 @@ name: Format Check
 on: pull_request
 
 jobs:
+
+  block-merge-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block merge commits
+        uses: motlin/forbid-merge-commits-action@v1.0.4
+
   format-check:
     runs-on: ubuntu-latest
 

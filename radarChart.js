@@ -1,6 +1,6 @@
 // I do not know the origin of this code.
 
-var RadarChart = {
+export const RadarChart = {
   draw: function (id, d, options) {
     var cfg = {
       radius: 7,
@@ -89,7 +89,7 @@ var RadarChart = {
         );
     }
 
-    series = 0;
+    var series = 0;
 
     var axis = g
       .selectAll(".axis")
@@ -136,6 +136,8 @@ var RadarChart = {
       .attr("y", function (d, i) {
         return getVerticalPosition(i, cfg.h / 2, cfg.factorLegend);
       });
+
+    var dataValues;
 
     d.forEach(function (y, x) {
       dataValues = [];
@@ -223,8 +225,8 @@ var RadarChart = {
         .style("fill", cfg.color(series))
         .style("fill-opacity", 0.9)
         .on("mouseover", function (d) {
-          newX = parseFloat(d3.select(this).attr("cx")) - 10;
-          newY = parseFloat(d3.select(this).attr("cy")) - 5;
+          var newX = parseFloat(d3.select(this).attr("cx")) - 10;
+          var newY = parseFloat(d3.select(this).attr("cy")) - 5;
           tooltip
             .attr("x", newX)
             .attr("y", newY)

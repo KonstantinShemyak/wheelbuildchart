@@ -1,3 +1,6 @@
+import { tensionChart } from "./tensionChart.js";
+import { tensionLookup } from "./tensionLookup.js";
+
 $(document).ready(function () {
   "use strict";
 

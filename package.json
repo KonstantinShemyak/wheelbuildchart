@@ -7,13 +7,15 @@
     "prettier": "^3.4.2"
   },
   "scripts": {
-    "format": "prettier --write '**/*.{html,js,css}'"
+    "format": "prettier --write '**/*.{html,js,css,json,md}'"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/KonstantinShemyak/wheelbuildchart.git"
   },
-  "keywords": ["wheelbuilding"],
+  "keywords": [
+    "wheelbuilding"
+  ],
   "author": "Konstantin Shemyak",
   "license": "GPL-3.0-only",
   "type": "commonjs",

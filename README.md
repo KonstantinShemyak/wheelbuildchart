@@ -8,4 +8,4 @@ See [the demo](https://konstantin.shemyak.com/wheelbuildchart).
 
 ## Development
 
-Format whitespace in HTML, CSS and JS files with `npm run format`.
+Format whitespace with `npm run format`.

@@ -1,3 +1,7 @@
+:root {
+  --bs-body-font-family: "Liberation Sans", Arial, sans-serif !important;
+}
+
 body {
   margin: 1em;
 }

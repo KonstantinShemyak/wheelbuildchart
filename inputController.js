@@ -18,7 +18,7 @@ $(document).ready(function () {
   Object.freeze(config);
 
   // Fill dropdown lists with values
-  var $toleranceInput = $("#toleranceInput").change(updateCalculations);
+  var $toleranceInput = $("#toleranceInput").change(updateAverages);
   fillSelectFromArray(
     $toleranceInput,
     config.SUPPORTED_TOLERANCES,
@@ -32,9 +32,9 @@ $(document).ready(function () {
     config.DEFAULT_SPOKES,
   );
 
-  var $spokeThicknessList = $("#spokeThickness").change(updateCalculations);
+  var $spokeThicknessList = $("#spokeThickness").change(updateAverages);
   var $spokeThicknessNDSList =
-    $("#spokeThicknessNDS").change(updateCalculations);
+    $("#spokeThicknessNDS").change(updateAverages);
   var knownSpokeThickness = tensionLookup.getKnownSpokeThickness(); // default tensometer used
   fillSelectFromArray(
     $spokeThicknessList,
@@ -60,7 +60,7 @@ $(document).ready(function () {
       knownSpokeThickness,
       knownSpokeThickness[0],
     );
-    updateCalculations(); // tensions must be set at this point
+    updateAverages(); // tensions must be set at this point
   });
   fillSelectFromArray(
     $usedTensometer,
@@ -150,7 +150,7 @@ $(document).ready(function () {
       tensionFunction(0, config.INITIAL_READING_NON_DRIVE_SIDE),
     );
 
-    updateCalculations();
+    updateAverages();
   }
 
   function handleUserInput(targetSpoke) {
@@ -169,7 +169,7 @@ $(document).ready(function () {
       }
 
       readings[targetSpoke - 1] = parseFloat(inputValue);
-      updateCalculations();
+      updateAverages();
 
       /* Move the focus: e.g. for 32-spoke wheel, 31 -> 1, 32 -> 2 */
       var nextSameSideSpoke = (targetSpoke + 2) % nSpokes;
@@ -179,7 +179,7 @@ $(document).ready(function () {
     };
   }
 
-  function updateCalculations() {
+  function updateAverages() {
     var nSpokes = Number($spokesList.val());
     var tolerance = Number($toleranceInput.val());
 
@@ -216,7 +216,8 @@ $(document).ready(function () {
       avgTensions[1] * ((100 + tolerance) / 100),
     ]; // [nds, ds]
 
-    // update each spoke
+    // Updating averages may affect whether a particular tension is within tolerance,
+    // hence update the rows for each spoke
     for (var i = 1; i <= nSpokes; ++i) {
       var tension = round2(tensions[i - 1]);
       if (
@@ -227,7 +228,7 @@ $(document).ready(function () {
       $("#tension" + i).html(tension);
     }
 
-    tensionChart.updateAll(tensions);
+    tensionChart.update(tensions);
   }
 
   // Utilities

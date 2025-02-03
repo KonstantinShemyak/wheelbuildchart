@@ -36,7 +36,7 @@ export const tensionChart = {
     RadarChart.draw(location, [driveSideSpokes, nonDriveSideSpokes]);
   },
 
-  updateAll: function (tensions) {
+  update: function (tensions) {
     if (typeof driveSideSpokes === undefined)
       throw Error("tension-chart.js: updateAll() called before init()");
 

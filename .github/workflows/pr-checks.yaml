@@ -26,4 +26,4 @@ jobs:
         run: npm ci
 
       - name: Format whitespace
-        run: npm run format
+        run: npm run check-format

@@ -33,8 +33,7 @@ $(document).ready(function () {
   );
 
   var $spokeThicknessList = $("#spokeThickness").change(updateAverages);
-  var $spokeThicknessNDSList =
-    $("#spokeThicknessNDS").change(updateAverages);
+  var $spokeThicknessNDSList = $("#spokeThicknessNDS").change(updateAverages);
   var knownSpokeThickness = tensionLookup.getKnownSpokeThickness(); // default tensometer used
   fillSelectFromArray(
     $spokeThicknessList,

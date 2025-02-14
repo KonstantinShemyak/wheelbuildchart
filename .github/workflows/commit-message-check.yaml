@@ -18,7 +18,7 @@ jobs:
           HEAD=${{ github.event.pull_request.head.sha }}
           commits=$(git log --pretty=format:%s --no-merges $BASE..$HEAD)
           echo "Checking PR's commit messages..."
-          type="chore|doc|feat|fix|refactor|style|test"
+          type="chore|doc|feat|fix|refactor|style|test|deps"
           echo "$commits" | while read -r msg; do
             if [[ ! "$msg" =~ ^($type) ]]; then
               echo "❌ Commit message '$msg' does not start with 'type(scope):', where 'type' is $type and scope is optional"

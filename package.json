@@ -4,7 +4,7 @@
   "description": "Visualization of spoke tension in bicycle wheel",
   "main": "inputController.js",
   "devDependencies": {
-    "prettier": "^3.4.2"
+    "prettier": "^3.5.1"
   },
   "scripts": {
     "format": "prettier --write '**/*.{html,js,css,json,md}'",

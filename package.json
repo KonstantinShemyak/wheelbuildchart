@@ -7,7 +7,7 @@
     "@playwright/test": "1.50.1",
     "http-server": "^14.1.1",
     "playwright": "1.50.1",
-    "prettier": "^3.5.1",
+    "prettier": "^3.5.2",
     "wait-on": "^8.0.2"
   },
   "scripts": {

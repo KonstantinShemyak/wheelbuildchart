@@ -4,7 +4,7 @@
   "description": "Visualization of spoke tension in bicycle wheel",
   "main": "inputController.js",
   "devDependencies": {
-    "@playwright/test": "1.50.1",
+    "@playwright/test": "1.51.0",
     "http-server": "^14.1.1",
     "playwright": "1.51.0",
     "prettier": "^3.5.3",
@@ -13,7 +13,7 @@
   "scripts": {
     "format": "prettier --write '**/*.{html,js,css,json,md}'",
     "check-format": "prettier --check '**/*.{html,js,css,json,md}'",
-    "test": "docker run --rm --network=host -v $PWD:/app -w /app mcr.microsoft.com/playwright:v1.50.1 bash -c 'npx http-server -p 8000 & npx wait-on http://127.0.0.1:8000 && npx playwright test'"
+    "test": "docker run --rm --network=host -v $PWD:/app -w /app mcr.microsoft.com/playwright:v1.51.0 bash -c 'npx http-server -p 8000 & npx wait-on http://127.0.0.1:8000 && npx playwright test'"
   },
   "repository": {
     "type": "git",

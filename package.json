@@ -4,7 +4,7 @@
   "description": "Visualization of spoke tension in bicycle wheel",
   "main": "inputController.js",
   "devDependencies": {
-    "@playwright/test": "1.51.0",
+    "@playwright/test": "1.51.1",
     "http-server": "^14.1.1",
     "playwright": "1.51.1",
     "prettier": "^3.5.3",

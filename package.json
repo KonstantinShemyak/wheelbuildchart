@@ -6,7 +6,7 @@
   "devDependencies": {
     "@playwright/test": "1.51.1",
     "http-server": "^14.1.1",
-    "playwright": "1.53.0",
+    "playwright": "1.53.2",
     "prettier": "^3.6.2",
     "wait-on": "^8.0.3"
   },

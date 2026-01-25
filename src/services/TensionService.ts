@@ -3,7 +3,7 @@ import {
   TensometersDatabase,
   TensionLookupTable,
 } from "../types/interfaces";
-import { tensometers } from "../legacy/tensometers";
+import { tensometers } from "../data/tensometers";
 import { DEFAULT_TENSOMETER } from "../model/config";
 
 /**

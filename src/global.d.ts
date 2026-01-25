@@ -1,6 +1,4 @@
-// Global type declarations for legacy code
-// These are loaded via script tags in index.html
+// Global type declarations
+// D3.js is loaded via script tag in index.html
 
 declare const d3: any;
-declare const $: JQueryStatic;
-declare const jQuery: JQueryStatic;

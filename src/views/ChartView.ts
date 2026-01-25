@@ -1,5 +1,5 @@
 import { IChartView, SpokeDataPoint } from "../types/interfaces";
-import { RadarChart } from "../legacy/radarChart";
+import { RadarChart } from "../charts/RadarChart";
 
 /**
  * Radar chart visualization.

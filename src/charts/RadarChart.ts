@@ -1,97 +1,117 @@
-// I do not know the origin of this code.
+/**
+ * Radar Chart using D3.js v7
+ * Displays spoke tensions as a radar/spider chart.
+ */
+
+import * as d3 from "d3";
+
+interface DataPoint {
+  axis: number;
+  value: number;
+}
+
+interface ChartConfig {
+  radius: number;
+  w: number;
+  h: number;
+  factor: number;
+  factorLegend: number;
+  levels: number;
+  maxValue: number;
+  radians: number;
+  opacityArea: number;
+  color: d3.ScaleOrdinal<number, string>;
+  fontSize: number;
+}
 
 export const RadarChart = {
-  draw: function (id, d, options) {
-    var cfg = {
+  draw: function (
+    id: string,
+    data: DataPoint[][],
+    options: Partial<ChartConfig> = {},
+  ): void {
+    const cfg: ChartConfig = {
       radius: 7,
       w: 800,
       h: 800,
       factor: 0.95,
       factorLegend: 1,
       levels: 3,
-      maxValue: 1, // The value that the biggest circle will represent.
-      // Needed when all data points are <=0.
+      maxValue: 1,
       radians: 2 * Math.PI,
       opacityArea: 0,
-      color: d3.scale.category10(),
+      color: d3.scaleOrdinal<number, string>(d3.schemeCategory10),
       fontSize: 16,
+      ...options,
     };
-    if ("undefined" !== typeof options) {
-      for (var i in options) {
-        if ("undefined" !== typeof options[i]) {
-          cfg[i] = options[i];
-        }
-      }
-    }
+
+    // Calculate max value from data
     cfg.maxValue = Math.max(
       cfg.maxValue,
-      d3.max(d, function (i) {
-        return d3.max(
-          i.map(function (o) {
-            return o.value;
-          }),
-        );
-      }),
+      d3.max(data, (series) => d3.max(series, (d) => d.value)) ?? 0,
     );
-    var allAxis = d[0].map(function (i, j) {
-      return i.axis;
-    });
-    var total = allAxis.length;
-    var radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
+
+    const allAxis = data[0].map((d) => d.axis);
+    const total = allAxis.length;
+    const radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
+
+    // Remove existing SVG and create new one
     d3.select(id).select("svg").remove();
-    var g = d3
+    const svg = d3
       .select(id)
       .append("svg")
       .attr("width", cfg.w)
-      .attr("height", cfg.h)
-      .append("g");
+      .attr("height", cfg.h);
+    const g = svg.append("g");
 
-    var tooltip;
-    function getPosition(i, range, factor, func) {
-      factor = typeof factor !== "undefined" ? factor : 1;
+    // Helper functions for positioning
+    function getPosition(
+      i: number,
+      range: number,
+      factor: number,
+      func: (x: number) => number,
+    ): number {
       return range * (1 - factor * func((i * cfg.radians) / total));
     }
-    function getHorizontalPosition(i, range, factor) {
+
+    function getHorizontalPosition(
+      i: number,
+      range: number,
+      factor: number = 1,
+    ): number {
       return getPosition(i, range, factor, Math.sin);
     }
-    function getVerticalPosition(i, range, factor) {
+
+    function getVerticalPosition(
+      i: number,
+      range: number,
+      factor: number = 1,
+    ): number {
       return getPosition(i, range, factor, Math.cos);
     }
 
-    for (var j = 0; j < cfg.levels; j++) {
-      var levelFactor = radius * ((j + 1) / cfg.levels);
+    // Draw concentric level lines
+    for (let j = 0; j < cfg.levels; j++) {
+      const levelFactor = radius * ((j + 1) / cfg.levels);
       g.selectAll(".levels")
         .data(allAxis)
         .enter()
-        .append("svg:line")
-        .attr("x1", function (d, i) {
-          return getHorizontalPosition(i, levelFactor);
-        })
-        .attr("y1", function (d, i) {
-          return getVerticalPosition(i, levelFactor);
-        })
-        .attr("x2", function (d, i) {
-          return getHorizontalPosition(i + 1, levelFactor);
-        })
-        .attr("y2", function (d, i) {
-          return getVerticalPosition(i + 1, levelFactor);
-        })
+        .append("line")
+        .attr("x1", (_, i) => getHorizontalPosition(i, levelFactor))
+        .attr("y1", (_, i) => getVerticalPosition(i, levelFactor))
+        .attr("x2", (_, i) => getHorizontalPosition(i + 1, levelFactor))
+        .attr("y2", (_, i) => getVerticalPosition(i + 1, levelFactor))
         .attr("class", "line")
         .style("stroke", "grey")
         .style("stroke-width", "0.5px")
         .attr(
           "transform",
-          "translate(" +
-            (cfg.w / 2 - levelFactor) +
-            ", " +
-            (cfg.h / 2 - levelFactor) +
-            ")",
+          `translate(${cfg.w / 2 - levelFactor}, ${cfg.h / 2 - levelFactor})`,
         );
     }
 
-    var series = 0;
-
-    var axis = g
+    // Draw axes
+    const axis = g
       .selectAll(".axis")
       .data(allAxis)
       .enter()
@@ -102,157 +122,125 @@ export const RadarChart = {
       .append("line")
       .attr("x1", cfg.w / 2)
       .attr("y1", cfg.h / 2)
-      .attr("x2", function (j, i) {
-        return getHorizontalPosition(i, cfg.w / 2, cfg.factor);
-      })
-      .attr("y2", function (j, i) {
-        return getVerticalPosition(i, cfg.h / 2, cfg.factor);
-      })
+      .attr("x2", (_, i) => getHorizontalPosition(i, cfg.w / 2, cfg.factor))
+      .attr("y2", (_, i) => getVerticalPosition(i, cfg.h / 2, cfg.factor))
       .attr("class", "line")
       .style("stroke", "grey")
       .style("stroke-width", "1px");
 
+    // Draw axis labels
     axis
       .append("text")
       .attr("class", "legend")
-      .text(function (d) {
-        return d;
-      })
+      .text((d) => String(d))
       .style("font-family", "sans-serif")
-      .style("font-size", cfg.fontSize + "px")
-      .style("text-anchor", function (d, i) {
-        var p = getHorizontalPosition(i, 0.5);
+      .style("font-size", `${cfg.fontSize}px`)
+      .style("text-anchor", (_, i) => {
+        const p = getHorizontalPosition(i, 0.5);
         return p < 0.4 ? "start" : p > 0.6 ? "end" : "middle";
       })
-      .attr("transform", function (d, i) {
-        var p = getVerticalPosition(i, cfg.h / 2);
-        return p < cfg.fontSize
-          ? "translate(0, " + (cfg.fontSize - p) + ")"
-          : "";
+      .attr("transform", (_, i) => {
+        const p = getVerticalPosition(i, cfg.h / 2);
+        return p < cfg.fontSize ? `translate(0, ${cfg.fontSize - p})` : "";
       })
-      .attr("x", function (d, i) {
-        return getHorizontalPosition(i, cfg.w / 2, cfg.factorLegend);
-      })
-      .attr("y", function (d, i) {
-        return getVerticalPosition(i, cfg.h / 2, cfg.factorLegend);
-      });
+      .attr("x", (_, i) =>
+        getHorizontalPosition(i, cfg.w / 2, cfg.factorLegend),
+      )
+      .attr("y", (_, i) => getVerticalPosition(i, cfg.h / 2, cfg.factorLegend));
 
-    var dataValues;
+    // Draw data polygons and points
+    let series = 0;
 
-    d.forEach(function (y, x) {
-      dataValues = [];
-      g.selectAll(".nodes").data(y, function (j, i) {
-        dataValues.push([
-          getHorizontalPosition(
-            i,
-            cfg.w / 2,
-            (parseFloat(Math.max(j.value, 0)) / cfg.maxValue) * cfg.factor,
-          ),
-          getVerticalPosition(
-            i,
-            cfg.h / 2,
-            (parseFloat(Math.max(j.value, 0)) / cfg.maxValue) * cfg.factor,
-          ),
-        ]);
-      });
+    data.forEach((seriesData) => {
+      // Calculate polygon points
+      const dataValues: [number, number][] = seriesData.map((point, i) => [
+        getHorizontalPosition(
+          i,
+          cfg.w / 2,
+          (Math.max(point.value, 0) / cfg.maxValue) * cfg.factor,
+        ),
+        getVerticalPosition(
+          i,
+          cfg.h / 2,
+          (Math.max(point.value, 0) / cfg.maxValue) * cfg.factor,
+        ),
+      ]);
+      // Close the polygon
       dataValues.push(dataValues[0]);
+
+      // Draw polygon
       g.selectAll(".area")
         .data([dataValues])
         .enter()
         .append("polygon")
-        .attr("class", "radar-chart-serie" + series)
+        .attr("class", `radar-chart-serie${series}`)
         .style("stroke-width", "4px")
         .style("stroke", cfg.color(series))
-        .attr("points", function (d) {
-          var str = "";
-          for (var pti = 0; pti < d.length; pti++) {
-            str = str + d[pti][0] + "," + d[pti][1] + " ";
-          }
-          return str;
-        })
-        .style("fill", function (j, i) {
-          return cfg.color(series);
-        })
+        .attr("points", (pts) => pts.map((p) => p.join(",")).join(" "))
+        .style("fill", cfg.color(series))
         .style("fill-opacity", cfg.opacityArea);
+
       series++;
     });
+
     series = 0;
 
-    d.forEach(function (y, x) {
-      // x=number of the data point, y=data point
-      g.selectAll(".nodes")
-        .data(y)
-        .enter() // http://bost.ocks.org/mike/join/
-        .append("svg:circle")
-        .attr("class", "radar-chart-serie" + series)
-        // On drive-side (x==0), place mark onto even axis (j.axis==0),
-        // on non-drive - onto odd. TODO: make in a generic way, pass a function?
-        .attr("r", function (j) {
-          return j.axis % 2 == x ? 0 : cfg.radius;
-        })
-        .attr("alt", function (j) {
-          return Math.max(j.value, 0);
-        })
-        .attr("cx", function (j, i) {
-          dataValues.push([
-            getHorizontalPosition(
-              i,
-              cfg.w / 2,
-              (parseFloat(Math.max(j.value, 0)) / cfg.maxValue) * cfg.factor,
-            ),
-            getVerticalPosition(
-              i,
-              cfg.h / 2,
-              (parseFloat(Math.max(j.value, 0)) / cfg.maxValue) * cfg.factor,
-            ),
-          ]);
-          return getHorizontalPosition(
-            i,
-            cfg.w / 2,
-            (Math.max(j.value, 0) / cfg.maxValue) * cfg.factor,
-          );
-        })
-        .attr("cy", function (j, i) {
-          return getVerticalPosition(
-            i,
-            cfg.h / 2,
-            (Math.max(j.value, 0) / cfg.maxValue) * cfg.factor,
-          );
-        })
-        .attr("data-id", function (j) {
-          return j.axis;
-        })
-        .style("fill", cfg.color(series))
-        .style("fill-opacity", 0.9)
-        .on("mouseover", function (d) {
-          var newX = parseFloat(d3.select(this).attr("cx")) - 10;
-          var newY = parseFloat(d3.select(this).attr("cy")) - 5;
-          tooltip
-            .attr("x", newX)
-            .attr("y", newY)
-            .text(d.value)
-            .transition(200)
-            .style("opacity", 1);
-          var z = "polygon." + d3.select(this).attr("class");
-        })
-        .on("mouseout", function () {
-          tooltip.transition(200).style("opacity", 0);
-          g.selectAll("polygon")
-            .transition(200)
-            .style("fill-opacity", cfg.opacityArea);
-        })
-        .append("svg:title")
-        .text(function (j) {
-          return Math.max(j.value, 0);
-        });
-
-      series++;
-    });
-    //Tooltip
-    tooltip = g
+    // Tooltip element
+    const tooltip = g
       .append("text")
       .style("opacity", 0)
       .style("font-family", "sans-serif")
       .style("font-size", "13px");
+
+    // Draw data points
+    data.forEach((seriesData, seriesIndex) => {
+      g.selectAll(".nodes")
+        .data(seriesData)
+        .enter()
+        .append("circle")
+        .attr("class", `radar-chart-serie${series}`)
+        .attr("r", (d) => (d.axis % 2 === seriesIndex ? 0 : cfg.radius))
+        .attr("alt", (d) => Math.max(d.value, 0))
+        .attr("cx", (d, i) =>
+          getHorizontalPosition(
+            i,
+            cfg.w / 2,
+            (Math.max(d.value, 0) / cfg.maxValue) * cfg.factor,
+          ),
+        )
+        .attr("cy", (d, i) =>
+          getVerticalPosition(
+            i,
+            cfg.h / 2,
+            (Math.max(d.value, 0) / cfg.maxValue) * cfg.factor,
+          ),
+        )
+        .attr("data-id", (d) => d.axis)
+        .style("fill", cfg.color(series))
+        .style("fill-opacity", 0.9)
+        .on("mouseover", function (event: MouseEvent, d: DataPoint) {
+          const element = d3.select(this);
+          const newX = parseFloat(element.attr("cx")) - 10;
+          const newY = parseFloat(element.attr("cy")) - 5;
+          tooltip
+            .attr("x", newX)
+            .attr("y", newY)
+            .text(String(d.value))
+            .transition()
+            .duration(200)
+            .style("opacity", 1);
+        })
+        .on("mouseout", function () {
+          tooltip.transition().duration(200).style("opacity", 0);
+          g.selectAll("polygon")
+            .transition()
+            .duration(200)
+            .style("fill-opacity", cfg.opacityArea);
+        })
+        .append("title")
+        .text((d) => Math.max(d.value, 0));
+
+      series++;
+    });
   },
 };

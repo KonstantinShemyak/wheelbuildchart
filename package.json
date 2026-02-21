@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write '**/*.{html,js,ts,css,json,md}'",
     "check-format": "prettier --check '**/*.{html,js,ts,css,json,md}'",
-    "test": "docker run --rm --network=host -v $PWD:/app -w /app mcr.microsoft.com/playwright:v1.58.2 bash -c 'npx vite --port 8000 & npx wait-on http://127.0.0.1:8000 && npx playwright test'"
+    "test": "docker run --rm --network=host -v $PWD:/app -w /app mcr.microsoft.com/playwright:v1.58.2 bash -c 'npx vite --port 8000 & npx wait-on http://localhost:8000 && npx playwright test'"
   },
   "repository": {
     "type": "git",

@@ -13,6 +13,13 @@ body {
   table-layout: fixed;
 }
 
+/* Chrome allocates rowspan height to the last table row only, giving earlier rows 0 height.
+   This breaks the staggered layout. Force minimum row height to fix.
+   Exclude the first offset row (only needed for rowspan structure, not visual space). */
+#valuesTable tbody tr[role="valueRow"]:not(:first-child) {
+  height: 0.85em;
+}
+
 #radarChart {
 }
 

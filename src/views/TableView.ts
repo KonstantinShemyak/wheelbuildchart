@@ -39,10 +39,18 @@ export class TableView implements ITableView {
     // Create offset row at the top (for staggered layout)
     const offsetRowTop = document.createElement("tr");
     offsetRowTop.setAttribute("role", "valueRow");
-    offsetRowTop.innerHTML = `
-      <td class="driveSideColor" colspan="3"></td>
-      <td class="nonDriveSideColor" colspan="3" rowspan="2"></td>
-    `;
+
+    const dsOffsetCell = document.createElement("td");
+    dsOffsetCell.className = "driveSideColor";
+    dsOffsetCell.colSpan = 3;
+    offsetRowTop.appendChild(dsOffsetCell);
+
+    const ndsOffsetCell = document.createElement("td");
+    ndsOffsetCell.className = "nonDriveSideColor";
+    ndsOffsetCell.colSpan = 3;
+    ndsOffsetCell.rowSpan = 2;
+    offsetRowTop.appendChild(ndsOffsetCell);
+
     this.averageRow.parentNode?.insertBefore(offsetRowTop, this.averageRow);
 
     // Create rows for each spoke
@@ -89,7 +97,12 @@ export class TableView implements ITableView {
     // Create offset row at the bottom
     const offsetRowBottom = document.createElement("tr");
     offsetRowBottom.setAttribute("role", "valueRow");
-    offsetRowBottom.innerHTML = `<td class="driveSideColor" colspan="3"></td>`;
+
+    const dsBottomCell = document.createElement("td");
+    dsBottomCell.className = "driveSideColor";
+    dsBottomCell.colSpan = 3;
+    offsetRowBottom.appendChild(dsBottomCell);
+
     this.averageRow.parentNode?.insertBefore(offsetRowBottom, this.averageRow);
 
     // Focus first input

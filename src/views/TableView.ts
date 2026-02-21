@@ -65,13 +65,13 @@ export class TableView implements ITableView {
 
       // Spoke number cell
       const numCell = document.createElement("td");
-      numCell.setAttribute("rowspan", "2");
+      numCell.rowSpan = 2;
       numCell.textContent = `#${spokeNum}:`;
       row.appendChild(numCell);
 
       // Input cell
       const inputCell = document.createElement("td");
-      inputCell.setAttribute("rowspan", "2");
+      inputCell.rowSpan = 2;
       const input = document.createElement("input");
       input.type = "text";
       input.id = `reading${spokeNum}`;
@@ -87,7 +87,7 @@ export class TableView implements ITableView {
 
       // Tension cell
       const tensionCell = document.createElement("td");
-      tensionCell.setAttribute("rowspan", "2");
+      tensionCell.rowSpan = 2;
       tensionCell.id = `tension${spokeNum}`;
       row.appendChild(tensionCell);
 

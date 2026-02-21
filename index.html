@@ -73,30 +73,34 @@
         <tr>
           <td>
             <table id="valuesTable">
-              <tr class="bordered">
-                <td colspan="3" class="driveSideColor bordered header">
-                  Drive side spokes
-                </td>
-                <td colspan="3" class="nonDriveSideColor bordered header">
-                  Non-drive side spokes
-                </td>
-              </tr>
-              <tr class="bordered">
-                <td class="driveSideColor">Spoke<br />#</td>
-                <td class="driveSideColor bordered">Meter<br />reading</td>
-                <td class="driveSideColor">Tension<br />(kgf)</td>
-                <td class="nonDriveSideColor bordered">Spoke<br />#</td>
-                <td class="nonDriveSideColor bordered">Meter<br />reading</td>
-                <td class="nonDriveSideColor">Tension<br />(kgf)</td>
-              </tr>
-              <tr id="average" class="bordered">
-                <td class="driveSideColor"><b>Avg.:</b></td>
-                <td class="driveSideColor" id="avgDriveReading"></td>
-                <td class="driveSideColor" id="avgDriveTension"></td>
-                <td class="nonDriveSideColor"><b>Avg.:</b></td>
-                <td class="nonDriveSideColor" id="avgNondriveReading"></td>
-                <td class="nonDriveSideColor" id="avgNondriveTension"></td>
-              </tr>
+              <thead>
+                <tr class="bordered">
+                  <td colspan="3" class="driveSideColor bordered header">
+                    Drive side spokes
+                  </td>
+                  <td colspan="3" class="nonDriveSideColor bordered header">
+                    Non-drive side spokes
+                  </td>
+                </tr>
+                <tr class="bordered">
+                  <td class="driveSideColor">Spoke<br />#</td>
+                  <td class="driveSideColor bordered">Meter<br />reading</td>
+                  <td class="driveSideColor">Tension<br />(kgf)</td>
+                  <td class="nonDriveSideColor bordered">Spoke<br />#</td>
+                  <td class="nonDriveSideColor bordered">Meter<br />reading</td>
+                  <td class="nonDriveSideColor">Tension<br />(kgf)</td>
+                </tr>
+              </thead>
+              <tbody id="valuesTableBody">
+                <tr id="average" class="bordered">
+                  <td class="driveSideColor"><b>Avg.:</b></td>
+                  <td class="driveSideColor" id="avgDriveReading"></td>
+                  <td class="driveSideColor" id="avgDriveTension"></td>
+                  <td class="nonDriveSideColor"><b>Avg.:</b></td>
+                  <td class="nonDriveSideColor" id="avgNondriveReading"></td>
+                  <td class="nonDriveSideColor" id="avgNondriveTension"></td>
+                </tr>
+              </tbody>
             </table>
           </td>
           <td><div id="radarChart"></div></td>

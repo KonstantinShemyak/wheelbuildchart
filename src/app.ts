@@ -10,9 +10,6 @@ import { ChartView } from "./views/ChartView";
 import { WheelPresenter } from "./presenter/WheelPresenter";
 import { config } from "./model/config";
 
-// Import CSS
-import "./styles/app.css";
-
 /**
  * Initialize the application when the DOM is ready.
  */

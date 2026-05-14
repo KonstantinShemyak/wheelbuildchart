@@ -4,6 +4,9 @@
   "description": "Visualization of spoke tension in bicycle wheel",
   "type": "module",
   "packageManager": "npm@11.9.0",
+  "engines": {
+    "node": ">=24"
+  },
   "devDependencies": {
     "@playwright/test": "1.58.2",
     "http-server": "^14.1.1",

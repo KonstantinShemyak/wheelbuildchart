@@ -11,7 +11,7 @@
     "@playwright/test": "1.58.2",
     "http-server": "^14.1.1",
     "playwright": "1.60.0",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.4",
     "typescript": "^6.0.2",
     "vite": "^8.0.16",
     "wait-on": "^9.0.4"

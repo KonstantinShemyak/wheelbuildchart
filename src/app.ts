@@ -5,8 +5,10 @@
 
 import { WheelModel } from "./model/WheelModel";
 import { TensionService } from "./services/TensionService";
+import { StorageService } from "./services/StorageService";
 import { TableView } from "./views/TableView";
 import { ChartView } from "./views/ChartView";
+import { SaveLoadView } from "./views/SaveLoadView";
 import { WheelPresenter } from "./presenter/WheelPresenter";
 import { config } from "./model/config";
 
@@ -19,10 +21,12 @@ function initApp(): void {
 
   // Create services
   const tensionService = new TensionService();
+  const storageService = new StorageService();
 
   // Create views
   const tableView = new TableView("#valuesTable");
   const chartView = new ChartView("#radarChart");
+  const saveLoadView = new SaveLoadView();
 
   // Initialize chart with default values
   const initialTensionDS = tensionService.tension(
@@ -39,8 +43,10 @@ function initApp(): void {
   const presenter = new WheelPresenter(
     model,
     tensionService,
+    storageService,
     tableView,
     chartView,
+    saveLoadView,
   );
   presenter.init();
 }

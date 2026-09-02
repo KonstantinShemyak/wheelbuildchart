@@ -70,6 +70,10 @@
         <select id="toleranceInput"></select>
         <span> %</span>
       </div>
+      <div id="saveLoadControls">
+        <button type="button" id="saveWheelButton">Save wheel</button>
+        <button type="button" id="loadWheelButton" hidden>Load wheel</button>
+      </div>
       <table id="valuesAndChart">
         <tr>
           <td>
@@ -111,5 +115,11 @@
         </tr>
       </table>
     </div>
+
+    <dialog id="loadWheelDialog">
+      <h2>Saved wheels</h2>
+      <ul id="savedWheelsList"></ul>
+      <button type="button" id="cancelLoadButton">Cancel</button>
+    </dialog>
   </body>
 </html>

@@ -40,3 +40,17 @@ input.readInput {
   width: 3em;
   font-size: 18px;
 }
+
+#saveLoadControls {
+  margin-top: 0.5em;
+}
+
+#savedWheelsList {
+  list-style: none;
+  margin: 0 0 1em;
+  padding: 0;
+}
+
+#savedWheelsList li {
+  margin: 0.25em 0;
+}

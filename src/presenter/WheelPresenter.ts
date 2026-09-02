@@ -1,8 +1,10 @@
 import { IWheelPresenter } from "../types/interfaces";
 import { WheelModel } from "../model/WheelModel";
 import { TensionService } from "../services/TensionService";
+import { StorageService } from "../services/StorageService";
 import { TableView } from "../views/TableView";
 import { ChartView } from "../views/ChartView";
+import { SaveLoadView } from "../views/SaveLoadView";
 import { config } from "../model/config";
 
 /**
@@ -12,8 +14,10 @@ import { config } from "../model/config";
 export class WheelPresenter implements IWheelPresenter {
   private model: WheelModel;
   private tensionService: TensionService;
+  private storageService: StorageService;
   private tableView: TableView;
   private chartView: ChartView;
+  private saveLoadView: SaveLoadView;
 
   // DOM elements for controls
   private tensometerSelect: HTMLSelectElement | null = null;
@@ -25,13 +29,17 @@ export class WheelPresenter implements IWheelPresenter {
   constructor(
     model: WheelModel,
     tensionService: TensionService,
+    storageService: StorageService,
     tableView: TableView,
     chartView: ChartView,
+    saveLoadView: SaveLoadView,
   ) {
     this.model = model;
     this.tensionService = tensionService;
+    this.storageService = storageService;
     this.tableView = tableView;
     this.chartView = chartView;
+    this.saveLoadView = saveLoadView;
   }
 
   /**
@@ -66,6 +74,10 @@ export class WheelPresenter implements IWheelPresenter {
     this.tableView.onReadingChange = (index, value) => {
       this.handleReadingChange(index, value);
     };
+
+    this.saveLoadView.onSave = (title) => this.handleSave(title);
+    this.saveLoadView.onLoad = (title) => this.handleLoad(title);
+    this.refreshSavedWheels();
 
     // Initial render
     this.renderTable();
@@ -274,5 +286,70 @@ export class WheelPresenter implements IWheelPresenter {
   handleToleranceChange(tolerance: number): void {
     this.model.tolerance = tolerance;
     this.recalculate();
+  }
+
+  handleSave(title: string): void {
+    const stored = this.storageService.save({
+      title,
+      nSpokes: this.model.nSpokes,
+      tensometer: this.model.tensometer,
+      spokeThicknessDS: this.model.spokeThicknessDS,
+      spokeThicknessNDS: this.model.spokeThicknessNDS,
+      tolerance: this.model.tolerance,
+      readings: this.model.readings.slice(0, this.model.nSpokes),
+    });
+
+    if (!stored) {
+      alert("Could not save: this browser's local storage is not available.");
+      return;
+    }
+
+    this.refreshSavedWheels();
+  }
+
+  /**
+   * Values this build no longer supports (a tensometer that was dropped, a
+   * spoke count no longer offered) fall back to the current ones, so an
+   * entry saved by an older version still loads.
+   */
+  handleLoad(title: string): void {
+    const saved = this.storageService.get(title);
+    if (!saved) return;
+
+    // First: the tensometer decides which spoke thicknesses exist.
+    this.tensionService.setTensometer(saved.tensometer);
+    this.model.tensometer = this.tensionService.getCurrentTensometer();
+
+    const thicknesses = this.tensionService.getSupportedThicknesses();
+    this.model.spokeThicknessDS = thicknesses.includes(saved.spokeThicknessDS)
+      ? saved.spokeThicknessDS
+      : thicknesses[0];
+    this.model.spokeThicknessNDS = thicknesses.includes(saved.spokeThicknessNDS)
+      ? saved.spokeThicknessNDS
+      : thicknesses[0];
+
+    if (config.SUPPORTED_TOLERANCES.includes(saved.tolerance)) {
+      this.model.tolerance = saved.tolerance;
+    }
+
+    const nSpokes = config.SUPPORTED_SPOKE_COUNTS.includes(saved.nSpokes)
+      ? saved.nSpokes
+      : this.model.nSpokes;
+
+    for (let i = 0; i < nSpokes; i++) {
+      if (typeof saved.readings[i] === "number") {
+        this.model.readings[i] = saved.readings[i];
+      }
+    }
+
+    this.populateTensometerSelect();
+    this.populateThicknessSelects();
+    this.populateToleranceSelect();
+    this.handleSpokeCountChange(nSpokes);
+    this.populateSpokesSelect();
+  }
+
+  private refreshSavedWheels(): void {
+    this.saveLoadView.render(this.storageService.getAll());
   }
 }

@@ -48,6 +48,22 @@ export interface SideAverages {
   nds: number;
 }
 
+/**
+ * The title identifies the entry: saving under a title that is already
+ * taken replaces the earlier wheel.
+ */
+export interface SavedWheel {
+  title: string;
+  /** ISO 8601 */
+  savedAt: string;
+  nSpokes: number;
+  tensometer: string;
+  spokeThicknessDS: string;
+  spokeThicknessNDS: string;
+  tolerance: number;
+  readings: number[];
+}
+
 // ============================================================================
 // Model
 // ============================================================================
@@ -165,6 +181,19 @@ export interface IStatsService {
   round2(value: number): number;
 }
 
+/**
+ * Service for persisting saved wheels between visits
+ */
+export interface IStorageService {
+  /** Most recently saved first */
+  getAll(): SavedWheel[];
+
+  get(title: string): SavedWheel | null;
+
+  /** @returns false if storage is unavailable */
+  save(wheel: Omit<SavedWheel, "savedAt">): boolean;
+}
+
 // ============================================================================
 // View Interfaces
 // ============================================================================
@@ -256,6 +285,17 @@ export interface IControlsView {
   onToleranceChange: ((tolerance: number) => void) | null;
 }
 
+/**
+ * View for the "Save wheel" / "Load wheel" controls.
+ */
+export interface ISaveLoadView {
+  /** "Load wheel" stays hidden while `saved` is empty */
+  render(saved: SavedWheel[]): void;
+
+  onSave: ((title: string) => void) | null;
+  onLoad: ((title: string) => void) | null;
+}
+
 // ============================================================================
 // Presenter Interface
 // ============================================================================
@@ -293,4 +333,8 @@ export interface IWheelPresenter {
    * Handle tolerance change.
    */
   handleToleranceChange(tolerance: number): void;
+
+  handleSave(title: string): void;
+
+  handleLoad(title: string): void;
 }

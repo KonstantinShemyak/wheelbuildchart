@@ -13,7 +13,7 @@
     "playwright": "1.62.1",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
-    "vite": "^8.2.2",
+    "vite": "^8.3.0",
     "wait-on": "^9.1.0"
   },
   "scripts": {

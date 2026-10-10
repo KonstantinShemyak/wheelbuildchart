@@ -200,8 +200,10 @@ export interface ITableView {
   /**
    * Callback when user changes a reading.
    * Set this to handle input events.
+   * @param advanceFocus Whether the user committed with Enter and expects to move on
    */
-  onReadingChange: ((spokeIndex: number, value: number) => void) | null;
+  onReadingChange:
+    ((spokeIndex: number, value: number, advanceFocus: boolean) => void) | null;
 
   /**
    * Focus on a specific spoke input.
@@ -272,7 +274,11 @@ export interface IWheelPresenter {
   /**
    * Handle a spoke reading change from the user.
    */
-  handleReadingChange(spokeIndex: number, value: number): void;
+  handleReadingChange(
+    spokeIndex: number,
+    value: number,
+    advanceFocus: boolean,
+  ): void;
 
   /**
    * Handle tensometer selection change.

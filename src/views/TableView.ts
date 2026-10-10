@@ -8,8 +8,16 @@ export class TableView implements ITableView {
   private tableContainer: HTMLElement;
   private averageRow: HTMLElement;
 
+  /**
+   * Set while Enter is being handled, to ignore the `change` event that the
+   * browser fires when the resulting focus move blurs the input.
+   */
+  private handlingEnter = false;
+
   /** Callback when user changes a reading */
-  onReadingChange: ((spokeIndex: number, value: number) => void) | null = null;
+  onReadingChange:
+    | ((spokeIndex: number, value: number, advanceFocus: boolean) => void)
+    | null = null;
 
   constructor(tableSelector: string = "#valuesTable") {
     const container = document.querySelector(tableSelector);
@@ -81,7 +89,22 @@ export class TableView implements ITableView {
       input.tabIndex = isDriveSide
         ? Math.floor(i / 2) + 1
         : Math.floor(nSpokes / 2) + Math.floor(i / 2) + 1;
-      input.addEventListener("change", () => this.handleInputChange(i, input));
+      // Enter means "I am done here, move on", whether or not the value changed.
+      input.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        this.handlingEnter = true;
+        try {
+          this.handleInputChange(i, input, true);
+        } finally {
+          this.handlingEnter = false;
+        }
+      });
+      // Leaving the field commits the value but must not steal focus.
+      input.addEventListener("change", () => {
+        if (this.handlingEnter) return;
+        this.handleInputChange(i, input, false);
+      });
       inputCell.appendChild(input);
       row.appendChild(inputCell);
 
@@ -112,7 +135,11 @@ export class TableView implements ITableView {
   /**
    * Handle input change event.
    */
-  private handleInputChange(index: number, input: HTMLInputElement): void {
+  private handleInputChange(
+    index: number,
+    input: HTMLInputElement,
+    advanceFocus: boolean,
+  ): void {
     const value = parseFloat(input.value);
     if (isNaN(value)) {
       alert(
@@ -124,7 +151,7 @@ export class TableView implements ITableView {
     }
 
     if (this.onReadingChange) {
-      this.onReadingChange(index, value);
+      this.onReadingChange(index, value, advanceFocus);
     }
   }
 

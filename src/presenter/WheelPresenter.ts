@@ -63,8 +63,8 @@ export class WheelPresenter implements IWheelPresenter {
     this.bindControlEvents();
 
     // Bind table view callback
-    this.tableView.onReadingChange = (index, value) => {
-      this.handleReadingChange(index, value);
+    this.tableView.onReadingChange = (index, value, advanceFocus) => {
+      this.handleReadingChange(index, value, advanceFocus);
     };
 
     // Initial render
@@ -206,13 +206,19 @@ export class WheelPresenter implements IWheelPresenter {
   /**
    * Handle a spoke reading change from the user.
    */
-  handleReadingChange(spokeIndex: number, value: number): void {
+  handleReadingChange(
+    spokeIndex: number,
+    value: number,
+    advanceFocus: boolean,
+  ): void {
     this.model.readings[spokeIndex] = value;
     this.recalculate();
 
-    // Move focus to next same-side spoke
-    const nextSpoke = (spokeIndex + 2) % this.model.nSpokes;
-    this.tableView.focusSpoke(nextSpoke);
+    if (advanceFocus) {
+      // Move focus to next same-side spoke
+      const nextSpoke = (spokeIndex + 2) % this.model.nSpokes;
+      this.tableView.focusSpoke(nextSpoke);
+    }
   }
 
   /**

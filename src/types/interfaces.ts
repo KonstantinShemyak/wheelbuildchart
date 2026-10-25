@@ -32,6 +32,14 @@ export type TensometerData = Record<string, TensionLookupTable>;
  */
 export type TensometersDatabase = Record<string, TensometerData>;
 
+/**
+ * On-disk shape of a single tensometer YAML file.
+ */
+export interface TensometerFile {
+  name: string;
+  spokes: TensometerData;
+}
+
 // One spoke data point
 export interface SpokeDataPoint {
   /** Spoke number (1-based) */

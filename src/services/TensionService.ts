@@ -1,10 +1,21 @@
 import {
   ITensionService,
+  TensometerFile,
   TensometersDatabase,
   TensionLookupTable,
 } from "../types/interfaces";
-import tensometers from "../data/tensometers.yaml";
 import { DEFAULT_TENSOMETER } from "../model/config";
+
+const tensometerModules = import.meta.glob<{ default: TensometerFile }>(
+  "../data/tensometers/*.yaml",
+  { eager: true },
+);
+const tensometers: TensometersDatabase = Object.fromEntries(
+  Object.values(tensometerModules).map((mod) => [
+    mod.default.name,
+    mod.default.spokes,
+  ]),
+);
 
 /**
  * Service for looking up tension values from tensometer readings.

@@ -1,9 +1,11 @@
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
+import yaml from "@modyfi/vite-plugin-yaml";
 
 export default defineConfig({
   root: ".",
   base: "./",
+  plugins: [yaml()],
   build: {
     outDir: "dist",
     rollupOptions: {

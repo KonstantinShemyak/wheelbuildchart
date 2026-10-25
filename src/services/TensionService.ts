@@ -3,7 +3,7 @@ import {
   TensometersDatabase,
   TensionLookupTable,
 } from "../types/interfaces";
-import { tensometers } from "../data/tensometers";
+import tensometers from "../data/tensometers.yaml";
 import { DEFAULT_TENSOMETER } from "../model/config";
 
 /**
@@ -16,7 +16,7 @@ export class TensionService implements ITensionService {
   private currentTensometer: string;
 
   constructor(
-    data: TensometersDatabase = tensometers as TensometersDatabase,
+    data: TensometersDatabase = tensometers,
     defaultTensometer: string = DEFAULT_TENSOMETER,
   ) {
     this.data = data;

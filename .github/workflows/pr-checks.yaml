@@ -39,3 +39,34 @@ jobs:
       - name: Build production bundle
         if: ${{ !cancelled() }}
         run: npm run build
+
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      tensometers: ${{ steps.filter.outputs.tensometers }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect tensometer-related changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            tensometers:
+              - 'src/data/tensometers/**'
+              - 'src/data/tensometer.schema.json'
+
+  validate-tensometers:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.tensometers == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install check-jsonschema
+        run: pipx install check-jsonschema
+
+      - name: Validate tensometer YAML files against schema
+        run: check-jsonschema --schemafile src/data/tensometer.schema.json src/data/tensometers/*.yaml

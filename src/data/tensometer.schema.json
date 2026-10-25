@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tensometer",
+  "description": "Shape of one file under src/data/tensometers/*.yaml",
+  "type": "object",
+  "required": ["name", "spokes"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name shown in the tensometer dropdown"
+    },
+    "spokes": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Map of spoke-thickness identifier to its reading-to-tension table. Thickness keys are arbitrary strings — not necessarily numeric.",
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "description": "Lookup table: tensometer reading -> tension in kgf",
+        "additionalProperties": { "type": "number" }
+      }
+    }
+  }
+}

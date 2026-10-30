@@ -40,3 +40,10 @@ input.readInput {
   width: 3em;
   font-size: 18px;
 }
+
+/* Fixed-width, right-aligned tension values keep the warning sign in one column */
+.tension-value {
+  display: inline-block;
+  min-width: 4ch;
+  text-align: right;
+}

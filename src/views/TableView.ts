@@ -182,9 +182,8 @@ export class TableView implements ITableView {
       );
 
       // Show warning symbol if out of tolerance
-      tensionCell.innerHTML = isWithin
-        ? String(roundedTension)
-        : `${roundedTension} &#9888;`;
+      const warning = isWithin ? "" : " &#9888;";
+      tensionCell.innerHTML = `<span class="tension-value">${roundedTension}</span>${warning}`;
     }
   }
 

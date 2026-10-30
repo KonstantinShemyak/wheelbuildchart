@@ -10,9 +10,9 @@ export default defineConfig({
     outDir: "dist",
     rollupOptions: {
       input: {
-        main: resolve(__dirname, "index.html"),
-        about: resolve(__dirname, "about.html"),
-        notListedSpoke: resolve(__dirname, "not-listed-spoke.html"),
+        main: resolve(import.meta.dirname, "index.html"),
+        about: resolve(import.meta.dirname, "about.html"),
+        notListedSpoke: resolve(import.meta.dirname, "not-listed-spoke.html"),
       },
     },
   },

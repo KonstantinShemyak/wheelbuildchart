@@ -85,6 +85,17 @@ input.readInput {
   text-align: right;
 }
 
+/* On a phone the ribbon covers the heading and the first lines of text */
+.github-fork-ribbon {
+  display: none;
+}
+
+@media (min-width: 576px) {
+  .github-fork-ribbon {
+    display: block;
+  }
+}
+
 @media (min-width: 768px) {
   body {
     margin: 1em;

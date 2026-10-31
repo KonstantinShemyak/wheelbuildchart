@@ -66,7 +66,12 @@ export const RadarChart = {
     // sizes meant in screen pixels (text, dots, strokes) to keep them legible.
     const renderedWidth = svg.node()!.getBoundingClientRect().width;
     const scale = renderedWidth > 0 ? cfg.w / renderedWidth : 1;
-    const fontSize = cfg.fontSize * scale;
+
+    // On a small chart with many spokes, neighbouring labels would run together,
+    // so keep the text smaller than the spacing between them.
+    const labelSpacingPx =
+      renderedWidth > 0 ? (Math.PI * renderedWidth) / total : Infinity;
+    const fontSize = Math.min(cfg.fontSize, 0.5 * labelSpacingPx) * scale;
 
     // Keep the margin between the plot and the axis labels constant on screen too,
     // or the scaled labels and dots overlap once the chart is shrunk.

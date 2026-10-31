@@ -26,6 +26,8 @@ body {
 #chartPane {
   display: flex;
   justify-content: center;
+  /* The bottom axis label sits on the chart's lower edge; keep it off the table */
+  padding-bottom: 6px;
 }
 
 /* The height cap keeps the chart from taking over the screen; the minimum keeps the labels legible */

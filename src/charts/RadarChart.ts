@@ -201,6 +201,14 @@ export const RadarChart = {
       .style("font-family", "sans-serif")
       .style("font-size", `${13 * scale}px`);
 
+    const hideTooltip = () => {
+      tooltip.transition().duration(200).style("opacity", 0);
+      g.selectAll("polygon")
+        .transition()
+        .duration(200)
+        .style("fill-opacity", cfg.opacityArea);
+    };
+
     // Draw data points
     data.forEach((seriesData, seriesIndex) => {
       g.selectAll(".nodes")
@@ -227,29 +235,47 @@ export const RadarChart = {
         .attr("data-id", (d) => d.axis)
         .style("fill", cfg.color(series))
         .style("fill-opacity", 0.9)
-        .on("mouseover", function (event: MouseEvent, d: DataPoint) {
-          const element = d3.select(this);
-          const newX = parseFloat(element.attr("cx")) - 10 * scale;
-          const newY = parseFloat(element.attr("cy")) - 5 * scale;
-          tooltip
-            .attr("x", newX)
-            .attr("y", newY)
-            .text(String(d.value))
-            .transition()
-            .duration(200)
-            .style("opacity", 1);
-        })
-        .on("mouseout", function () {
-          tooltip.transition().duration(200).style("opacity", 0);
-          g.selectAll("polygon")
-            .transition()
-            .duration(200)
-            .style("fill-opacity", cfg.opacityArea);
-        })
-        .append("title")
-        .text((d) => Math.max(d.value, 0));
+        .style("pointer-events", "none");
+
+      // The dots are too small to tap, so a larger transparent circle over each one
+      // takes the pointer instead. Dots of the other side's series are not drawn.
+      seriesData.forEach((d, i) => {
+        if (d.axis % 2 === seriesIndex) return;
+        const ratio = (Math.max(d.value, 0) / cfg.maxValue) * factor;
+        const cx = getHorizontalPosition(i, cfg.w / 2, ratio);
+        const cy = getVerticalPosition(i, cfg.h / 2, ratio);
+        const hit = g
+          .append("circle")
+          .attr("class", "radar-chart-hit")
+          .attr("r", 2.5 * cfg.radius * scale)
+          .attr("cx", cx)
+          .attr("cy", cy)
+          .style("fill", "transparent")
+          .style("pointer-events", "all")
+          .on("pointerenter", () => {
+            tooltip
+              .attr("x", cx - 10 * scale)
+              .attr("y", cy - 5 * scale)
+              .text(String(d.value))
+              .transition()
+              .duration(200)
+              .style("opacity", 1);
+          })
+          // A finger leaves the moment it lifts, so a touch tooltip stays until
+          // another point or the empty chart is tapped.
+          .on("pointerleave", (event: PointerEvent) => {
+            if (event.pointerType !== "touch") hideTooltip();
+          });
+        hit.append("title").text(Math.max(d.value, 0));
+      });
 
       series++;
+    });
+
+    svg.on("pointerdown", (event: PointerEvent) => {
+      if (!(event.target as Element).classList.contains("radar-chart-hit")) {
+        hideTooltip();
+      }
     });
   },
 };

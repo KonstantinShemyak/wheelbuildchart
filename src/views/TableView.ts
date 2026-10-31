@@ -130,8 +130,11 @@ export class TableView implements ITableView {
 
     this.averageRow.parentNode?.insertBefore(offsetRowBottom, this.averageRow);
 
-    // Focus first input
-    this.focusSpoke(0);
+    // Focus first input, except on a touch screen, where it would open the
+    // on-screen keyboard and scroll past the controls
+    if (!window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
+      this.focusSpoke(0);
+    }
   }
 
   /**

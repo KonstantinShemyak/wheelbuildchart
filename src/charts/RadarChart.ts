@@ -53,16 +53,25 @@ export const RadarChart = {
 
     const allAxis = data[0].map((d) => d.axis);
     const total = allAxis.length;
-    const radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
 
     // Remove existing SVG and create new one
     d3.select(id).select("svg").remove();
     const svg = d3
       .select(id)
       .append("svg")
-      .attr("width", cfg.w)
-      .attr("height", cfg.h);
+      .attr("viewBox", `0 0 ${cfg.w} ${cfg.h}`);
     const g = svg.append("g");
+
+    // CSS sizes the SVG, so one drawing unit is not one screen pixel. Scale the
+    // sizes meant in screen pixels (text, dots, strokes) to keep them legible.
+    const renderedWidth = svg.node()!.getBoundingClientRect().width;
+    const scale = renderedWidth > 0 ? cfg.w / renderedWidth : 1;
+    const fontSize = cfg.fontSize * scale;
+
+    // Keep the margin between the plot and the axis labels constant on screen too,
+    // or the scaled labels and dots overlap once the chart is shrunk.
+    const factor = Math.max(1 - (1 - cfg.factor) * scale, 0.3);
+    const radius = factor * Math.min(cfg.w / 2, cfg.h / 2);
 
     // Helper functions for positioning
     function getPosition(
@@ -103,7 +112,7 @@ export const RadarChart = {
         .attr("y2", (_, i) => getVerticalPosition(i + 1, levelFactor))
         .attr("class", "line")
         .style("stroke", "grey")
-        .style("stroke-width", "0.5px")
+        .style("stroke-width", `${0.5 * scale}px`)
         .attr(
           "transform",
           `translate(${cfg.w / 2 - levelFactor}, ${cfg.h / 2 - levelFactor})`,
@@ -122,11 +131,11 @@ export const RadarChart = {
       .append("line")
       .attr("x1", cfg.w / 2)
       .attr("y1", cfg.h / 2)
-      .attr("x2", (_, i) => getHorizontalPosition(i, cfg.w / 2, cfg.factor))
-      .attr("y2", (_, i) => getVerticalPosition(i, cfg.h / 2, cfg.factor))
+      .attr("x2", (_, i) => getHorizontalPosition(i, cfg.w / 2, factor))
+      .attr("y2", (_, i) => getVerticalPosition(i, cfg.h / 2, factor))
       .attr("class", "line")
       .style("stroke", "grey")
-      .style("stroke-width", "1px");
+      .style("stroke-width", `${scale}px`);
 
     // Draw axis labels
     axis
@@ -134,14 +143,14 @@ export const RadarChart = {
       .attr("class", "legend")
       .text((d) => String(d))
       .style("font-family", "sans-serif")
-      .style("font-size", `${cfg.fontSize}px`)
+      .style("font-size", `${fontSize}px`)
       .style("text-anchor", (_, i) => {
         const p = getHorizontalPosition(i, 0.5);
         return p < 0.4 ? "start" : p > 0.6 ? "end" : "middle";
       })
       .attr("transform", (_, i) => {
         const p = getVerticalPosition(i, cfg.h / 2);
-        return p < cfg.fontSize ? `translate(0, ${cfg.fontSize - p})` : "";
+        return p < fontSize ? `translate(0, ${fontSize - p})` : "";
       })
       .attr("x", (_, i) =>
         getHorizontalPosition(i, cfg.w / 2, cfg.factorLegend),
@@ -157,12 +166,12 @@ export const RadarChart = {
         getHorizontalPosition(
           i,
           cfg.w / 2,
-          (Math.max(point.value, 0) / cfg.maxValue) * cfg.factor,
+          (Math.max(point.value, 0) / cfg.maxValue) * factor,
         ),
         getVerticalPosition(
           i,
           cfg.h / 2,
-          (Math.max(point.value, 0) / cfg.maxValue) * cfg.factor,
+          (Math.max(point.value, 0) / cfg.maxValue) * factor,
         ),
       ]);
       // Close the polygon
@@ -174,7 +183,7 @@ export const RadarChart = {
         .enter()
         .append("polygon")
         .attr("class", `radar-chart-serie${series}`)
-        .style("stroke-width", "4px")
+        .style("stroke-width", `${4 * scale}px`)
         .style("stroke", cfg.color(series))
         .attr("points", (pts) => pts.map((p) => p.join(",")).join(" "))
         .style("fill", cfg.color(series))
@@ -190,7 +199,7 @@ export const RadarChart = {
       .append("text")
       .style("opacity", 0)
       .style("font-family", "sans-serif")
-      .style("font-size", "13px");
+      .style("font-size", `${13 * scale}px`);
 
     // Draw data points
     data.forEach((seriesData, seriesIndex) => {
@@ -199,20 +208,20 @@ export const RadarChart = {
         .enter()
         .append("circle")
         .attr("class", `radar-chart-serie${series}`)
-        .attr("r", (d) => (d.axis % 2 === seriesIndex ? 0 : cfg.radius))
+        .attr("r", (d) => (d.axis % 2 === seriesIndex ? 0 : cfg.radius * scale))
         .attr("alt", (d) => Math.max(d.value, 0))
         .attr("cx", (d, i) =>
           getHorizontalPosition(
             i,
             cfg.w / 2,
-            (Math.max(d.value, 0) / cfg.maxValue) * cfg.factor,
+            (Math.max(d.value, 0) / cfg.maxValue) * factor,
           ),
         )
         .attr("cy", (d, i) =>
           getVerticalPosition(
             i,
             cfg.h / 2,
-            (Math.max(d.value, 0) / cfg.maxValue) * cfg.factor,
+            (Math.max(d.value, 0) / cfg.maxValue) * factor,
           ),
         )
         .attr("data-id", (d) => d.axis)
@@ -220,8 +229,8 @@ export const RadarChart = {
         .style("fill-opacity", 0.9)
         .on("mouseover", function (event: MouseEvent, d: DataPoint) {
           const element = d3.select(this);
-          const newX = parseFloat(element.attr("cx")) - 10;
-          const newY = parseFloat(element.attr("cy")) - 5;
+          const newX = parseFloat(element.attr("cx")) - 10 * scale;
+          const newY = parseFloat(element.attr("cy")) - 5 * scale;
           tooltip
             .attr("x", newX)
             .attr("y", newY)

@@ -23,6 +23,28 @@ body {
 #radarChart {
 }
 
+#chartPane {
+  display: flex;
+  justify-content: center;
+}
+
+/* The height cap keeps the chart from taking over the screen; the minimum keeps the labels legible */
+#radarChart svg {
+  width: clamp(240px, 42svh, 92vw);
+  height: auto;
+}
+
+/* Pin the chart above the scrolling table so it stays visible while readings are typed in,
+   but only where the screen is tall enough to leave room for the table beneath it */
+@media (min-height: 500px) {
+  #chartPane {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+  }
+}
+
 /* Two first colors from d3.scale.category10(), lightened */
 .driveSideColor {
   background: #72c5ff; /* #1f77b4; */
@@ -65,6 +87,15 @@ input.readInput {
   #chartPane,
   #tablePane {
     padding: 1px;
+  }
+
+  #chartPane {
+    position: static;
+    display: block;
+  }
+
+  #radarChart svg {
+    width: 800px;
   }
 
   #valuesTable {

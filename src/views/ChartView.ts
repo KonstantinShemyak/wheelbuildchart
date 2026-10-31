@@ -13,6 +13,15 @@ export class ChartView implements IChartView {
 
   constructor(containerSelector: string = "#radarChart") {
     this.containerSelector = containerSelector;
+
+    // The chart's rendered size is set by CSS, so redraw when it changes
+    // (window resize, rotation) to keep the text a constant on-screen size.
+    const container = document.querySelector(containerSelector);
+    if (container) {
+      new ResizeObserver(() => {
+        if (this.nSpokes > 0) this.draw();
+      }).observe(container);
+    }
   }
 
   /**

@@ -82,6 +82,8 @@ export class TableView implements ITableView {
       inputCell.rowSpan = 2;
       const input = document.createElement("input");
       input.type = "text";
+      // Numeric keypad on phones; type="number" would add spinners and clash with our own validation
+      input.inputMode = "decimal";
       input.id = `reading${spokeNum}`;
       input.className = "readInput";
       input.value = String(readings[i] ?? 0);

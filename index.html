@@ -47,27 +47,35 @@
     </p>
 
     <div id="wheelchart">
-      <div id="divStartButton">
-        <span>Used tensometer: </span>
-        <select id="usedTensometer"></select>
-        <span>Number of spokes: </span>
-        <select id="nSpokes"></select>
+      <div id="divStartButton" class="controls">
+        <label
+          >Used tensometer:
+          <select id="usedTensometer"></select
+        ></label>
+        <label
+          >Number of spokes:
+          <select id="nSpokes"></select
+        ></label>
       </div>
-      <div>
+      <div class="controls">
         <span>Spoke thickness (mm):</span>
-        <span class="driveSideColor">Drive side </span>
-        <select id="spokeThickness"></select>
-
-        <span class="nonDriveSideColor">Non-drive side </span>
-        <select id="spokeThicknessNDS"></select>
+        <label
+          ><span class="driveSideColor">Drive side </span
+          ><select id="spokeThickness"></select
+        ></label>
+        <label
+          ><span class="nonDriveSideColor">Non-drive side </span
+          ><select id="spokeThicknessNDS"></select
+        ></label>
       </div>
-      <div>
-        <span
-          title="Deviation from the average tension after which warning sign will be shown"
-          >Tension tolerance:
-        </span>
-        <select id="toleranceInput"></select>
-        <span> %</span>
+      <div class="controls">
+        <label
+          ><span
+            title="Deviation from the average tension after which warning sign will be shown"
+            >Tension tolerance: </span
+          ><select id="toleranceInput"></select
+          ><span> %</span></label
+        >
       </div>
       <table id="valuesAndChart">
         <tr>

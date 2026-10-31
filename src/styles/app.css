@@ -58,9 +58,24 @@ body {
   border: 1px solid black;
 }
 
+/* Keep each label with its select when a row wraps */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+}
+
+.controls select {
+  min-height: 44px;
+}
+
+/* 16px is the size below which iOS Safari zooms the page when an input is focused.
+   40px rather than the usual 44px keeps a 40-spoke table from getting too tall. */
 input.readInput {
-  width: 3em;
-  font-size: 18px;
+  width: 100%;
+  font-size: 16px;
+  min-height: 40px;
 }
 
 /* Fixed-width, right-aligned tension values keep the warning sign in one column */
@@ -101,5 +116,19 @@ input.readInput {
   #valuesTable {
     width: auto;
     margin-right: 20px;
+  }
+
+  .controls {
+    display: block;
+  }
+
+  .controls select {
+    min-height: 0;
+  }
+
+  input.readInput {
+    width: 3em;
+    font-size: 18px;
+    min-height: 0;
   }
 }

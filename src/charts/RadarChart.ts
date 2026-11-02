@@ -6,7 +6,10 @@
 import * as d3 from "d3";
 
 interface DataPoint {
+  /** Label printed in the dot */
   axis: number;
+  /** Index of the axis the point lies on, 0 at the top, increasing clockwise */
+  position: number;
   value: number;
 }
 
@@ -41,8 +44,14 @@ function fitFontSize(r: number, digits: number): number {
 }
 
 export const RadarChart = {
+  /**
+   * @param total Number of axes
+   * @param data Series of points, each in increasing position order; a series
+   *   need not have a point on every axis, its polygon joins the points it has
+   */
   draw: function (
     id: string,
+    total: number,
     data: DataPoint[][],
     options: Partial<ChartConfig> = {},
   ): void {
@@ -64,8 +73,7 @@ export const RadarChart = {
       d3.max(data, (series) => d3.max(series, (d) => d.value)) ?? 0,
     );
 
-    const allAxis = data[0].map((d) => d.axis);
-    const total = allAxis.length;
+    const allAxis = d3.range(total);
 
     // Remove existing SVG and create new one
     d3.select(id).select("svg").remove();
@@ -83,7 +91,9 @@ export const RadarChart = {
     // Spoke numbers are printed inside the dots, all at the size that fits the
     // longest one, so they read as one set.
     const dotRadius = cfg.radius * scale;
-    const maxDigits = d3.max(allAxis, (a) => String(a).length) ?? 1;
+    const maxDigits =
+      d3.max(data, (series) => d3.max(series, (d) => String(d.axis).length)) ??
+      1;
     const fontSize = fitFontSize(dotRadius, maxDigits);
 
     // Leave room at the rim for a dot at full tension, plus the polygon's stroke.
@@ -163,14 +173,14 @@ export const RadarChart = {
 
     data.forEach((seriesData) => {
       // Calculate polygon points
-      const dataValues: [number, number][] = seriesData.map((point, i) => [
+      const dataValues: [number, number][] = seriesData.map((point) => [
         getHorizontalPosition(
-          i,
+          point.position,
           cfg.w / 2,
           (Math.max(point.value, 0) / cfg.maxValue) * factor,
         ),
         getVerticalPosition(
-          i,
+          point.position,
           cfg.h / 2,
           (Math.max(point.value, 0) / cfg.maxValue) * factor,
         ),
@@ -211,24 +221,24 @@ export const RadarChart = {
     };
 
     // Draw data points
-    data.forEach((seriesData, seriesIndex) => {
+    data.forEach((seriesData) => {
       g.selectAll(".nodes")
         .data(seriesData)
         .enter()
         .append("circle")
         .attr("class", `radar-chart-serie${series}`)
-        .attr("r", (d) => (d.axis % 2 === seriesIndex ? 0 : dotRadius))
+        .attr("r", dotRadius)
         .attr("alt", (d) => Math.max(d.value, 0))
-        .attr("cx", (d, i) =>
+        .attr("cx", (d) =>
           getHorizontalPosition(
-            i,
+            d.position,
             cfg.w / 2,
             (Math.max(d.value, 0) / cfg.maxValue) * factor,
           ),
         )
-        .attr("cy", (d, i) =>
+        .attr("cy", (d) =>
           getVerticalPosition(
-            i,
+            d.position,
             cfg.h / 2,
             (Math.max(d.value, 0) / cfg.maxValue) * factor,
           ),
@@ -239,12 +249,11 @@ export const RadarChart = {
         .style("pointer-events", "none");
 
       // The dots are too small to tap, so a larger transparent circle over each one
-      // takes the pointer instead. Dots of the other side's series are not drawn.
-      seriesData.forEach((d, i) => {
-        if (d.axis % 2 === seriesIndex) return;
+      // takes the pointer instead.
+      seriesData.forEach((d) => {
         const ratio = (Math.max(d.value, 0) / cfg.maxValue) * factor;
-        const cx = getHorizontalPosition(i, cfg.w / 2, ratio);
-        const cy = getVerticalPosition(i, cfg.h / 2, ratio);
+        const cx = getHorizontalPosition(d.position, cfg.w / 2, ratio);
+        const cy = getVerticalPosition(d.position, cfg.h / 2, ratio);
         // Centre the digits' cap height on the dot, not the em box.
         g.append("text")
           .attr("class", "spoke-number")

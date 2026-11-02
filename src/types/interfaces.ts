@@ -44,6 +44,8 @@ export interface TensometerFile {
 export interface SpokeDataPoint {
   /** Spoke number (1-based) */
   axis: number;
+  /** Chart axis the spoke is drawn on, 0 at the top, increasing clockwise */
+  position: number;
   /** Tension (kgf) */
   value: number;
 }

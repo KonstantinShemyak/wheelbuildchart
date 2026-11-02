@@ -34,7 +34,7 @@ function initApp(): void {
     model.spokeThicknessNDS,
     config.INITIAL_READING_NON_DRIVE_SIDE,
   );
-  chartView.init(model.nSpokes, initialTensionDS, initialTensionNDS);
+  chartView.init(model.sides(), initialTensionDS, initialTensionNDS);
 
   // Create presenter and initialize
   const presenter = new WheelPresenter(

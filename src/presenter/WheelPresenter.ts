@@ -173,7 +173,7 @@ export class WheelPresenter implements IWheelPresenter {
    * Render the table with current model state.
    */
   private renderTable(): void {
-    this.tableView.render(this.model.nSpokes, this.model.readings);
+    this.tableView.render(this.model.sides(), this.model.readings);
   }
 
   /**
@@ -194,6 +194,7 @@ export class WheelPresenter implements IWheelPresenter {
     // Update table view
     this.tableView.updateTensions(
       this.model.tensions.slice(0, this.model.nSpokes),
+      this.model.sides(),
       averages.tensions,
       this.model.tolerance,
     );
@@ -255,7 +256,11 @@ export class WheelPresenter implements IWheelPresenter {
       this.model.spokeThicknessNDS,
       config.INITIAL_READING_NON_DRIVE_SIDE,
     );
-    this.chartView.init(count, initialTensionDS, initialTensionNDS);
+    this.chartView.init(
+      this.model.sides(),
+      initialTensionDS,
+      initialTensionNDS,
+    );
 
     this.recalculate();
   }

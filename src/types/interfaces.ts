@@ -198,20 +198,22 @@ export interface IStatsService {
  */
 export interface ITableView {
   /**
-   * Render the table with the specified number of spokes.
-   * @param nSpokes Number of spokes
+   * Render the table with the specified spokes.
+   * @param sides Side of each spoke, spoke 1 first
    * @param readings Initial readings for each spoke
    */
-  render(nSpokes: number, readings: number[]): void;
+  render(sides: Side[], readings: number[]): void;
 
   /**
    * Update the tension display for all spokes.
    * @param tensions Tension values for each spoke
+   * @param sides Side of each spoke
    * @param avgTensions Average tensions for tolerance checking
    * @param tolerance Tolerance percentage
    */
   updateTensions(
     tensions: number[],
+    sides: Side[],
     avgTensions: SideAverages,
     tolerance: number,
   ): void;
@@ -242,11 +244,11 @@ export interface ITableView {
 export interface IChartView {
   /**
    * Initialize the chart with the given parameters.
-   * @param nSpokes Number of spokes
+   * @param sides Side of each spoke, spoke 1 first
    * @param tensionDS Initial drive side tension
    * @param tensionNDS Initial non-drive side tension
    */
-  init(nSpokes: number, tensionDS: number, tensionNDS: number): void;
+  init(sides: Side[], tensionDS: number, tensionNDS: number): void;
 
   /**
    * Update the chart with new tension values.

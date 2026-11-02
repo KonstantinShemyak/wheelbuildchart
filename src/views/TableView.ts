@@ -1,7 +1,5 @@
-import { ITableView, SideAverages } from "../types/interfaces";
+import { ITableView, Side, SideAverages } from "../types/interfaces";
 import { statsService } from "../services/StatsService";
-
-type Side = "ds" | "nds";
 
 const SIDE_CLASSES: Record<Side, string> = {
   ds: "driveSideColor",
@@ -41,19 +39,16 @@ export class TableView implements ITableView {
   }
 
   /**
-   * Render the table with the specified number of spokes.
-   * @param nSpokes Number of spokes
+   * Render the table with the specified spokes.
+   * @param sides Side of each spoke, spoke 1 first
    * @param readings Initial readings for each spoke
    */
-  render(nSpokes: number, readings: number[]): void {
+  render(sides: Side[], readings: number[]): void {
     // Remove existing value rows
     const existingRows =
       this.tableContainer.querySelectorAll('[role="valueRow"]');
     existingRows.forEach((row) => row.remove());
 
-    const sides: Side[] = Array.from({ length: nSpokes }, (_, i) =>
-      i % 2 === 0 ? "ds" : "nds",
-    );
     const nDriveSide = sides.filter((side) => side === "ds").length;
 
     // Each spoke spans two rows of a grid. Drive side spokes follow each other
@@ -211,11 +206,13 @@ export class TableView implements ITableView {
   /**
    * Update the tension display for all spokes.
    * @param tensions Tension values for each spoke
+   * @param sides Side of each spoke
    * @param avgTensions Average tensions for tolerance checking
    * @param tolerance Tolerance percentage
    */
   updateTensions(
     tensions: number[],
+    sides: Side[],
     avgTensions: SideAverages,
     tolerance: number,
   ): void {
@@ -226,8 +223,7 @@ export class TableView implements ITableView {
 
       const tension = tensions[i];
       const roundedTension = statsService.round2(tension);
-      const isDriveSide = i % 2 === 0;
-      const avgTension = isDriveSide ? avgTensions.ds : avgTensions.nds;
+      const avgTension = avgTensions[sides[i]];
       const isWithin = statsService.isWithinTolerance(
         tension,
         avgTension,

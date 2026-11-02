@@ -1,4 +1,4 @@
-import { IChartView, SpokeDataPoint } from "../types/interfaces";
+import { IChartView, Side, SpokeDataPoint } from "../types/interfaces";
 import { RadarChart } from "../charts/RadarChart";
 
 /**
@@ -26,11 +26,12 @@ export class ChartView implements IChartView {
 
   /**
    * Initialize the chart with the given parameters.
-   * @param nSpokes Number of spokes
+   * @param sides Side of each spoke, spoke 1 first
    * @param tensionDS Initial drive side tension
    * @param tensionNDS Initial non-drive side tension
    */
-  init(nSpokes: number, tensionDS: number, tensionNDS: number): void {
+  init(sides: Side[], tensionDS: number, tensionNDS: number): void {
+    const nSpokes = sides.length;
     this.nSpokes = nSpokes;
     this.driveSideSpokes = [];
     this.nonDriveSideSpokes = [];
@@ -39,7 +40,7 @@ export class ChartView implements IChartView {
     // spoke 1 just left of it.
     for (let position = 0; position < nSpokes; position++) {
       const spokeIndex = nSpokes - 1 - position;
-      const isDriveSide = spokeIndex % 2 === 0;
+      const isDriveSide = sides[spokeIndex] === "ds";
       const point: SpokeDataPoint = {
         axis: spokeIndex + 1,
         position,

@@ -1,9 +1,10 @@
-import { IWheelPresenter } from "../types/interfaces";
+import { IWheelPresenter, Side, SpokeLayout } from "../types/interfaces";
 import { WheelModel } from "../model/WheelModel";
 import { TensionService } from "../services/TensionService";
 import { TableView } from "../views/TableView";
 import { ChartView } from "../views/ChartView";
 import { config } from "../model/config";
+import { layoutLabel } from "../model/spokeLayout";
 
 /**
  * WheelPresenter - coordinates the model and views.
@@ -88,8 +89,8 @@ export class WheelPresenter implements IWheelPresenter {
     if (!this.spokesSelect) return;
     this.fillSelect(
       this.spokesSelect,
-      [...config.SUPPORTED_SPOKE_COUNTS],
-      this.model.nSpokes,
+      config.SUPPORTED_SPOKE_LAYOUTS.map(layoutLabel),
+      layoutLabel(this.model.layout),
     );
   }
 
@@ -153,7 +154,10 @@ export class WheelPresenter implements IWheelPresenter {
     });
 
     this.spokesSelect?.addEventListener("change", () => {
-      this.handleSpokeCountChange(Number(this.spokesSelect!.value));
+      const layout = config.SUPPORTED_SPOKE_LAYOUTS.find(
+        (layout) => layoutLabel(layout) === this.spokesSelect!.value,
+      );
+      if (layout) this.handleSpokeCountChange(layout);
     });
 
     this.thicknessDSSelect?.addEventListener("change", () => {
@@ -173,7 +177,7 @@ export class WheelPresenter implements IWheelPresenter {
    * Render the table with current model state.
    */
   private renderTable(): void {
-    this.tableView.render(this.model.nSpokes, this.model.readings);
+    this.tableView.render(this.model.sides(), this.model.readings);
   }
 
   /**
@@ -194,6 +198,7 @@ export class WheelPresenter implements IWheelPresenter {
     // Update table view
     this.tableView.updateTensions(
       this.model.tensions.slice(0, this.model.nSpokes),
+      this.model.sides(),
       averages.tensions,
       this.model.tolerance,
     );
@@ -215,9 +220,7 @@ export class WheelPresenter implements IWheelPresenter {
     this.recalculate();
 
     if (advanceFocus) {
-      // Move focus to next same-side spoke
-      const nextSpoke = (spokeIndex + 2) % this.model.nSpokes;
-      this.tableView.focusSpoke(nextSpoke);
+      this.tableView.focusSpoke(this.model.nextSameSide(spokeIndex));
     }
   }
 
@@ -244,8 +247,8 @@ export class WheelPresenter implements IWheelPresenter {
   /**
    * Handle spoke count change.
    */
-  handleSpokeCountChange(count: number): void {
-    this.model.nSpokes = count;
+  handleSpokeCountChange(layout: SpokeLayout): void {
+    this.model.setLayout(layout);
     this.renderTable();
 
     // Initialize chart with new spoke count
@@ -257,7 +260,11 @@ export class WheelPresenter implements IWheelPresenter {
       this.model.spokeThicknessNDS,
       config.INITIAL_READING_NON_DRIVE_SIDE,
     );
-    this.chartView.init(count, initialTensionDS, initialTensionNDS);
+    this.chartView.init(
+      this.model.sides(),
+      initialTensionDS,
+      initialTensionNDS,
+    );
 
     this.recalculate();
   }
@@ -265,7 +272,7 @@ export class WheelPresenter implements IWheelPresenter {
   /**
    * Handle spoke thickness change.
    */
-  handleThicknessChange(side: "ds" | "nds", thickness: string): void {
+  handleThicknessChange(side: Side, thickness: string): void {
     if (side === "ds") {
       this.model.spokeThicknessDS = thickness;
     } else {

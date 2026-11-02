@@ -4,8 +4,9 @@
 export interface Config {
   INITIAL_READING_DRIVE_SIDE: number;
   INITIAL_READING_NON_DRIVE_SIDE: number;
-  SUPPORTED_SPOKE_COUNTS: readonly number[];
-  DEFAULT_SPOKES: number;
+  /** In the order they are offered */
+  SUPPORTED_SPOKE_LAYOUTS: readonly SpokeLayout[];
+  DEFAULT_SPOKE_LAYOUT: SpokeLayout;
   DEFAULT_SPOKE_THICKNESS: number; // millimeters
   SUPPORTED_TOLERANCES: readonly number[]; // percents
   DEFAULT_TOLERANCE: number;
@@ -44,8 +45,22 @@ export interface TensometerFile {
 export interface SpokeDataPoint {
   /** Spoke number (1-based) */
   axis: number;
+  /** Chart axis the spoke is drawn on, 0 at the top, increasing clockwise */
+  position: number;
   /** Tension (kgf) */
   value: number;
+}
+
+/** Side of the wheel a spoke is on: drive side or non-drive side. */
+export type Side = "ds" | "nds";
+
+/**
+ * Number of spokes on each side. The drive side has a whole multiple of the
+ * non-drive side's spokes: equal for usual wheels, twice as many for 2:1 lacing.
+ */
+export interface SpokeLayout {
+  ds: number;
+  nds: number;
 }
 
 /**
@@ -64,8 +79,10 @@ export interface SideAverages {
  * Wheel model - manages the state of wheel spoke data
  */
 export interface IWheelModel {
+  /** Number of spokes on each side */
+  layout: SpokeLayout;
   /** Number of spokes in the wheel */
-  nSpokes: number;
+  readonly nSpokes: number;
   /** Raw tensometer readings for each spoke (0-indexed) */
   readings: number[];
   /** Computed tensions in kgf for each spoke (0-indexed) */
@@ -146,16 +163,6 @@ export interface ITensionService {
  */
 export interface IStatsService {
   /**
-   * Calculate average of values at odd indices (drive side, 1-indexed)
-   */
-  averageDriveSide(values: number[]): number;
-
-  /**
-   * Calculate average of values at even indices (non-drive side, 1-indexed)
-   */
-  averageNonDriveSide(values: number[]): number;
-
-  /**
    * Check if a value is within tolerance of a reference value.
    * @param value Value to check
    * @param reference Reference value (typically average)
@@ -182,20 +189,22 @@ export interface IStatsService {
  */
 export interface ITableView {
   /**
-   * Render the table with the specified number of spokes.
-   * @param nSpokes Number of spokes
+   * Render the table with the specified spokes.
+   * @param sides Side of each spoke, spoke 1 first
    * @param readings Initial readings for each spoke
    */
-  render(nSpokes: number, readings: number[]): void;
+  render(sides: Side[], readings: number[]): void;
 
   /**
    * Update the tension display for all spokes.
    * @param tensions Tension values for each spoke
+   * @param sides Side of each spoke
    * @param avgTensions Average tensions for tolerance checking
    * @param tolerance Tolerance percentage
    */
   updateTensions(
     tensions: number[],
+    sides: Side[],
     avgTensions: SideAverages,
     tolerance: number,
   ): void;
@@ -226,11 +235,11 @@ export interface ITableView {
 export interface IChartView {
   /**
    * Initialize the chart with the given parameters.
-   * @param nSpokes Number of spokes
+   * @param sides Side of each spoke, spoke 1 first
    * @param tensionDS Initial drive side tension
    * @param tensionNDS Initial non-drive side tension
    */
-  init(nSpokes: number, tensionDS: number, tensionNDS: number): void;
+  init(sides: Side[], tensionDS: number, tensionNDS: number): void;
 
   /**
    * Update the chart with new tension values.
@@ -257,7 +266,7 @@ export interface IControlsView {
   /** Callback when tensometer selection changes */
   onTensometerChange: ((name: string) => void) | null;
   /** Callback when spoke count changes */
-  onSpokeCountChange: ((count: number) => void) | null;
+  onSpokeCountChange: ((layout: SpokeLayout) => void) | null;
   /** Callback when drive side spoke thickness changes */
   onThicknessDSChange: ((thickness: string) => void) | null;
   /** Callback when non-drive side spoke thickness changes */
@@ -296,12 +305,12 @@ export interface IWheelPresenter {
   /**
    * Handle spoke count change.
    */
-  handleSpokeCountChange(count: number): void;
+  handleSpokeCountChange(layout: SpokeLayout): void;
 
   /**
    * Handle spoke thickness change.
    */
-  handleThicknessChange(side: "ds" | "nds", thickness: string): void;
+  handleThicknessChange(side: Side, thickness: string): void;
 
   /**
    * Handle tolerance change.

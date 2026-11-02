@@ -16,7 +16,7 @@ import { config } from "./model/config";
  */
 function initApp(): void {
   // Create model
-  const model = new WheelModel(config.DEFAULT_SPOKES);
+  const model = new WheelModel(config.DEFAULT_SPOKE_LAYOUT);
 
   // Create services
   const tensionService = new TensionService();
@@ -34,7 +34,7 @@ function initApp(): void {
     model.spokeThicknessNDS,
     config.INITIAL_READING_NON_DRIVE_SIDE,
   );
-  chartView.init(model.nSpokes, initialTensionDS, initialTensionNDS);
+  chartView.init(model.sides(), initialTensionDS, initialTensionNDS);
 
   // Create presenter and initialize
   const presenter = new WheelPresenter(

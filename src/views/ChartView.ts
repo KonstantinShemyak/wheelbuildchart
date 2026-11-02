@@ -1,4 +1,4 @@
-import { IChartView, SpokeDataPoint } from "../types/interfaces";
+import { IChartView, Side, SpokeDataPoint } from "../types/interfaces";
 import { RadarChart } from "../charts/RadarChart";
 
 /**
@@ -26,26 +26,29 @@ export class ChartView implements IChartView {
 
   /**
    * Initialize the chart with the given parameters.
-   * @param nSpokes Number of spokes
+   * @param sides Side of each spoke, spoke 1 first
    * @param tensionDS Initial drive side tension
    * @param tensionNDS Initial non-drive side tension
    */
-  init(nSpokes: number, tensionDS: number, tensionNDS: number): void {
+  init(sides: Side[], tensionDS: number, tensionNDS: number): void {
+    const nSpokes = sides.length;
     this.nSpokes = nSpokes;
     this.driveSideSpokes = [];
     this.nonDriveSideSpokes = [];
 
-    // Initialize spoke data points
-    // Axis is numbered in reverse order for display purposes
-    for (let i = 0; i < nSpokes; i++) {
-      this.driveSideSpokes.push({
-        axis: nSpokes - i,
-        value: Math.max(tensionDS, 0),
-      });
-      this.nonDriveSideSpokes.push({
-        axis: nSpokes - i,
-        value: Math.max(tensionNDS, 0),
-      });
+    // Spokes are numbered counterclockwise: the last spoke is at the top,
+    // spoke 1 just left of it.
+    for (let position = 0; position < nSpokes; position++) {
+      const spokeIndex = nSpokes - 1 - position;
+      const isDriveSide = sides[spokeIndex] === "ds";
+      const point: SpokeDataPoint = {
+        axis: spokeIndex + 1,
+        position,
+        value: Math.max(isDriveSide ? tensionDS : tensionNDS, 0),
+      };
+      (isDriveSide ? this.driveSideSpokes : this.nonDriveSideSpokes).push(
+        point,
+      );
     }
 
     this.draw();
@@ -60,40 +63,11 @@ export class ChartView implements IChartView {
       throw new Error("ChartView: update() called before init()");
     }
 
-    for (let i = 0; i < this.nSpokes; i++) {
-      let tensionDS: number;
-      let tensionNDS: number;
-
-      // Calculate bisector for the "virtual" point on the opposite side
-      const neighborLeft = i === 0 ? this.nSpokes - 1 : i - 1;
-      const neighborRight = (i + 1) % this.nSpokes;
-      const bisectorValue = this.bisector(
-        tensions[neighborLeft],
-        tensions[neighborRight],
-      );
-
-      // Even indices (0, 2, 4...) are drive side spokes (1, 3, 5... in 1-indexed)
-      if (i % 2 === 0) {
-        tensionDS = tensions[i];
-        tensionNDS = bisectorValue;
-      } else {
-        tensionDS = bisectorValue;
-        tensionNDS = tensions[i];
-      }
-
-      // Update the data points (axis is in reverse order)
-      const dataIndex = this.nSpokes - (i + 1);
-      this.driveSideSpokes[dataIndex].value = Math.max(tensionDS, 0);
-      this.nonDriveSideSpokes[dataIndex].value = Math.max(tensionNDS, 0);
+    for (const point of [...this.driveSideSpokes, ...this.nonDriveSideSpokes]) {
+      point.value = Math.max(tensions[point.axis - 1], 0);
     }
 
     this.draw();
-  }
-
-  private bisector(a: number, b: number): number {
-    if (a <= 0 || b <= 0) return 0;
-    const halfAngle = (2 * Math.PI) / this.nSpokes;
-    return (2 * a * b * Math.cos(halfAngle)) / (a + b);
   }
 
   /**
@@ -102,6 +76,7 @@ export class ChartView implements IChartView {
   private draw(): void {
     RadarChart.draw(
       this.containerSelector,
+      this.nSpokes,
       [this.driveSideSpokes, this.nonDriveSideSpokes],
       {}, // options (use defaults)
     );

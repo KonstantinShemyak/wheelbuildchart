@@ -163,16 +163,6 @@ export interface ITensionService {
  */
 export interface IStatsService {
   /**
-   * Calculate average of values at odd indices (drive side, 1-indexed)
-   */
-  averageDriveSide(values: number[]): number;
-
-  /**
-   * Calculate average of values at even indices (non-drive side, 1-indexed)
-   */
-  averageNonDriveSide(values: number[]): number;
-
-  /**
    * Check if a value is within tolerance of a reference value.
    * @param value Value to check
    * @param reference Reference value (typically average)

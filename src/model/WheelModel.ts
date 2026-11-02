@@ -22,8 +22,8 @@ export class WheelModel implements IWheelModel {
 
   private listeners: Array<() => void> = [];
 
-  constructor(initialNSpokes: number = config.DEFAULT_SPOKES) {
-    this.layout = { ds: initialNSpokes / 2, nds: initialNSpokes / 2 };
+  constructor(initialLayout: SpokeLayout = config.DEFAULT_SPOKE_LAYOUT) {
+    this.layout = initialLayout;
     this.readings = [];
     this.tensions = [];
     this.spokeThicknessDS = String(config.DEFAULT_SPOKE_THICKNESS);
@@ -43,8 +43,9 @@ export class WheelModel implements IWheelModel {
    * Initialize readings array with default values based on spoke side.
    */
   private initializeReadings(): void {
-    const maxSpokes =
-      config.SUPPORTED_SPOKE_COUNTS[config.SUPPORTED_SPOKE_COUNTS.length - 1];
+    const maxSpokes = Math.max(
+      ...config.SUPPORTED_SPOKE_LAYOUTS.map(spokeLayout.totalSpokes),
+    );
     this.readings = [];
     this.tensions = [];
 
@@ -81,13 +82,18 @@ export class WheelModel implements IWheelModel {
   }
 
   /**
-   * Update the number of spokes.
+   * Update the number of spokes on each side. If the sides now alternate
+   * differently, the readings so far belong to spokes of the other side, so
+   * they are reset to the defaults.
    */
-  setNSpokes(count: number): void {
-    if (config.SUPPORTED_SPOKE_COUNTS.includes(count)) {
-      this.layout = { ds: count / 2, nds: count / 2 };
-      this.notifyListeners();
+  setLayout(layout: SpokeLayout): void {
+    const sameAlternation =
+      layout.ds * this.layout.nds === this.layout.ds * layout.nds;
+    this.layout = layout;
+    if (!sameAlternation) {
+      this.initializeReadings();
     }
+    this.notifyListeners();
   }
 
   /**

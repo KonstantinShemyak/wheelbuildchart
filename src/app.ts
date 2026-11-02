@@ -16,7 +16,7 @@ import { config } from "./model/config";
  */
 function initApp(): void {
   // Create model
-  const model = new WheelModel(config.DEFAULT_SPOKES);
+  const model = new WheelModel(config.DEFAULT_SPOKE_LAYOUT);
 
   // Create services
   const tensionService = new TensionService();

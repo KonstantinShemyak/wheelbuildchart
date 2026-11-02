@@ -1,9 +1,10 @@
-import { IWheelPresenter, Side } from "../types/interfaces";
+import { IWheelPresenter, Side, SpokeLayout } from "../types/interfaces";
 import { WheelModel } from "../model/WheelModel";
 import { TensionService } from "../services/TensionService";
 import { TableView } from "../views/TableView";
 import { ChartView } from "../views/ChartView";
 import { config } from "../model/config";
+import { layoutLabel } from "../model/spokeLayout";
 
 /**
  * WheelPresenter - coordinates the model and views.
@@ -88,8 +89,8 @@ export class WheelPresenter implements IWheelPresenter {
     if (!this.spokesSelect) return;
     this.fillSelect(
       this.spokesSelect,
-      [...config.SUPPORTED_SPOKE_COUNTS],
-      this.model.nSpokes,
+      config.SUPPORTED_SPOKE_LAYOUTS.map(layoutLabel),
+      layoutLabel(this.model.layout),
     );
   }
 
@@ -153,7 +154,10 @@ export class WheelPresenter implements IWheelPresenter {
     });
 
     this.spokesSelect?.addEventListener("change", () => {
-      this.handleSpokeCountChange(Number(this.spokesSelect!.value));
+      const layout = config.SUPPORTED_SPOKE_LAYOUTS.find(
+        (layout) => layoutLabel(layout) === this.spokesSelect!.value,
+      );
+      if (layout) this.handleSpokeCountChange(layout);
     });
 
     this.thicknessDSSelect?.addEventListener("change", () => {
@@ -243,8 +247,8 @@ export class WheelPresenter implements IWheelPresenter {
   /**
    * Handle spoke count change.
    */
-  handleSpokeCountChange(count: number): void {
-    this.model.layout = { ds: count / 2, nds: count / 2 };
+  handleSpokeCountChange(layout: SpokeLayout): void {
+    this.model.setLayout(layout);
     this.renderTable();
 
     // Initialize chart with new spoke count

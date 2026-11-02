@@ -12,6 +12,16 @@ export function totalSpokes(layout: SpokeLayout): number {
 }
 
 /**
+ * How the layout is named for the user: the total number of spokes when both
+ * sides have the same, otherwise the number on each side, like "16:8".
+ */
+export function layoutLabel(layout: SpokeLayout): string {
+  return layout.ds === layout.nds
+    ? String(totalSpokes(layout))
+    : `${layout.ds}:${layout.nds}`;
+}
+
+/**
  * @param index 0-based spoke index
  */
 export function sideOf(layout: SpokeLayout, index: number): Side {

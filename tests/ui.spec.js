@@ -26,6 +26,17 @@ test("switching tensometer updates the chart", async ({ page }) => {
   });
 });
 
+test("a 2:1 laced wheel shows twice as many drive side spokes", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000");
+  await page.selectOption("#nSpokes", "16:8");
+  await expect(page).toHaveScreenshot("two-to-one-1.png", {
+    fullPage: true,
+    threshold: 0.2,
+  });
+});
+
 test("chart stays pinned while the table scrolls", async ({
   page,
   isMobile,

@@ -4,8 +4,9 @@
 export interface Config {
   INITIAL_READING_DRIVE_SIDE: number;
   INITIAL_READING_NON_DRIVE_SIDE: number;
-  SUPPORTED_SPOKE_COUNTS: readonly number[];
-  DEFAULT_SPOKES: number;
+  /** In the order they are offered */
+  SUPPORTED_SPOKE_LAYOUTS: readonly SpokeLayout[];
+  DEFAULT_SPOKE_LAYOUT: SpokeLayout;
   DEFAULT_SPOKE_THICKNESS: number; // millimeters
   SUPPORTED_TOLERANCES: readonly number[]; // percents
   DEFAULT_TOLERANCE: number;
@@ -275,7 +276,7 @@ export interface IControlsView {
   /** Callback when tensometer selection changes */
   onTensometerChange: ((name: string) => void) | null;
   /** Callback when spoke count changes */
-  onSpokeCountChange: ((count: number) => void) | null;
+  onSpokeCountChange: ((layout: SpokeLayout) => void) | null;
   /** Callback when drive side spoke thickness changes */
   onThicknessDSChange: ((thickness: string) => void) | null;
   /** Callback when non-drive side spoke thickness changes */
@@ -314,7 +315,7 @@ export interface IWheelPresenter {
   /**
    * Handle spoke count change.
    */
-  handleSpokeCountChange(count: number): void;
+  handleSpokeCountChange(layout: SpokeLayout): void;
 
   /**
    * Handle spoke thickness change.

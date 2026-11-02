@@ -7,6 +7,7 @@ import { WheelModel } from "./model/WheelModel";
 import { TensionService } from "./services/TensionService";
 import { TableView } from "./views/TableView";
 import { ChartView } from "./views/ChartView";
+import { keepChartInView } from "./views/pinChart";
 import { WheelPresenter } from "./presenter/WheelPresenter";
 import { config } from "./model/config";
 
@@ -43,6 +44,9 @@ function initApp(): void {
     chartView,
   );
   presenter.init();
+
+  const chartPane = document.getElementById("chartPane");
+  if (chartPane) keepChartInView(chartPane);
 }
 
 // Wait for DOM to be ready

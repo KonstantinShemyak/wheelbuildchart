@@ -14,14 +14,30 @@ interface ChartConfig {
   radius: number;
   w: number;
   h: number;
-  factor: number;
-  factorLegend: number;
   levels: number;
   maxValue: number;
   radians: number;
   opacityArea: number;
   color: d3.ScaleOrdinal<number, string>;
-  fontSize: number;
+}
+
+// Proportions of bold sans-serif digits, in ems: all digits share one advance
+// width, and their height is the cap height.
+const DIGIT_WIDTH = 0.556;
+const DIGIT_HEIGHT = 0.716;
+
+// Radius, in screen pixels, of the transparent circle that takes taps for a dot.
+const HIT_RADIUS = 17.5;
+
+/**
+ * Font size at which `digits` bold digits fill a circle of radius `r`: the
+ * largest text box with the digits' proportions that fits inside the circle,
+ * less a little padding so the digits do not touch the rim.
+ */
+function fitFontSize(r: number, digits: number): number {
+  const aspect = (digits * DIGIT_WIDTH) / DIGIT_HEIGHT;
+  const height = (2 * r) / Math.sqrt(1 + aspect * aspect);
+  return (0.85 * height) / DIGIT_HEIGHT;
 }
 
 export const RadarChart = {
@@ -31,17 +47,14 @@ export const RadarChart = {
     options: Partial<ChartConfig> = {},
   ): void {
     const cfg: ChartConfig = {
-      radius: 7,
+      radius: 10.5,
       w: 800,
       h: 800,
-      factor: 0.95,
-      factorLegend: 1,
       levels: 3,
       maxValue: 1,
       radians: 2 * Math.PI,
       opacityArea: 0,
       color: d3.scaleOrdinal<number, string>(d3.schemeCategory10),
-      fontSize: 16,
       ...options,
     };
 
@@ -67,15 +80,18 @@ export const RadarChart = {
     const renderedWidth = svg.node()!.getBoundingClientRect().width;
     const scale = renderedWidth > 0 ? cfg.w / renderedWidth : 1;
 
-    // On a small chart with many spokes, neighbouring labels would run together,
-    // so keep the text smaller than the spacing between them.
-    const labelSpacingPx =
-      renderedWidth > 0 ? (Math.PI * renderedWidth) / total : Infinity;
-    const fontSize = Math.min(cfg.fontSize, 0.5 * labelSpacingPx) * scale;
+    // Spoke numbers are printed inside the dots, all at the size that fits the
+    // longest one, so they read as one set.
+    const dotRadius = cfg.radius * scale;
+    const maxDigits = d3.max(allAxis, (a) => String(a).length) ?? 1;
+    const fontSize = fitFontSize(dotRadius, maxDigits);
 
-    // Keep the margin between the plot and the axis labels constant on screen too,
-    // or the scaled labels and dots overlap once the chart is shrunk.
-    const factor = Math.max(1 - (1 - cfg.factor) * scale, 0.3);
+    // Leave room at the rim for a dot at full tension, plus the polygon's stroke.
+    const rimMargin = (cfg.radius + 2) * scale;
+    const factor = Math.max(
+      1 - rimMargin / Math.min(cfg.w / 2, cfg.h / 2),
+      0.3,
+    );
     const radius = factor * Math.min(cfg.w / 2, cfg.h / 2);
 
     // Helper functions for positioning
@@ -142,26 +158,6 @@ export const RadarChart = {
       .style("stroke", "grey")
       .style("stroke-width", `${scale}px`);
 
-    // Draw axis labels
-    axis
-      .append("text")
-      .attr("class", "legend")
-      .text((d) => String(d))
-      .style("font-family", "sans-serif")
-      .style("font-size", `${fontSize}px`)
-      .style("text-anchor", (_, i) => {
-        const p = getHorizontalPosition(i, 0.5);
-        return p < 0.4 ? "start" : p > 0.6 ? "end" : "middle";
-      })
-      .attr("transform", (_, i) => {
-        const p = getVerticalPosition(i, cfg.h / 2);
-        return p < fontSize ? `translate(0, ${fontSize - p})` : "";
-      })
-      .attr("x", (_, i) =>
-        getHorizontalPosition(i, cfg.w / 2, cfg.factorLegend),
-      )
-      .attr("y", (_, i) => getVerticalPosition(i, cfg.h / 2, cfg.factorLegend));
-
     // Draw data polygons and points
     let series = 0;
 
@@ -221,7 +217,7 @@ export const RadarChart = {
         .enter()
         .append("circle")
         .attr("class", `radar-chart-serie${series}`)
-        .attr("r", (d) => (d.axis % 2 === seriesIndex ? 0 : cfg.radius * scale))
+        .attr("r", (d) => (d.axis % 2 === seriesIndex ? 0 : dotRadius))
         .attr("alt", (d) => Math.max(d.value, 0))
         .attr("cx", (d, i) =>
           getHorizontalPosition(
@@ -249,10 +245,22 @@ export const RadarChart = {
         const ratio = (Math.max(d.value, 0) / cfg.maxValue) * factor;
         const cx = getHorizontalPosition(i, cfg.w / 2, ratio);
         const cy = getVerticalPosition(i, cfg.h / 2, ratio);
+        // Centre the digits' cap height on the dot, not the em box.
+        g.append("text")
+          .attr("class", "spoke-number")
+          .attr("x", cx)
+          .attr("y", cy + (DIGIT_HEIGHT / 2) * fontSize)
+          .text(String(d.axis))
+          .style("font-family", "sans-serif")
+          .style("font-weight", "bold")
+          .style("font-size", `${fontSize}px`)
+          .style("text-anchor", "middle")
+          .style("fill", "white")
+          .style("pointer-events", "none");
         const hit = g
           .append("circle")
           .attr("class", "radar-chart-hit")
-          .attr("r", 2.5 * cfg.radius * scale)
+          .attr("r", Math.max(HIT_RADIUS, cfg.radius) * scale)
           .attr("cx", cx)
           .attr("cy", cy)
           .style("fill", "transparent")

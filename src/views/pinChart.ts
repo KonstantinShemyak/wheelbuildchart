@@ -9,6 +9,11 @@
  * So move the chart's sticky offset down by however far the visual viewport is
  * panned, and scroll the focused input into the gap between the chart and the
  * keyboard, rather than behind either of them.
+ *
+ * Other browsers (Android web views among them) shorten the whole page for the
+ * keyboard instead. The stylesheet then no longer finds the screen tall enough
+ * to pin the chart, and sizes it smaller. For as long as the keyboard is open,
+ * keep the chart as it was just before: pinned if it was, and the same size.
  */
 
 /** How long after a focus or keyboard change the browser may still be scrolling the input into view */
@@ -16,6 +21,9 @@ const SETTLE_MS = 1000;
 
 /** A pause in scroll events this long means the browser's own (smooth) scroll has finished */
 const SCROLL_IDLE_MS = 100;
+
+/** A focused input with the page this much shorter means the keyboard shortened it; browser toolbars sliding in and out change it by ~60px */
+const KEYBOARD_MIN_PX = 150;
 
 export function keepChartInView(pane: HTMLElement): void {
   const viewport = window.visualViewport;
@@ -70,8 +78,43 @@ export function keepChartInView(pane: HTMLElement): void {
     if (performance.now() < settleUntil) scheduleReveal();
   };
 
+  // The page size without the keyboard, and how the chart looked at that size
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let wasPinned = isPinned();
+  let chartWidth = 0;
+  const svg = () => pane.querySelector("svg");
+  const recordChart = () => {
+    wasPinned = isPinned();
+    chartWidth = svg()?.getBoundingClientRect().width ?? 0;
+  };
+  const keyboardOpen = () => pane.classList.contains("keyboard-open");
+
+  window.addEventListener("resize", () => {
+    const shortened =
+      window.innerWidth === width &&
+      window.innerHeight < height - KEYBOARD_MIN_PX &&
+      focusedReading() !== null;
+    if (shortened) {
+      if (wasPinned && chartWidth > 0 && !keyboardOpen()) {
+        pane.style.setProperty(
+          "--chart-width-without-keyboard",
+          `${chartWidth}px`,
+        );
+        pane.classList.add("keyboard-open");
+      }
+      return;
+    }
+    pane.classList.remove("keyboard-open");
+    width = window.innerWidth;
+    height = window.innerHeight;
+  });
+
   document.addEventListener("focusin", () => {
-    if (focusedReading()) settle();
+    if (!focusedReading()) return;
+    // Focus comes before the keyboard, except when moving between cells with it already open
+    if (!keyboardOpen()) recordChart();
+    settle();
   });
   viewport.addEventListener("resize", () => {
     followViewport();

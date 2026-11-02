@@ -47,6 +47,20 @@ body {
   }
 }
 
+/* Some browsers shorten the whole page while the on-screen keyboard is open, so the rules
+   above would unpin and shrink the chart. pinChart.ts sets this class for that time, to keep
+   the chart pinned at the size it had before the keyboard opened. */
+#chartPane.keyboard-open {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+}
+
+#chartPane.keyboard-open svg {
+  width: var(--chart-width-without-keyboard);
+}
+
 /* Two first colors from d3.scale.category10(), lightened */
 .driveSideColor {
   background: #72c5ff; /* #1f77b4; */

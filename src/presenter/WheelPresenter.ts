@@ -1,4 +1,4 @@
-import { IWheelPresenter } from "../types/interfaces";
+import { IWheelPresenter, Side } from "../types/interfaces";
 import { WheelModel } from "../model/WheelModel";
 import { TensionService } from "../services/TensionService";
 import { TableView } from "../views/TableView";
@@ -215,9 +215,7 @@ export class WheelPresenter implements IWheelPresenter {
     this.recalculate();
 
     if (advanceFocus) {
-      // Move focus to next same-side spoke
-      const nextSpoke = (spokeIndex + 2) % this.model.nSpokes;
-      this.tableView.focusSpoke(nextSpoke);
+      this.tableView.focusSpoke(this.model.nextSameSide(spokeIndex));
     }
   }
 
@@ -245,7 +243,7 @@ export class WheelPresenter implements IWheelPresenter {
    * Handle spoke count change.
    */
   handleSpokeCountChange(count: number): void {
-    this.model.nSpokes = count;
+    this.model.layout = { ds: count / 2, nds: count / 2 };
     this.renderTable();
 
     // Initialize chart with new spoke count
@@ -265,7 +263,7 @@ export class WheelPresenter implements IWheelPresenter {
   /**
    * Handle spoke thickness change.
    */
-  handleThicknessChange(side: "ds" | "nds", thickness: string): void {
+  handleThicknessChange(side: Side, thickness: string): void {
     if (side === "ds") {
       this.model.spokeThicknessDS = thickness;
     } else {

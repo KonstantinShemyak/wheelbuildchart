@@ -50,6 +50,18 @@ export interface SpokeDataPoint {
   value: number;
 }
 
+/** Side of the wheel a spoke is on: drive side or non-drive side. */
+export type Side = "ds" | "nds";
+
+/**
+ * Number of spokes on each side. The drive side has a whole multiple of the
+ * non-drive side's spokes: equal for usual wheels, twice as many for 2:1 lacing.
+ */
+export interface SpokeLayout {
+  ds: number;
+  nds: number;
+}
+
 /**
  * Averages for drive side and non-drive side.
  */
@@ -66,8 +78,10 @@ export interface SideAverages {
  * Wheel model - manages the state of wheel spoke data
  */
 export interface IWheelModel {
+  /** Number of spokes on each side */
+  layout: SpokeLayout;
   /** Number of spokes in the wheel */
-  nSpokes: number;
+  readonly nSpokes: number;
   /** Raw tensometer readings for each spoke (0-indexed) */
   readings: number[];
   /** Computed tensions in kgf for each spoke (0-indexed) */
@@ -303,7 +317,7 @@ export interface IWheelPresenter {
   /**
    * Handle spoke thickness change.
    */
-  handleThicknessChange(side: "ds" | "nds", thickness: string): void;
+  handleThicknessChange(side: Side, thickness: string): void;
 
   /**
    * Handle tolerance change.

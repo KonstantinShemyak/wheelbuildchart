@@ -25,3 +25,16 @@ test("switching tensometer updates the chart", async ({ page }) => {
     threshold: 0.2,
   });
 });
+
+test("chart stays pinned while the table scrolls", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, "the chart is only pinned on narrow screens");
+  await page.goto("http://localhost:8000");
+  // Bootstrap smooths scrolling by default; jump so the screenshot is stable.
+  await page.evaluate(() => window.scrollTo({ top: 600, behavior: "instant" }));
+  await expect(page).toHaveScreenshot("chart-pinned-1.png", {
+    threshold: 0.2,
+  });
+});

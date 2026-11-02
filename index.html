@@ -2,6 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, interactive-widget=resizes-visual"
+    />
     <link rel="icon" type="image/png" href="favicon-16x16.png" />
     <link
       rel="stylesheet"
@@ -32,10 +36,82 @@
     <h1 class="text-center text-primary">Wheelbuilding chart</h1>
     <p>
       Select your tensometer, number of spokes and spoke thickness in the
-      dropdown lists. Input the readings from the tensometer into the table on
-      the left. The chart on the right visualizes the wheel condition.
+      dropdown lists. Input the readings from the tensometer into the table. The
+      chart visualizes the wheel condition.
     </p>
     <p><a href="about.html">What is this and how to use it?</a></p>
+
+    <div id="wheelchart">
+      <div id="divStartButton" class="controls">
+        <label
+          >Used tensometer:
+          <select id="usedTensometer"></select
+        ></label>
+        <label
+          >Number of spokes:
+          <select id="nSpokes"></select
+        ></label>
+      </div>
+      <div class="controls">
+        <span>Spoke thickness (mm):</span>
+        <label
+          ><span class="driveSideColor">Drive side </span
+          ><select id="spokeThickness"></select
+        ></label>
+        <label
+          ><span class="nonDriveSideColor">Non-drive side </span
+          ><select id="spokeThicknessNDS"></select
+        ></label>
+      </div>
+      <div class="controls">
+        <label
+          ><span
+            title="Deviation from the average tension after which warning sign will be shown"
+            >Tension tolerance: </span
+          ><select id="toleranceInput"></select
+          ><span> %</span></label
+        >
+      </div>
+      <div id="valuesAndChart">
+        <div id="chartPane"><div id="radarChart"></div></div>
+        <div id="tablePane">
+          <table id="valuesTable">
+            <thead>
+              <tr class="bordered">
+                <td colspan="3" class="driveSideColor bordered header">
+                  Drive side spokes
+                </td>
+                <td colspan="3" class="nonDriveSideColor bordered header">
+                  Non-drive side spokes
+                </td>
+              </tr>
+              <tr class="bordered">
+                <td class="driveSideColor">Spoke<br />#</td>
+                <td class="driveSideColor bordered">Meter<br />reading</td>
+                <td class="driveSideColor">Tension<br />(kgf)</td>
+                <td class="nonDriveSideColor bordered">Spoke<br />#</td>
+                <td class="nonDriveSideColor bordered">Meter<br />reading</td>
+                <td class="nonDriveSideColor">Tension<br />(kgf)</td>
+              </tr>
+            </thead>
+            <tbody id="valuesTableBody">
+              <tr id="average" class="bordered">
+                <td class="driveSideColor"><b>Avg.:</b></td>
+                <td class="driveSideColor bordered" id="avgDriveReading"></td>
+                <td class="driveSideColor" id="avgDriveTension"></td>
+                <td class="nonDriveSideColor bordered"><b>Avg.:</b></td>
+                <td
+                  class="nonDriveSideColor bordered"
+                  id="avgNondriveReading"
+                ></td>
+                <td class="nonDriveSideColor" id="avgNondriveTension"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <p>
       Have some other tensometer model and want to add it here? Add a YAML file
       under 'src/data/tensometers/' and open a Github pull request. If you don't
@@ -45,70 +121,5 @@
       Your tension meter is in the list, but spokes are not? Workaround
       <a href="not-listed-spoke.html">here</a>.
     </p>
-
-    <div id="wheelchart">
-      <div id="divStartButton">
-        <span>Used tensometer: </span>
-        <select id="usedTensometer"></select>
-        <span>Number of spokes: </span>
-        <select id="nSpokes"></select>
-      </div>
-      <div>
-        <span>Spoke thickness (mm):</span>
-        <span class="driveSideColor">Drive side </span>
-        <select id="spokeThickness"></select>
-
-        <span class="nonDriveSideColor">Non-drive side </span>
-        <select id="spokeThicknessNDS"></select>
-      </div>
-      <div>
-        <span
-          title="Deviation from the average tension after which warning sign will be shown"
-          >Tension tolerance:
-        </span>
-        <select id="toleranceInput"></select>
-        <span> %</span>
-      </div>
-      <table id="valuesAndChart">
-        <tr>
-          <td>
-            <table id="valuesTable">
-              <thead>
-                <tr class="bordered">
-                  <td colspan="3" class="driveSideColor bordered header">
-                    Drive side spokes
-                  </td>
-                  <td colspan="3" class="nonDriveSideColor bordered header">
-                    Non-drive side spokes
-                  </td>
-                </tr>
-                <tr class="bordered">
-                  <td class="driveSideColor">Spoke<br />#</td>
-                  <td class="driveSideColor bordered">Meter<br />reading</td>
-                  <td class="driveSideColor">Tension<br />(kgf)</td>
-                  <td class="nonDriveSideColor bordered">Spoke<br />#</td>
-                  <td class="nonDriveSideColor bordered">Meter<br />reading</td>
-                  <td class="nonDriveSideColor">Tension<br />(kgf)</td>
-                </tr>
-              </thead>
-              <tbody id="valuesTableBody">
-                <tr id="average" class="bordered">
-                  <td class="driveSideColor"><b>Avg.:</b></td>
-                  <td class="driveSideColor bordered" id="avgDriveReading"></td>
-                  <td class="driveSideColor" id="avgDriveTension"></td>
-                  <td class="nonDriveSideColor bordered"><b>Avg.:</b></td>
-                  <td
-                    class="nonDriveSideColor bordered"
-                    id="avgNondriveReading"
-                  ></td>
-                  <td class="nonDriveSideColor" id="avgNondriveTension"></td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-          <td><div id="radarChart"></div></td>
-        </tr>
-      </table>
-    </div>
   </body>
 </html>

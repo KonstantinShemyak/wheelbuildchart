@@ -82,6 +82,8 @@ export class TableView implements ITableView {
       inputCell.rowSpan = 2;
       const input = document.createElement("input");
       input.type = "text";
+      // Numeric keypad on phones; type="number" would add spinners and clash with our own validation
+      input.inputMode = "decimal";
       input.id = `reading${spokeNum}`;
       input.className = "readInput";
       input.value = String(readings[i] ?? 0);
@@ -128,8 +130,11 @@ export class TableView implements ITableView {
 
     this.averageRow.parentNode?.insertBefore(offsetRowBottom, this.averageRow);
 
-    // Focus first input
-    this.focusSpoke(0);
+    // Focus first input, except on a touch screen, where it would open the
+    // on-screen keyboard and scroll past the controls
+    if (!window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
+      this.focusSpoke(0);
+    }
   }
 
   /**

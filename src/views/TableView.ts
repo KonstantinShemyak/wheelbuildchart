@@ -1,6 +1,13 @@
 import { ITableView, SideAverages } from "../types/interfaces";
 import { statsService } from "../services/StatsService";
 
+type Side = "ds" | "nds";
+
+const SIDE_CLASSES: Record<Side, string> = {
+  ds: "driveSideColor",
+  nds: "nonDriveSideColor",
+};
+
 /**
  * Handle the input table DOM (spoke readings and tensions)
  */
@@ -44,97 +51,138 @@ export class TableView implements ITableView {
       this.tableContainer.querySelectorAll('[role="valueRow"]');
     existingRows.forEach((row) => row.remove());
 
-    // Create offset row at the top (for staggered layout)
-    const offsetRowTop = document.createElement("tr");
-    offsetRowTop.setAttribute("role", "valueRow");
+    const sides: Side[] = Array.from({ length: nSpokes }, (_, i) =>
+      i % 2 === 0 ? "ds" : "nds",
+    );
+    const nDriveSide = sides.filter((side) => side === "ds").length;
 
-    const dsOffsetCell = document.createElement("td");
-    dsOffsetCell.className = "driveSideColor";
-    dsOffsetCell.colSpan = 3;
-    offsetRowTop.appendChild(dsOffsetCell);
-
-    const ndsOffsetCell = document.createElement("td");
-    ndsOffsetCell.className = "nonDriveSideColor";
-    ndsOffsetCell.colSpan = 3;
-    ndsOffsetCell.rowSpan = 2;
-    offsetRowTop.appendChild(ndsOffsetCell);
-
-    this.averageRow.parentNode?.insertBefore(offsetRowTop, this.averageRow);
-
-    // Create rows for each spoke
-    for (let i = 0; i < nSpokes; i++) {
-      const spokeNum = i + 1; // 1-indexed for display
-      const isDriveSide = i % 2 === 0;
-      const sideClass = isDriveSide ? "driveSideColor" : "nonDriveSideColor";
-
-      const row = document.createElement("tr");
-      row.setAttribute("role", "valueRow");
-      row.className = sideClass;
-
-      // Spoke number cell
-      const numCell = document.createElement("td");
-      numCell.rowSpan = 2;
-      numCell.textContent = `#${spokeNum}:`;
-      row.appendChild(numCell);
-
-      // Input cell
-      const inputCell = document.createElement("td");
-      inputCell.rowSpan = 2;
-      const input = document.createElement("input");
-      input.type = "text";
-      // Numeric keypad on phones; type="number" would add spinners and clash with our own validation
-      input.inputMode = "decimal";
-      input.id = `reading${spokeNum}`;
-      input.className = "readInput";
-      input.value = String(readings[i] ?? 0);
-      // Tab order: drive side first (1, 3, 5...), then non-drive side (2, 4, 6...)
-      input.tabIndex = isDriveSide
-        ? Math.floor(i / 2) + 1
-        : Math.floor(nSpokes / 2) + Math.floor(i / 2) + 1;
-      // Enter means "I am done here, move on", whether or not the value changed.
-      input.addEventListener("keydown", (event) => {
-        if (event.key !== "Enter") return;
-        event.preventDefault();
-        this.handlingEnter = true;
-        try {
-          this.handleInputChange(i, input, true);
-        } finally {
-          this.handlingEnter = false;
-        }
-      });
-      // Leaving the field commits the value but must not steal focus.
-      input.addEventListener("change", () => {
-        if (this.handlingEnter) return;
-        this.handleInputChange(i, input, false);
-      });
-      inputCell.appendChild(input);
-      row.appendChild(inputCell);
-
-      // Tension cell
-      const tensionCell = document.createElement("td");
-      tensionCell.rowSpan = 2;
-      tensionCell.id = `tension${spokeNum}`;
-      row.appendChild(tensionCell);
-
-      this.averageRow.parentNode?.insertBefore(row, this.averageRow);
+    // Each spoke spans two rows of a grid. Drive side spokes follow each other
+    // without gaps; a non-drive side spoke straddles the boundary between the
+    // drive side spokes it lies between on the rim. Spoke 1 is on the drive
+    // side, so the grid starts with one free row on that side, and ends with
+    // one after the last drive side spoke.
+    const nRows = 2 * nDriveSide + 2;
+    const startRows: number[] = [];
+    let nextDriveSideRow = 1;
+    for (const side of sides) {
+      if (side === "ds") {
+        startRows.push(nextDriveSideRow);
+        nextDriveSideRow += 2;
+      } else {
+        startRows.push(nextDriveSideRow - 1);
+      }
     }
 
-    // Create offset row at the bottom
-    const offsetRowBottom = document.createElement("tr");
-    offsetRowBottom.setAttribute("role", "valueRow");
+    // Cells starting in each row, drive side column first; the gaps in each
+    // column are filled with empty cells of the side's colour.
+    const cellsByRow: HTMLTableCellElement[][] = Array.from(
+      { length: nRows },
+      () => [],
+    );
+    for (const column of ["ds", "nds"] as const) {
+      let freeRow = 0;
+      let ordinal = 0;
+      sides.forEach((side, i) => {
+        if (side !== column) return;
+        if (startRows[i] > freeRow) {
+          cellsByRow[freeRow].push(
+            this.createFillerCell(side, startRows[i] - freeRow),
+          );
+        }
+        // Tab order: all drive side spokes first, then the non-drive side
+        const tabIndex = (side === "ds" ? 0 : nDriveSide) + ordinal + 1;
+        cellsByRow[startRows[i]].push(
+          ...this.createSpokeCells(i, side, readings[i] ?? 0, tabIndex),
+        );
+        freeRow = startRows[i] + 2;
+        ordinal++;
+      });
+      if (freeRow < nRows) {
+        cellsByRow[freeRow].push(
+          this.createFillerCell(column, nRows - freeRow),
+        );
+      }
+    }
 
-    const dsBottomCell = document.createElement("td");
-    dsBottomCell.className = "driveSideColor";
-    dsBottomCell.colSpan = 3;
-    offsetRowBottom.appendChild(dsBottomCell);
-
-    this.averageRow.parentNode?.insertBefore(offsetRowBottom, this.averageRow);
+    for (const cells of cellsByRow) {
+      const row = document.createElement("tr");
+      row.setAttribute("role", "valueRow");
+      row.append(...cells);
+      this.averageRow.parentNode?.insertBefore(row, this.averageRow);
+    }
 
     // Focus first input, except on a touch screen, where it would open the
     // on-screen keyboard and scroll past the controls
     if (!window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
       this.focusSpoke(0);
     }
+  }
+
+  /**
+   * Create an empty cell spanning one side's columns.
+   */
+  private createFillerCell(side: Side, rowSpan: number): HTMLTableCellElement {
+    const cell = document.createElement("td");
+    cell.className = SIDE_CLASSES[side];
+    cell.colSpan = 3;
+    cell.rowSpan = rowSpan;
+    return cell;
+  }
+
+  /**
+   * Create the number, reading input and tension cells of a spoke.
+   * @param index 0-based spoke index
+   */
+  private createSpokeCells(
+    index: number,
+    side: Side,
+    reading: number,
+    tabIndex: number,
+  ): HTMLTableCellElement[] {
+    const spokeNum = index + 1; // 1-indexed for display
+
+    // Spoke number cell
+    const numCell = document.createElement("td");
+    numCell.textContent = `#${spokeNum}:`;
+
+    // Input cell
+    const inputCell = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "text";
+    // Numeric keypad on phones; type="number" would add spinners and clash with our own validation
+    input.inputMode = "decimal";
+    input.id = `reading${spokeNum}`;
+    input.className = "readInput";
+    input.value = String(reading);
+    input.tabIndex = tabIndex;
+    // Enter means "I am done here, move on", whether or not the value changed.
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      this.handlingEnter = true;
+      try {
+        this.handleInputChange(index, input, true);
+      } finally {
+        this.handlingEnter = false;
+      }
+    });
+    // Leaving the field commits the value but must not steal focus.
+    input.addEventListener("change", () => {
+      if (this.handlingEnter) return;
+      this.handleInputChange(index, input, false);
+    });
+    inputCell.appendChild(input);
+
+    // Tension cell
+    const tensionCell = document.createElement("td");
+    tensionCell.id = `tension${spokeNum}`;
+
+    const cells = [numCell, inputCell, tensionCell];
+    for (const cell of cells) {
+      cell.className = SIDE_CLASSES[side];
+      cell.rowSpan = 2;
+    }
+    return cells;
   }
 
   /**

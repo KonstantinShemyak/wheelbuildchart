@@ -1,0 +1,110 @@
+/* Look shared by all pages: the parts of Bootstrap's defaults these pages relied on */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    "Noto Sans",
+    "Liberation Sans",
+    Arial,
+    sans-serif;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* The heading sizes grow with the window up to 1200px wide */
+h1 {
+  font-size: calc(1.375rem + 1.5vw);
+  text-align: center;
+  color: #0d6efd;
+}
+
+h2 {
+  font-size: calc(1.325rem + 0.9vw);
+}
+
+@media (min-width: 1200px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+}
+
+p,
+ul,
+pre,
+blockquote {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+ul {
+  padding-left: 2rem;
+}
+
+blockquote {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Naming the fonts, rather than only the generic "monospace", stops browsers from
+   shrinking the text to their smaller default monospace size */
+pre {
+  overflow: auto;
+  font-family:
+    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 0.875em;
+}
+
+a {
+  color: #0d6efd;
+}
+
+a:hover {
+  color: #0a58ca;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+label {
+  display: inline-block;
+}
+
+input,
+select {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+svg {
+  vertical-align: middle;
+}

@@ -41,6 +41,7 @@
   },
   "homepage": "https://github.com/KonstantinShemyak/wheelbuildchart#readme",
   "dependencies": {
-    "d3": "^7.9.0"
+    "d3": "^7.9.0",
+    "github-fork-ribbon-css": "^0.2.3"
   }
 }

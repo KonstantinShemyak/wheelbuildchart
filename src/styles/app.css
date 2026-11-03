@@ -1,9 +1,9 @@
-:root {
-  --bs-body-font-family: "Liberation Sans", Arial, sans-serif !important;
-}
+/* "Fork me on GitHub" ribbon, https://github.com/simonwhitaker/github-fork-ribbon-css */
+@import "github-fork-ribbon-css/gh-fork-ribbon.css";
 
 body {
   margin: 0.5em;
+  font-family: "Liberation Sans", Arial, sans-serif;
 }
 
 #valuesTable {

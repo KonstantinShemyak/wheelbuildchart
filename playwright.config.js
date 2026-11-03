@@ -12,6 +12,13 @@ const launchOptions = {
 };
 
 export default defineConfig({
+  // Refusing to reuse a running server makes a busy port an error, rather than
+  // silently testing whatever else answers there.
+  webServer: {
+    command: "npx vite --port 8000 --strictPort",
+    url: "http://localhost:8000",
+    reuseExistingServer: false,
+  },
   projects: [
     {
       name: "desktop",

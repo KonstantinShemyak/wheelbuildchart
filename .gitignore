@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Playwright test output
+test-results/
+playwright-report/
+blob-report/
+
+# Playwright MCP server logs and screenshots
+.playwright-mcp/
+
+# Personal Claude Code settings
+.claude/settings.local.json

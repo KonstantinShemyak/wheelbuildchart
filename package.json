@@ -10,6 +10,7 @@
   "devDependencies": {
     "@modyfi/vite-plugin-yaml": "^1.1.1",
     "@playwright/test": "1.64.1",
+    "js-yaml": "^4.3.2",
     "playwright": "1.64.0",
     "prettier": "^3.9.10",
     "typescript": "^7.0.2",
@@ -20,6 +21,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "check-spokes": "node scripts/check-spokes.js",
     "format": "prettier --write '**/*.{html,js,ts,css,json,md}'",
     "check-format": "prettier --check '**/*.{html,js,ts,css,json,md}'",
     "test": "docker run --rm --network=host --user $(id -u):$(id -g) -e HOME=/tmp -v $PWD:/app -w /app mcr.microsoft.com/playwright:v$(npm pkg get devDependencies.@playwright/test | tr -d '\"') npx playwright test",

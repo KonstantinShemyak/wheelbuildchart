@@ -28,12 +28,44 @@ test("switching tensometer updates the chart", async ({ page }) => {
   });
 });
 
+test("switching tensometer keeps the same spoke under its new name", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000");
+  // ParkTool calls the straight 2.0 mm spoke "2"
+  await expect(page.locator("#spokeThickness")).toHaveValue("2");
+  await page.selectOption("#usedTensometer", "DT Tensio");
+  await expect(page.locator("#spokeThickness")).toHaveValue(
+    "2.0 (DT Champion)",
+  );
+  await expect(page.locator("#spokeThicknessNDS")).toHaveValue(
+    "2.0 (DT Champion)",
+  );
+  await page.selectOption("#usedTensometer", "ZTTO TC-02");
+  await expect(page.locator("#spokeThickness")).toHaveValue("2.0");
+  await expect(page.locator("#spokeThicknessNDS")).toHaveValue("2.0");
+});
+
+test("switching tensometer to one without the spoke selects its first spoke", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000");
+  await page.selectOption("#spokeThickness", "1.5");
+  // Unior lists no straight 1.5 mm spoke; "1.8*0.9" comes first in its list
+  await page.selectOption("#usedTensometer", "Unior");
+  await expect(page.locator("#spokeThickness")).toHaveValue("1.8*0.9");
+  // The other side's spoke is listed, so it stays
+  await expect(page.locator("#spokeThicknessNDS")).toHaveValue(
+    "2.00 - 2.00 - 2.00",
+  );
+});
+
 test("switching tensometer before entering readings asks nothing", async ({
   page,
 }) => {
   await page.goto("http://localhost:8000");
   await page.selectOption("#usedTensometer", "DT Tensio");
-  await expect(page.locator("#reading1")).toHaveValue("1.45");
+  await expect(page.locator("#reading1")).toHaveValue("1.89");
   await expect(page.getByRole("dialog")).toBeHidden();
 });
 
@@ -66,8 +98,8 @@ test.describe("switching tensometer after entering a reading", () => {
   test("replaces them on request", async ({ page }) => {
     await page.getByRole("button", { name: "Use typical readings" }).click();
     await expect(page.getByRole("dialog")).toBeHidden();
-    await expect(page.locator("#reading1")).toHaveValue("1.45");
-    await expect(page.locator("#reading2")).toHaveValue("1.28");
+    await expect(page.locator("#reading1")).toHaveValue("1.89");
+    await expect(page.locator("#reading2")).toHaveValue("1.73");
   });
 
   test("keeps them when dismissed", async ({ page }) => {

@@ -25,6 +25,11 @@ export interface Config {
    * diameter differs by at most this much
    */
   ESTIMATION_MAX_REFERENCE_DISTANCE: number;
+  /**
+   * Unselectable entry of the spoke thickness lists, after the tensometer's
+   * own spokes and before the estimated ones
+   */
+  ESTIMATED_SPOKES_SEPARATOR: string;
 }
 
 // ============================================================================
@@ -232,6 +237,13 @@ export interface ITensionService {
   getSupportedThicknesses(): string[];
 
   /**
+   * Get the spokes the current tensometer does not list but whose tension
+   * can be estimated from another tensometer's chart, by their keys in
+   * spokes.yaml.
+   */
+  getEstimatedThicknesses(): string[];
+
+  /**
    * Get list of all available tensometer names
    */
   getTensometers(): string[];
@@ -248,8 +260,9 @@ export interface ITensionService {
 
   /**
    * Find the current tensometer's name for the same physical spoke as
-   * `thickness`, which may be any tensometer's name for it.
-   * @returns undefined if the current tensometer does not list that spoke
+   * `thickness`, which may be any tensometer's name for it: its own name if
+   * it lists the spoke, else the spoke's key if it can estimate it.
+   * @returns undefined if the current tensometer can do neither
    */
   findThickness(thickness: string): string | undefined;
 }

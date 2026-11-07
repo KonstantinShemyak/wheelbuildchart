@@ -26,6 +26,7 @@ export const config: Config = {
   ESTIMATION_MAX_DONOR_ERROR: 10,
   ESTIMATION_SCORE_TENSIONS: [60, 160],
   ESTIMATION_MAX_REFERENCE_DISTANCE: 0.2,
+  ESTIMATED_SPOKES_SEPARATOR: "--- estimated ---",
 };
 
 Object.freeze(config);

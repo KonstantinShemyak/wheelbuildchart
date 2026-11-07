@@ -21,6 +21,8 @@ test("changing one reading updates the chart", async ({ page }) => {
 test("switching tensometer updates the chart", async ({ page }) => {
   await page.goto("http://localhost:8000");
   await page.selectOption("#usedTensometer", "DT Tensio");
+  await expect(page.locator("#spokeThickness")).not.toHaveValue("");
+  await expect(page.locator("#spokeThicknessNDS")).not.toHaveValue("");
   await expect(page).toHaveScreenshot("tensometer-switch-1.png", {
     threshold: 0.2,
   });

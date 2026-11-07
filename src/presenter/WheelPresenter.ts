@@ -231,16 +231,18 @@ export class WheelPresenter implements IWheelPresenter {
     this.tensionService.setTensometer(name);
     this.model.tensometer = name;
 
-    // Update thickness dropdowns with new tensometer's supported thicknesses
-    this.populateThicknessSelects();
-
-    // Update model with new default thickness
+    // Thickness names are each tensometer's own, so a thickness chosen for
+    // the previous tensometer may not exist for this one. The model must
+    // hold a valid one before the dropdowns are filled, or they show nothing.
     const thicknesses = this.tensionService.getSupportedThicknesses();
+    const keepOrFirst = (thickness: string) =>
+      thicknesses.includes(thickness) ? thickness : thicknesses[0];
     if (thicknesses.length > 0) {
-      this.model.spokeThicknessDS = thicknesses[0];
-      this.model.spokeThicknessNDS = thicknesses[0];
+      this.model.spokeThicknessDS = keepOrFirst(this.model.spokeThicknessDS);
+      this.model.spokeThicknessNDS = keepOrFirst(this.model.spokeThicknessNDS);
     }
 
+    this.populateThicknessSelects();
     this.recalculate();
   }
 

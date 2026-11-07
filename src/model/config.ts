@@ -1,4 +1,4 @@
-import { Config, SpokeLayout } from "../types/interfaces";
+import type { Config, SpokeLayout } from "../types/interfaces";
 
 /** Equal number of spokes on both sides, `total` in all. */
 const evenlyLaced = (total: number): SpokeLayout => ({
@@ -23,6 +23,9 @@ export const config: Config = {
   DEFAULT_TOLERANCE: 20,
   ERROR_STRING_INVALID_INPUT:
     ": invalid input (a number like '23' or '23.2' expected)",
+  ESTIMATION_MAX_DONOR_ERROR: 10,
+  ESTIMATION_SCORE_TENSIONS: [60, 160],
+  ESTIMATION_MAX_REFERENCE_DISTANCE: 0.2,
 };
 
 Object.freeze(config);
@@ -30,5 +33,6 @@ Object.freeze(config.SUPPORTED_SPOKE_LAYOUTS);
 config.SUPPORTED_SPOKE_LAYOUTS.forEach((layout) => Object.freeze(layout));
 Object.freeze(config.DEFAULT_SPOKE_LAYOUT);
 Object.freeze(config.SUPPORTED_TOLERANCES);
+Object.freeze(config.ESTIMATION_SCORE_TENSIONS);
 
 export const DEFAULT_TENSOMETER = "ParkTool TM-1";

@@ -13,6 +13,18 @@ export interface Config {
   SUPPORTED_TOLERANCES: readonly number[]; // percents
   DEFAULT_TOLERANCE: number;
   ERROR_STRING_INVALID_INPUT: string;
+  /**
+   * Percent; a spoke the tensometer does not list is estimated only if the
+   * donor tensometer predicts the tensometer's own spokes at least this well
+   */
+  ESTIMATION_MAX_DONOR_ERROR: number;
+  /** kgf; the range of tensions in which a donor's error is measured */
+  ESTIMATION_SCORE_TENSIONS: readonly [number, number];
+  /**
+   * mm; a round spoke is estimated only through a reference spoke whose
+   * diameter differs by at most this much
+   */
+  ESTIMATION_MAX_REFERENCE_DISTANCE: number;
 }
 
 // ============================================================================
@@ -56,6 +68,48 @@ export interface SpokeEntry {
   alternative_names?: string[];
   /** Omitted for steel */
   material?: SpokeMaterial;
+}
+
+/**
+ * Dimensions of a spoke in mm, parsed from its key in spokes.yaml.
+ */
+export interface SpokeGeometry {
+  /** Diameter of a round spoke, or [width, thickness] of a blade */
+  middle: number | [number, number];
+  /** [head, thread] diameters; null when only the middle is known */
+  ends: [number, number] | null;
+}
+
+/**
+ * How to estimate the tension of a spoke the tensometer does not list:
+ * through a reference spoke both it and a donor tensometer list,
+ *
+ *     tension(r) = donorSpoke( donorReference⁻¹( reference(r) ) )
+ */
+export interface EstimatePlan {
+  /** Donor tensometer, which lists the spoke */
+  donor: string;
+  /** The spoke's name in the donor's chart */
+  donorSpokeName: string;
+  donorSpoke: TensionLookupTable;
+  /** The reference spoke's name in the tensometer's own chart */
+  referenceName: string;
+  reference: TensionLookupTable;
+  /** The reference spoke's name in the donor's chart */
+  donorReferenceName: string;
+  donorReference: TensionLookupTable;
+  /** The donor's error in predicting the tensometer's own spokes, percent */
+  score: number;
+}
+
+/** Limits on estimating spokes; see the ESTIMATION_* values in Config. */
+export interface EstimationOptions {
+  /** Percent */
+  maxDonorError: number;
+  /** kgf */
+  scoreTensions: readonly [number, number];
+  /** mm; round spokes only */
+  maxReferenceDistance: number;
 }
 
 // One spoke data point

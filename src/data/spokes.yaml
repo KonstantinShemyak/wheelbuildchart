@@ -1,6 +1,7 @@
 # Straight round spokes
 - spoke: "1.5"
 - spoke: "1.6"
+- spoke: "1.65"
 - spoke: "1.7"
 - spoke: "1.8"
   alternative_names:
@@ -113,8 +114,27 @@
 - spoke: "3.5*0.9"
 - spoke: "4.5*1.0"
 
+# Bladed spokes known only by the blade thickness
+- spoke: "?*0.9"
+- spoke: "?*0.95"
+- spoke: "?*1.0"
+- spoke: "?*1.2"
+
 # Aluminium spokes
+- spoke: "2.72 (I-9 aluminium)"
 - spoke: "3.8*1.5 (aluminium)"
+- spoke: "(Garbaruk aluminium)"
+- spoke: "(Ksyrium aluminium)"
+
+# Titanium spokes
+- spoke: "2.0 (titanium)"
+
+# Carbon and fiber spokes
+- spoke: "3.1*0.95 (Alpina carbon)"
+- spoke: "3.25*1.45 (Nextie carbon)"
+- spoke: "4.0*1.1 (Vonoa carbon)"
+- spoke: "(MTO-255 carbon)"
+- spoke: "(Berd PolyLight)"
 
 # Spokes of unknown dimensions
 - spoke: "(CX)"

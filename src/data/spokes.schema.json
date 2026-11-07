@@ -20,6 +20,11 @@
         "uniqueItems": true,
         "description": "Other names tensometer charts use for this spoke. Omitted when the only name is the 'spoke' key itself.",
         "items": { "type": "string", "minLength": 1 }
+      },
+      "material": {
+        "enum": ["steel", "aluminium", "titanium", "carbon", "polyethylene"],
+        "default": "steel",
+        "description": "What the spoke is made of; omitted for steel. Spokes of different materials bend differently even at the same size, so tension estimates never relate spokes of different materials."
       }
     }
   }

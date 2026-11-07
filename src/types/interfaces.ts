@@ -43,6 +43,10 @@ export interface TensometerFile {
   spokes: TensometerData;
 }
 
+/** What a spoke is made of; the values src/data/spokes.schema.json allows. */
+export type SpokeMaterial =
+  "steel" | "aluminium" | "titanium" | "carbon" | "polyethylene";
+
 /**
  * One physical spoke in src/data/spokes.yaml, with the other names
  * tensometer charts use for it.
@@ -50,6 +54,8 @@ export interface TensometerFile {
 export interface SpokeEntry {
   spoke: string;
   alternative_names?: string[];
+  /** Omitted for steel */
+  material?: SpokeMaterial;
 }
 
 // One spoke data point

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Spokes",
+  "description": "Shape of src/data/spokes.yaml: one entry per physical spoke, mapping the names tensometers use for it. That every tensometer name is listed exactly once is checked by scripts/check-spokes.js, not by this schema.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": ["spoke"],
+    "additionalProperties": false,
+    "properties": {
+      "spoke": {
+        "type": "string",
+        "description": "Unique key of the spoke, 'head - middle - thread (name)' in mm. The middle is a diameter (round) or 'width*thickness' (bladed). Head and thread are given together or not at all; the name is optional. A spoke of unknown dimensions is just '(name)'.",
+        "pattern": "^((\\d+(\\.\\d+)? - \\d+(\\.\\d+)?(\\*\\d+(\\.\\d+)?)? - \\d+(\\.\\d+)?|\\d+(\\.\\d+)?(\\*\\d+(\\.\\d+)?)?)( \\([^()]+\\))?|\\([^()]+\\))$"
+      },
+      "alternative_names": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "description": "Other names tensometer charts use for this spoke. Omitted when the only name is the 'spoke' key itself.",
+        "items": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -56,6 +56,9 @@ jobs:
             tensometers:
               - 'src/data/tensometers/**'
               - 'src/data/tensometer.schema.json'
+              - 'src/data/spokes.yaml'
+              - 'src/data/spokes.schema.json'
+              - 'scripts/check-spokes.js'
 
   validate-tensometers:
     needs: detect-changes
@@ -70,3 +73,22 @@ jobs:
 
       - name: Validate tensometer YAML files against schema
         run: check-jsonschema --schemafile src/data/tensometer.schema.json src/data/tensometers/*.yaml
+
+      - name: Validate spokes.yaml against schema
+        if: ${{ !cancelled() }}
+        run: check-jsonschema --schemafile src/data/spokes.schema.json src/data/spokes.yaml
+
+      - name: Install Node.js
+        if: ${{ !cancelled() }}
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        if: ${{ !cancelled() }}
+        run: npm ci
+
+      - name: Check that every tensometer spoke is in spokes.yaml
+        if: ${{ !cancelled() }}
+        run: npm run check-spokes

@@ -7,6 +7,7 @@ import { WheelModel } from "./model/WheelModel";
 import { TensionService } from "./services/TensionService";
 import { TableView } from "./views/TableView";
 import { ChartView } from "./views/ChartView";
+import { ReadingsDialogView } from "./views/ReadingsDialogView";
 import { keepChartInView } from "./views/pinChart";
 import { WheelPresenter } from "./presenter/WheelPresenter";
 import { config } from "./model/config";
@@ -24,6 +25,7 @@ function initApp(): void {
   // Create views
   const tableView = new TableView("#valuesTable");
   const chartView = new ChartView("#radarChart");
+  const readingsDialog = new ReadingsDialogView("#readingsDialog");
 
   // Initialize chart with default values
   chartView.init(
@@ -38,6 +40,7 @@ function initApp(): void {
     tensionService,
     tableView,
     chartView,
+    readingsDialog,
   );
   presenter.init();
 

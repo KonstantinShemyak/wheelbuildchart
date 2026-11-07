@@ -100,6 +100,22 @@
       </div>
     </div>
 
+    <dialog id="readingsDialog" aria-labelledby="readingsDialogTitle">
+      <form method="dialog">
+        <p id="readingsDialogTitle"><b>Keep the readings you entered?</b></p>
+        <p>
+          The same reading means a different tension on another tensometer. Keep
+          the readings if you took them with
+          <span class="tensometerName"></span>, otherwise start from its typical
+          readings.
+        </p>
+        <div class="dialogButtons">
+          <button value="keep" autofocus>Keep my readings</button>
+          <button value="replace">Use typical readings</button>
+        </div>
+      </form>
+    </dialog>
+
     <p>
       Have some other tensometer model and want to add it here? Add a YAML file
       under 'src/data/tensometers/' and open a Github pull request. If you don't

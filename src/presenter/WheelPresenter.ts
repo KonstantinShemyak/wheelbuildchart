@@ -1,4 +1,9 @@
-import { IWheelPresenter, Side, SpokeLayout } from "../types/interfaces";
+import {
+  IReadingsDialogView,
+  IWheelPresenter,
+  Side,
+  SpokeLayout,
+} from "../types/interfaces";
 import { WheelModel } from "../model/WheelModel";
 import { TensionService } from "../services/TensionService";
 import { TableView } from "../views/TableView";
@@ -15,6 +20,7 @@ export class WheelPresenter implements IWheelPresenter {
   private tensionService: TensionService;
   private tableView: TableView;
   private chartView: ChartView;
+  private readingsDialog: IReadingsDialogView;
 
   // DOM elements for controls
   private tensometerSelect: HTMLSelectElement | null = null;
@@ -28,11 +34,13 @@ export class WheelPresenter implements IWheelPresenter {
     tensionService: TensionService,
     tableView: TableView,
     chartView: ChartView,
+    readingsDialog: IReadingsDialogView,
   ) {
     this.model = model;
     this.tensionService = tensionService;
     this.tableView = tableView;
     this.chartView = chartView;
+    this.readingsDialog = readingsDialog;
   }
 
   /**
@@ -151,7 +159,7 @@ export class WheelPresenter implements IWheelPresenter {
    */
   private bindControlEvents(): void {
     this.tensometerSelect?.addEventListener("change", () => {
-      this.handleTensometerChange(this.tensometerSelect!.value);
+      void this.handleTensometerChange(this.tensometerSelect!.value);
     });
 
     this.spokesSelect?.addEventListener("change", () => {
@@ -244,9 +252,14 @@ export class WheelPresenter implements IWheelPresenter {
   /**
    * Handle tensometer selection change.
    */
-  handleTensometerChange(name: string): void {
-    // Checked before anything changes: the defaults are the old tensometer's
-    const readingsAreDefault = this.model.readingsAreDefault();
+  async handleTensometerChange(name: string): Promise<void> {
+    // The old defaults are on the old tensometer's scale and would mean an
+    // arbitrary tension on this one, so they are always replaced. Readings
+    // the user entered may have been taken with this tensometer: ask.
+    // Checked before anything changes: the defaults are the old tensometer's.
+    const replaceReadings =
+      this.model.readingsAreDefault() ||
+      (await this.readingsDialog.askToReplace(name));
     this.tensionService.setTensometer(name);
     this.model.tensometer = name;
 
@@ -263,9 +276,7 @@ export class WheelPresenter implements IWheelPresenter {
 
     this.populateThicknessSelects();
 
-    // The old defaults are on the old tensometer's scale and would mean an
-    // arbitrary tension on this one. Readings the user entered are kept.
-    if (readingsAreDefault) {
+    if (replaceReadings) {
       this.model.resetReadings(this.defaultReadings());
       this.renderTable();
     }

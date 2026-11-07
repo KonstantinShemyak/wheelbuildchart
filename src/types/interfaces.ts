@@ -269,6 +269,19 @@ export interface IChartView {
 }
 
 /**
+ * Asks whether to replace the entered readings when the tensometer changes.
+ */
+export interface IReadingsDialogView {
+  /**
+   * Ask whether to replace the entered readings with the defaults of the
+   * newly chosen tensometer.
+   * @param tensometer Name of the newly chosen tensometer
+   * @returns Whether to replace them; dismissing the dialog keeps them
+   */
+  askToReplace(tensometer: string): Promise<boolean>;
+}
+
+/**
  * View for dropdown/select controls.
  */
 export interface IControlsView {
@@ -318,9 +331,10 @@ export interface IWheelPresenter {
   ): void;
 
   /**
-   * Handle tensometer selection change.
+   * Handle tensometer selection change. If readings were entered, asks
+   * whether to replace them with the new tensometer's defaults first.
    */
-  handleTensometerChange(name: string): void;
+  handleTensometerChange(name: string): Promise<void>;
 
   /**
    * Handle spoke count change.

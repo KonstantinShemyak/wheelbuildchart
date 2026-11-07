@@ -1,4 +1,9 @@
-import { IWheelPresenter, Side, SpokeLayout } from "../types/interfaces";
+import {
+  IReadingsDialogView,
+  IWheelPresenter,
+  Side,
+  SpokeLayout,
+} from "../types/interfaces";
 import { WheelModel } from "../model/WheelModel";
 import { TensionService } from "../services/TensionService";
 import { TableView } from "../views/TableView";
@@ -15,6 +20,7 @@ export class WheelPresenter implements IWheelPresenter {
   private tensionService: TensionService;
   private tableView: TableView;
   private chartView: ChartView;
+  private readingsDialog: IReadingsDialogView;
 
   // DOM elements for controls
   private tensometerSelect: HTMLSelectElement | null = null;
@@ -28,11 +34,13 @@ export class WheelPresenter implements IWheelPresenter {
     tensionService: TensionService,
     tableView: TableView,
     chartView: ChartView,
+    readingsDialog: IReadingsDialogView,
   ) {
     this.model = model;
     this.tensionService = tensionService;
     this.tableView = tableView;
     this.chartView = chartView;
+    this.readingsDialog = readingsDialog;
   }
 
   /**
@@ -69,6 +77,7 @@ export class WheelPresenter implements IWheelPresenter {
     };
 
     // Initial render
+    this.model.resetReadings(this.defaultReadings());
     this.renderTable();
     this.recalculate();
   }
@@ -150,7 +159,7 @@ export class WheelPresenter implements IWheelPresenter {
    */
   private bindControlEvents(): void {
     this.tensometerSelect?.addEventListener("change", () => {
-      this.handleTensometerChange(this.tensometerSelect!.value);
+      void this.handleTensometerChange(this.tensometerSelect!.value);
     });
 
     this.spokesSelect?.addEventListener("change", () => {
@@ -171,6 +180,22 @@ export class WheelPresenter implements IWheelPresenter {
     this.toleranceSelect?.addEventListener("change", () => {
       this.handleToleranceChange(Number(this.toleranceSelect!.value));
     });
+  }
+
+  /**
+   * What the current tensometer reads at the default tension of each side.
+   */
+  private defaultReadings(): Record<Side, number> {
+    return {
+      ds: this.tensionService.reading(
+        this.model.spokeThicknessDS,
+        config.DEFAULT_TENSION_DRIVE_SIDE,
+      ),
+      nds: this.tensionService.reading(
+        this.model.spokeThicknessNDS,
+        config.DEFAULT_TENSION_NON_DRIVE_SIDE,
+      ),
+    };
   }
 
   /**
@@ -227,18 +252,33 @@ export class WheelPresenter implements IWheelPresenter {
   /**
    * Handle tensometer selection change.
    */
-  handleTensometerChange(name: string): void {
+  async handleTensometerChange(name: string): Promise<void> {
+    // The old defaults are on the old tensometer's scale and would mean an
+    // arbitrary tension on this one, so they are always replaced. Readings
+    // the user entered may have been taken with this tensometer: ask.
+    // Checked before anything changes: the defaults are the old tensometer's.
+    const replaceReadings =
+      this.model.readingsAreDefault() ||
+      (await this.readingsDialog.askToReplace(name));
     this.tensionService.setTensometer(name);
     this.model.tensometer = name;
 
-    // Update thickness dropdowns with new tensometer's supported thicknesses
+    // Thickness names are each tensometer's own, so a thickness chosen for
+    // the previous tensometer may not exist for this one. The model must
+    // hold a valid one before the dropdowns are filled, or they show nothing.
+    const thicknesses = this.tensionService.getSupportedThicknesses();
+    const keepOrFirst = (thickness: string) =>
+      thicknesses.includes(thickness) ? thickness : thicknesses[0];
+    if (thicknesses.length > 0) {
+      this.model.spokeThicknessDS = keepOrFirst(this.model.spokeThicknessDS);
+      this.model.spokeThicknessNDS = keepOrFirst(this.model.spokeThicknessNDS);
+    }
+
     this.populateThicknessSelects();
 
-    // Update model with new default thickness
-    const thicknesses = this.tensionService.getSupportedThicknesses();
-    if (thicknesses.length > 0) {
-      this.model.spokeThicknessDS = thicknesses[0];
-      this.model.spokeThicknessNDS = thicknesses[0];
+    if (replaceReadings) {
+      this.model.resetReadings(this.defaultReadings());
+      this.renderTable();
     }
 
     this.recalculate();
@@ -252,18 +292,10 @@ export class WheelPresenter implements IWheelPresenter {
     this.renderTable();
 
     // Initialize chart with new spoke count
-    const initialTensionDS = this.tensionService.tension(
-      this.model.spokeThicknessDS,
-      config.INITIAL_READING_DRIVE_SIDE,
-    );
-    const initialTensionNDS = this.tensionService.tension(
-      this.model.spokeThicknessNDS,
-      config.INITIAL_READING_NON_DRIVE_SIDE,
-    );
     this.chartView.init(
       this.model.sides(),
-      initialTensionDS,
-      initialTensionNDS,
+      config.DEFAULT_TENSION_DRIVE_SIDE,
+      config.DEFAULT_TENSION_NON_DRIVE_SIDE,
     );
 
     this.recalculate();

@@ -101,6 +101,29 @@ input.readInput {
   text-align: right;
 }
 
+#readingsDialog {
+  max-width: min(30em, calc(100vw - 32px));
+  border: 1px solid #212529;
+  border-radius: 6px;
+}
+
+#readingsDialog::backdrop {
+  background: rgb(0 0 0 / 0.3);
+}
+
+.dialogButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5em;
+}
+
+/* Finger-sized, like the selects */
+.dialogButtons button {
+  min-height: 44px;
+  font: inherit;
+}
+
 /* On a phone the ribbon covers the heading and the first lines of text */
 .github-fork-ribbon {
   display: none;

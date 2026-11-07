@@ -2,8 +2,10 @@
  * Application configuration constants
  */
 export interface Config {
-  INITIAL_READING_DRIVE_SIDE: number;
-  INITIAL_READING_NON_DRIVE_SIDE: number;
+  /** kgf; the initial readings are what the tensometer shows at it */
+  DEFAULT_TENSION_DRIVE_SIDE: number;
+  /** kgf; the initial readings are what the tensometer shows at it */
+  DEFAULT_TENSION_NON_DRIVE_SIDE: number;
   /** In the order they are offered */
   SUPPORTED_SPOKE_LAYOUTS: readonly SpokeLayout[];
   DEFAULT_SPOKE_LAYOUT: SpokeLayout;
@@ -104,6 +106,18 @@ export interface IWheelModel {
   setReading(index: number, value: number): void;
 
   /**
+   * Set every reading to the default of its side, and remember these
+   * defaults for when the readings are reset again.
+   */
+  resetReadings(defaults: Record<Side, number>): void;
+
+  /**
+   * Whether every reading still has the default of its side, i.e. none was
+   * entered.
+   */
+  readingsAreDefault(): boolean;
+
+  /**
    * Get the average readings and tensions for each side.
    */
   getAverages(): { readings: SideAverages; tensions: SideAverages };
@@ -136,6 +150,12 @@ export interface ITensionService {
    * Uses interpolation/extrapolation for values not in the table.
    */
   tension(spokeThickness: string, reading: number): number;
+
+  /**
+   * Get the reading at a given tension (kgf) for a given spoke thickness,
+   * rounded to the precision of the tensometer's table.
+   */
+  reading(spokeThickness: string, tension: number): number;
 
   /**
    * Get list of supported spoke thicknesses for current tensometer
@@ -249,6 +269,19 @@ export interface IChartView {
 }
 
 /**
+ * Asks whether to replace the entered readings when the tensometer changes.
+ */
+export interface IReadingsDialogView {
+  /**
+   * Ask whether to replace the entered readings with the defaults of the
+   * newly chosen tensometer.
+   * @param tensometer Name of the newly chosen tensometer
+   * @returns Whether to replace them; dismissing the dialog keeps them
+   */
+  askToReplace(tensometer: string): Promise<boolean>;
+}
+
+/**
  * View for dropdown/select controls.
  */
 export interface IControlsView {
@@ -298,9 +331,10 @@ export interface IWheelPresenter {
   ): void;
 
   /**
-   * Handle tensometer selection change.
+   * Handle tensometer selection change. If readings were entered, asks
+   * whether to replace them with the new tensometer's defaults first.
    */
-  handleTensometerChange(name: string): void;
+  handleTensometerChange(name: string): Promise<void>;
 
   /**
    * Handle spoke count change.

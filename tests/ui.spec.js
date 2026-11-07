@@ -21,8 +21,59 @@ test("changing one reading updates the chart", async ({ page }) => {
 test("switching tensometer updates the chart", async ({ page }) => {
   await page.goto("http://localhost:8000");
   await page.selectOption("#usedTensometer", "DT Tensio");
+  await expect(page.locator("#spokeThickness")).not.toHaveValue("");
+  await expect(page.locator("#spokeThicknessNDS")).not.toHaveValue("");
   await expect(page).toHaveScreenshot("tensometer-switch-1.png", {
     threshold: 0.2,
+  });
+});
+
+test("switching tensometer before entering readings asks nothing", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000");
+  await page.selectOption("#usedTensometer", "DT Tensio");
+  await expect(page.locator("#reading1")).toHaveValue("1.45");
+  await expect(page.getByRole("dialog")).toBeHidden();
+});
+
+test.describe("switching tensometer after entering a reading", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://localhost:8000");
+    const reading1 = page.locator("#reading1");
+    await reading1.fill("22");
+    await reading1.press("Tab");
+    await page.selectOption("#usedTensometer", "DT Tensio");
+  });
+
+  test("asks whether to keep the readings", async ({ page }) => {
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText("DT Tensio");
+    await expect(page).toHaveScreenshot("readings-dialog-1.png", {
+      threshold: 0.2,
+    });
+  });
+
+  test("keeps them on request", async ({ page }) => {
+    await page.getByRole("button", { name: "Keep my readings" }).click();
+    await expect(page.getByRole("dialog")).toBeHidden();
+    await expect(page.locator("#reading1")).toHaveValue("22");
+    await expect(page.locator("#reading3")).toHaveValue("20");
+    await expect(page.locator("#usedTensometer")).toHaveValue("DT Tensio");
+  });
+
+  test("replaces them on request", async ({ page }) => {
+    await page.getByRole("button", { name: "Use typical readings" }).click();
+    await expect(page.getByRole("dialog")).toBeHidden();
+    await expect(page.locator("#reading1")).toHaveValue("1.45");
+    await expect(page.locator("#reading2")).toHaveValue("1.28");
+  });
+
+  test("keeps them when dismissed", async ({ page }) => {
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toBeHidden();
+    await expect(page.locator("#reading1")).toHaveValue("22");
   });
 });
 

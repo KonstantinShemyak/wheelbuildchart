@@ -7,6 +7,7 @@ import { WheelModel } from "./model/WheelModel";
 import { TensionService } from "./services/TensionService";
 import { TableView } from "./views/TableView";
 import { ChartView } from "./views/ChartView";
+import { ReadingsDialogView } from "./views/ReadingsDialogView";
 import { keepChartInView } from "./views/pinChart";
 import { WheelPresenter } from "./presenter/WheelPresenter";
 import { config } from "./model/config";
@@ -24,17 +25,14 @@ function initApp(): void {
   // Create views
   const tableView = new TableView("#valuesTable");
   const chartView = new ChartView("#radarChart");
+  const readingsDialog = new ReadingsDialogView("#readingsDialog");
 
   // Initialize chart with default values
-  const initialTensionDS = tensionService.tension(
-    model.spokeThicknessDS,
-    config.INITIAL_READING_DRIVE_SIDE,
+  chartView.init(
+    model.sides(),
+    config.DEFAULT_TENSION_DRIVE_SIDE,
+    config.DEFAULT_TENSION_NON_DRIVE_SIDE,
   );
-  const initialTensionNDS = tensionService.tension(
-    model.spokeThicknessNDS,
-    config.INITIAL_READING_NON_DRIVE_SIDE,
-  );
-  chartView.init(model.sides(), initialTensionDS, initialTensionNDS);
 
   // Create presenter and initialize
   const presenter = new WheelPresenter(
@@ -42,6 +40,7 @@ function initApp(): void {
     tensionService,
     tableView,
     chartView,
+    readingsDialog,
   );
   presenter.init();
 

@@ -9,6 +9,9 @@
 //    removing a tensometer spoke cannot leave stale entries behind.
 //    (`spoke` values are exempt: merged entries may use a key that no
 //    tensometer has, e.g. "2.0 - 1.8 - 2.0".)
+// 4. no tensometer lists two names of the same spoke: then they are in fact
+//    different spokes (as Hozan's "2.3" and "2.34 (DT Champion)" are), and
+//    the app could not tell which of the two names a spoke has there.
 //
 // Exits non-zero and lists every problem found.
 
@@ -24,8 +27,9 @@ const load = (file) => yaml.load(fs.readFileSync(file, "utf8"));
 const spokes = load(path.join(DATA, "spokes.yaml"));
 const errors = [];
 
-// Where each name is defined in spokes.yaml.
+// Where each name is defined in spokes.yaml, and the spoke it names.
 const definedAt = new Map();
+const spokeOf = new Map();
 for (const [i, entry] of spokes.entries()) {
   const names = [entry.spoke, ...(entry.alternative_names ?? [])];
   for (const name of names) {
@@ -36,6 +40,7 @@ for (const [i, entry] of spokes.entries()) {
       );
     } else {
       definedAt.set(name, where);
+      spokeOf.set(name, entry.spoke);
     }
   }
 }
@@ -45,6 +50,8 @@ const usedBy = new Map();
 for (const file of fs.readdirSync(TENSOMETER_DIR).sort()) {
   if (!file.endsWith(".yaml")) continue;
   const tensometer = load(path.join(TENSOMETER_DIR, file));
+  // This tensometer's name for each spoke it lists
+  const nameOf = new Map();
   for (const name of Object.keys(tensometer.spokes)) {
     if (!usedBy.has(name)) usedBy.set(name, []);
     usedBy.get(name).push(tensometer.name);
@@ -53,6 +60,16 @@ for (const file of fs.readdirSync(TENSOMETER_DIR).sort()) {
         `${tensometer.name}: "${name}" is not in ${SPOKES_FILE}` +
           " — add it as a new spoke or to alternative_names of an existing one",
       );
+      continue;
+    }
+    const spoke = spokeOf.get(name);
+    if (nameOf.has(spoke)) {
+      errors.push(
+        `${tensometer.name}: "${nameOf.get(spoke)}" and "${name}" are both` +
+          ` "${spoke}" in ${SPOKES_FILE} — make them separate spokes`,
+      );
+    } else {
+      nameOf.set(spoke, name);
     }
   }
 }

@@ -11,8 +11,8 @@
     "properties": {
       "spoke": {
         "type": "string",
-        "description": "Unique key of the spoke, 'head - middle - thread (name)' in mm. The middle is a diameter (round) or 'width*thickness' (bladed). Head and thread are given together or not at all; the name is optional. A spoke of unknown dimensions is just '(name)'.",
-        "pattern": "^((\\d+(\\.\\d+)? - \\d+(\\.\\d+)?(\\*\\d+(\\.\\d+)?)? - \\d+(\\.\\d+)?|\\d+(\\.\\d+)?(\\*\\d+(\\.\\d+)?)?)( \\([^()]+\\))?|\\([^()]+\\))$"
+        "description": "Unique key of the spoke, 'head - middle - thread (name)' in mm. The middle is a diameter (round) or 'width*thickness' (bladed). Head and thread are given together or not at all; the name is optional. A blade of unknown width is '?*thickness', without head and thread. A spoke of unknown dimensions is just '(name)'.",
+        "pattern": "^((\\d+(\\.\\d+)? - \\d+(\\.\\d+)?(\\*\\d+(\\.\\d+)?)? - \\d+(\\.\\d+)?|\\d+(\\.\\d+)?(\\*\\d+(\\.\\d+)?)?|\\?\\*\\d+(\\.\\d+)?)( \\([^()]+\\))?|\\([^()]+\\))$"
       },
       "alternative_names": {
         "type": "array",

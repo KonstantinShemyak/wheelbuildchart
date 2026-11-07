@@ -67,8 +67,6 @@ export class TensionService implements ITensionService {
       );
       return 0;
     }
-    // Tension grows with the reading, so the table read backwards maps
-    // tension to reading and interpolates the same way.
     const readings: TensionLookupTable = Object.fromEntries(
       Object.entries(lookupTable).map(([reading, kgf]) => [
         kgf,

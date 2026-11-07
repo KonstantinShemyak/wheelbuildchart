@@ -43,6 +43,15 @@ export interface TensometerFile {
   spokes: TensometerData;
 }
 
+/**
+ * One physical spoke in src/data/spokes.yaml, with the other names
+ * tensometer charts use for it.
+ */
+export interface SpokeEntry {
+  spoke: string;
+  alternative_names?: string[];
+}
+
 // One spoke data point
 export interface SpokeDataPoint {
   /** Spoke number (1-based) */
@@ -176,6 +185,13 @@ export interface ITensionService {
    * Get the current tensometer name
    */
   getCurrentTensometer(): string;
+
+  /**
+   * Find the current tensometer's name for the same physical spoke as
+   * `thickness`, which may be any tensometer's name for it.
+   * @returns undefined if the current tensometer does not list that spoke
+   */
+  findThickness(thickness: string): string | undefined;
 }
 
 /**

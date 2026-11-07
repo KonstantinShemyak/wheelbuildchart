@@ -5,6 +5,8 @@ import {
   TensionLookupTable,
 } from "../types/interfaces";
 import { DEFAULT_TENSOMETER } from "../model/config";
+import spokes from "../data/spokes.yaml";
+import { buildSpokeIndex } from "./spokeIndex";
 
 const tensometerModules = import.meta.glob<{ default: TensometerFile }>(
   "../data/tensometers/*.yaml",
@@ -25,13 +27,17 @@ const tensometers: TensometersDatabase = Object.fromEntries(
 export class TensionService implements ITensionService {
   private data: TensometersDatabase;
   private currentTensometer: string;
+  /** Any tensometer's spoke name -> key of the physical spoke */
+  private spokeIndex: Map<string, string>;
 
   constructor(
     data: TensometersDatabase = tensometers,
     defaultTensometer: string = DEFAULT_TENSOMETER,
+    spokeIndex: Map<string, string> = buildSpokeIndex(spokes),
   ) {
     this.data = data;
     this.currentTensometer = defaultTensometer;
+    this.spokeIndex = spokeIndex;
   }
 
   /**
@@ -108,6 +114,19 @@ export class TensionService implements ITensionService {
    */
   getCurrentTensometer(): string {
     return this.currentTensometer;
+  }
+
+  /**
+   * Find the current tensometer's name for the same physical spoke as
+   * `thickness`, which may be any tensometer's name for it.
+   * @returns undefined if the current tensometer does not list that spoke
+   */
+  findThickness(thickness: string): string | undefined {
+    const spoke = this.spokeIndex.get(thickness);
+    if (spoke === undefined) return undefined;
+    return this.getSupportedThicknesses().find(
+      (own) => this.spokeIndex.get(own) === spoke,
+    );
   }
 
   /**

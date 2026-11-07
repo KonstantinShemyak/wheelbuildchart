@@ -18,18 +18,20 @@
 import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
+import type { SpokeEntry, TensometerFile } from "../src/types/interfaces.ts";
 
 const DATA = path.join(import.meta.dirname, "..", "src", "data");
 const SPOKES_FILE = path.join("src", "data", "spokes.yaml");
 const TENSOMETER_DIR = path.join(DATA, "tensometers");
 
-const load = (file) => yaml.load(fs.readFileSync(file, "utf8"));
-const spokes = load(path.join(DATA, "spokes.yaml"));
-const errors = [];
+const load = <T>(file: string): T =>
+  yaml.load(fs.readFileSync(file, "utf8")) as T;
+const spokes = load<SpokeEntry[]>(path.join(DATA, "spokes.yaml"));
+const errors: string[] = [];
 
 // Where each name is defined in spokes.yaml, and the spoke it names.
-const definedAt = new Map();
-const spokeOf = new Map();
+const definedAt = new Map<string, string>();
+const spokeOf = new Map<string, string>();
 for (const [i, entry] of spokes.entries()) {
   const names = [entry.spoke, ...(entry.alternative_names ?? [])];
   for (const name of names) {
@@ -46,12 +48,12 @@ for (const [i, entry] of spokes.entries()) {
 }
 
 // Every name a tensometer uses, and which tensometers use it.
-const usedBy = new Map();
+const usedBy = new Map<string, string[]>();
 for (const file of fs.readdirSync(TENSOMETER_DIR).sort()) {
   if (!file.endsWith(".yaml")) continue;
-  const tensometer = load(path.join(TENSOMETER_DIR, file));
+  const tensometer = load<TensometerFile>(path.join(TENSOMETER_DIR, file));
   // This tensometer's name for each spoke it lists
-  const nameOf = new Map();
+  const nameOf = new Map<string, string>();
   for (const name of Object.keys(tensometer.spokes)) {
     if (!usedBy.has(name)) usedBy.set(name, []);
     usedBy.get(name).push(tensometer.name);

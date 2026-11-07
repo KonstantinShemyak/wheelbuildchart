@@ -58,7 +58,7 @@ jobs:
               - 'src/data/tensometer.schema.json'
               - 'src/data/spokes.yaml'
               - 'src/data/spokes.schema.json'
-              - 'scripts/check-spokes.js'
+              - 'scripts/check-spokes.ts'
 
   validate-tensometers:
     needs: detect-changes

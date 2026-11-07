@@ -23,7 +23,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit && tsc --noEmit -p scripts",
-    "check-spokes": "node scripts/check-spokes.js",
+    "check-spokes": "node --disable-warning=ExperimentalWarning scripts/check-spokes.ts",
     "estimation-report": "node --disable-warning=ExperimentalWarning scripts/estimation-report.ts",
     "format": "prettier --write '**/*.{html,js,ts,css,json,md}'",
     "check-format": "prettier --check '**/*.{html,js,ts,css,json,md}'",

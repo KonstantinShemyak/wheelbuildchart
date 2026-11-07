@@ -67,7 +67,7 @@
   alternative_names:
     - "2.30 - 2.00 - 2.00"
     - "2.3 - 2.0 - 2.0 (G13 Strong)"
-    - "2.34 - 2.0 - 2.0 (DT Alpine)"
+- spoke: "2.3 - 2.3 - 2.0 (DT Alpine)"
 - spoke: "2.34 - 1.8 - 2.0 (DT Alpine III)"
 
 # Bladed spokes of a known model

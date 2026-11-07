@@ -7,8 +7,9 @@ const evenlyLaced = (total: number): SpokeLayout => ({
 });
 
 export const config: Config = {
-  INITIAL_READING_DRIVE_SIDE: 20,
-  INITIAL_READING_NON_DRIVE_SIDE: 18,
+  // A ParkTool TM-1 reads 20 and 18 at these on 2.0 mm spokes
+  DEFAULT_TENSION_DRIVE_SIDE: 70,
+  DEFAULT_TENSION_NON_DRIVE_SIDE: 58,
   SUPPORTED_SPOKE_LAYOUTS: [
     ...[16, 18, 20, 24, 28, 32, 36, 40].map(evenlyLaced),
     // 2:1 lacing

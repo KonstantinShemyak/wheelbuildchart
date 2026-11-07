@@ -21,6 +21,9 @@ export class WheelModel implements IWheelModel {
   tolerance: number;
 
   private listeners: Array<() => void> = [];
+  // The reading of a sensible tension depends on the tensometer, which the
+  // model cannot convert; the presenter sets these with resetReadings().
+  private defaultReadings: Record<Side, number> = { ds: 0, nds: 0 };
 
   constructor(initialLayout: SpokeLayout = config.DEFAULT_SPOKE_LAYOUT) {
     this.layout = initialLayout;
@@ -50,12 +53,34 @@ export class WheelModel implements IWheelModel {
     this.tensions = [];
 
     for (let i = 0; i < maxSpokes; i++) {
-      const reading = this.isDriveSide(i)
-        ? config.INITIAL_READING_DRIVE_SIDE
-        : config.INITIAL_READING_NON_DRIVE_SIDE;
-      this.readings.push(reading);
+      this.readings.push(
+        this.defaultReadings[spokeLayout.sideOf(this.layout, i)],
+      );
       this.tensions.push(0); // Will be computed by presenter
     }
+  }
+
+  /**
+   * Set every reading to the default of its side, and remember these
+   * defaults for when the readings are reset again.
+   */
+  resetReadings(defaults: Record<Side, number>): void {
+    this.defaultReadings = { ...defaults };
+    this.initializeReadings();
+    this.notifyListeners();
+  }
+
+  /**
+   * Whether every reading still has the default of its side, i.e. none was
+   * entered.
+   */
+  readingsAreDefault(): boolean {
+    return this.readings
+      .slice(0, this.nSpokes)
+      .every(
+        (reading, i) =>
+          reading === this.defaultReadings[spokeLayout.sideOf(this.layout, i)],
+      );
   }
 
   /**

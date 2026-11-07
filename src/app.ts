@@ -26,15 +26,11 @@ function initApp(): void {
   const chartView = new ChartView("#radarChart");
 
   // Initialize chart with default values
-  const initialTensionDS = tensionService.tension(
-    model.spokeThicknessDS,
-    config.INITIAL_READING_DRIVE_SIDE,
+  chartView.init(
+    model.sides(),
+    config.DEFAULT_TENSION_DRIVE_SIDE,
+    config.DEFAULT_TENSION_NON_DRIVE_SIDE,
   );
-  const initialTensionNDS = tensionService.tension(
-    model.spokeThicknessNDS,
-    config.INITIAL_READING_NON_DRIVE_SIDE,
-  );
-  chartView.init(model.sides(), initialTensionDS, initialTensionNDS);
 
   // Create presenter and initialize
   const presenter = new WheelPresenter(

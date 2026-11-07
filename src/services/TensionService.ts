@@ -50,6 +50,33 @@ export class TensionService implements ITensionService {
   }
 
   /**
+   * Get the reading at a given tension (kgf) for a given spoke thickness,
+   * rounded to the precision of the tensometer's table.
+   */
+  reading(spokeThickness: string, tension: number): number {
+    const lookupTable = this.data[this.currentTensometer][spokeThickness];
+    if (!lookupTable) {
+      console.warn(
+        `No lookup table for tensometer "${this.currentTensometer}" and thickness "${spokeThickness}"`,
+      );
+      return 0;
+    }
+    // Tension grows with the reading, so the table read backwards maps
+    // tension to reading and interpolates the same way.
+    const readings: TensionLookupTable = Object.fromEntries(
+      Object.entries(lookupTable).map(([reading, kgf]) => [
+        kgf,
+        Number(reading),
+      ]),
+    );
+    // A reading finer than the table's own looks more exact than it is
+    const decimals = Math.max(
+      ...Object.keys(lookupTable).map((key) => key.split(".")[1]?.length ?? 0),
+    );
+    return Number(this.interpolate(readings, tension).toFixed(decimals));
+  }
+
+  /**
    * Get list of supported spoke thicknesses for current tensometer.
    */
   getSupportedThicknesses(): string[] {

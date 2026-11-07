@@ -28,6 +28,16 @@ test("switching tensometer updates the chart", async ({ page }) => {
   });
 });
 
+test("switching tensometer keeps the readings entered", async ({ page }) => {
+  await page.goto("http://localhost:8000");
+  const reading1 = page.locator("#reading1");
+  await reading1.fill("22");
+  await reading1.press("Tab");
+  await page.selectOption("#usedTensometer", "DT Tensio");
+  await expect(reading1).toHaveValue("22");
+  await expect(page.locator("#reading3")).toHaveValue("20");
+});
+
 test("a 2:1 laced wheel shows twice as many drive side spokes", async ({
   page,
 }) => {

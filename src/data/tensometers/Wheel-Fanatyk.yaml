@@ -1,9 +1,6 @@
 name: Wheel Fanatyk
 spokes:
   # Source: Wheel Fanatyk tensiometer conversion charts (four tables).
-  # Tension is converted from the newtons column (1 kgf = 9.80665 N),
-  # rounded to 0.1 kgf. Where the chart gives only kgf (part of Nextie),
-  # its integer kgf value is used.
   # The source names steel spokes only by the thickness of the measured
   # section. Round steel spokes thinner than 1.5 mm do not exist, so 0.9-1.2
   # are blade thicknesses; the blade width is not given ("?").

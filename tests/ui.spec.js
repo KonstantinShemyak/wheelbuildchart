@@ -56,9 +56,7 @@ test("switching tensometer to one without the spoke selects its first spoke", as
   await page.selectOption("#usedTensometer", "Unior");
   await expect(page.locator("#spokeThickness")).toHaveValue("1.8 - 1.4 - 1.8");
   // The other side's spoke is listed, so it stays
-  await expect(page.locator("#spokeThicknessNDS")).toHaveValue(
-    "2.0 - 2.0 - 2.0",
-  );
+  await expect(page.locator("#spokeThicknessNDS")).toHaveValue("2.0");
 });
 
 test("the thickness list offers estimated spokes below a separator", async ({

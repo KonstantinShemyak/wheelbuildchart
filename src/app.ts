@@ -1,5 +1,5 @@
 /**
- * Wheelbuilding Chart Application
+ * Wheel Tension Chart Application
  * Main entry point using the new MVP architecture.
  */
 

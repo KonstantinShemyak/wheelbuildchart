@@ -51,12 +51,13 @@ test("switching tensometer to one without the spoke selects its first spoke", as
 }) => {
   await page.goto("http://localhost:8000");
   await page.selectOption("#spokeThickness", "1.5");
-  // Unior lists no straight 1.5 mm spoke; "1.8*0.9" comes first in its list
+  // Unior lists no straight 1.5 mm spoke; "1.8 - 1.4 - 1.8" comes first in
+  // its list
   await page.selectOption("#usedTensometer", "Unior");
-  await expect(page.locator("#spokeThickness")).toHaveValue("1.8*0.9");
+  await expect(page.locator("#spokeThickness")).toHaveValue("1.8 - 1.4 - 1.8");
   // The other side's spoke is listed, so it stays
   await expect(page.locator("#spokeThicknessNDS")).toHaveValue(
-    "2.00 - 2.00 - 2.00",
+    "2.0 - 2.0 - 2.0",
   );
 });
 

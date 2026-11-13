@@ -10,14 +10,14 @@
 - spoke: "2.0"
   alternative_names:
     - "2"
-    - "2.00 (G14)"
+    - "2.0 (G14)"
     - "2.0 (DT Champion)"
-    - "2.00 - 2.00 - 2.00"
+    - "2.0 - 2.0 - 2.0"
 - spoke: "2.0 (Hoshi)"
 - spoke: "2.3"
   alternative_names:
-    - "2.30 (G13)"
-    - "2.30 - 2.30 - 2.30"
+    - "2.3 (G13)"
+    - "2.3 - 2.3 - 2.3"
 - spoke: "2.34"
   alternative_names:
     - "2.34 (DT Champion)"
@@ -26,19 +26,15 @@
 # Butted round spokes
 - spoke: "1.8 - 1.4 - 1.8"
   alternative_names:
-    - "1.80 - 1.40 - 1.80"
     - "1.8 - 1.4 - 1.8 (Super Spoke)"
 - spoke: "1.8 - 1.5 - 1.8"
   alternative_names:
-    - "1.80 - 1.50 - 1.80"
     - "1.8 - 1.5 - 1.8 (DT Revolution)"
 - spoke: "1.8 - 1.6 - 1.8"
   alternative_names:
-    - "1.80 - 1.60 - 1.80"
     - "1.8 - 1.6 - 1.8 (DT Competition)"
 - spoke: "2.0 - 1.5 - 2.0"
   alternative_names:
-    - "2.00 - 1.50 - 2.00"
     - "2.0 - 1.5 - 2.0 (Laser)"
     - "2.0 - 1.5 - 2.0 (DT Revolution)"
 - spoke: "2.0 - 1.6 - 2.0"
@@ -46,29 +42,23 @@
     - "2.0 - 1.6 - 2.0 (DT Competition race)"
 - spoke: "2.0 - 1.65 - 2.0"
   alternative_names:
-    - "2.00 - 1.65 - 2.00"
     - "2.0 - 1.65 - 2.0 (D-Light)"
 - spoke: "2.0 - 1.7 - 2.0"
   alternative_names:
-    - "2.00 - 1.70 - 2.00"
     - "2.0 - 1.7 - 2.0 (Sprint)"
 - spoke: "2.0 - 1.7 - 1.8"
   alternative_names:
-    - "2.00 - 1.70 - 1.80"
     - "2.0 - 1.7 - 1.8 (DT Super Comp)"
 - spoke: "2.0 - 1.8 - 2.0"
   alternative_names:
-    - "2.00 - 1.80 - 2.00"
     - "2.0 - 1.8 - 2.0 (Race)"
     - "2.0 - 1.8 - 2.0 (DT Competition)"
 - spoke: "2.0 - 1.8 - 2.0 (DT Competition coated)"
 - spoke: "2.2 - 1.8 - 2.0"
   alternative_names:
-    - "2.20 - 1.80 - 2.00"
     - "2.18 - 1.8 - 2.0 (Force)"
 - spoke: "2.3 - 2.0 - 2.0"
   alternative_names:
-    - "2.30 - 2.00 - 2.00"
     - "2.3 - 2.0 - 2.0 (G13 Strong)"
 - spoke: "2.34 - 2.34 - 2.0 (DT Alpine)"
 - spoke: "2.34 - 1.8 - 2.0 (DT Alpine III)"

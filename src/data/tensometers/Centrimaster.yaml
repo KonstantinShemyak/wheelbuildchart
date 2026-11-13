@@ -2,7 +2,7 @@ name: Centrimaster
 spokes:
   # Source: https://www.centrimaster.de/wp-content/uploads/2018/12/Tensio-Daten-Service-DE.zip
   # Linked from https://www.centrimaster.de/centrimaster-downloads/
-  "2.00 (G14)":
+  "2.0 (G14)":
     2.55: 50
     2.62: 60
     2.68: 70
@@ -19,7 +19,7 @@ spokes:
     3.06: 180
     3.09: 190
     3.11: 200
-  "2.30 (G13)":
+  "2.3 (G13)":
     # The source table is INCONSISTENT. Here, some obvious corrections made.
     2.97: 50
     2.98: 60

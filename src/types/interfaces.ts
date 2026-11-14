@@ -293,18 +293,11 @@ export interface ITableView {
  */
 export interface IChartView {
   /**
-   * Initialize the chart with the given parameters.
+   * Draw the chart with new tension values.
    * @param sides Side of each spoke, spoke 1 first
-   * @param tensionDS Initial drive side tension
-   * @param tensionNDS Initial non-drive side tension
+   * @param tensions Tension of each spoke, spoke 1 first
    */
-  init(sides: Side[], tensionDS: number, tensionNDS: number): void;
-
-  /**
-   * Update the chart with new tension values.
-   * @param tensions Array of tension values for all spokes
-   */
-  update(tensions: number[]): void;
+  update(sides: Side[], tensions: number[]): void;
 }
 
 /**

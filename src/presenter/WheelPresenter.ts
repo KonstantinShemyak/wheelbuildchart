@@ -123,20 +123,18 @@ export class WheelPresenter implements IWheelPresenter {
       this.model.setTension(i, tension);
     }
 
-    // Get averages
     const averages = this.model.getAverages();
+    const sides = this.model.sides();
+    const tensions = this.model.tensions.slice(0, this.model.nSpokes);
 
-    // Update table view
     this.tableView.updateTensions(
-      this.model.tensions.slice(0, this.model.nSpokes),
-      this.model.sides(),
+      tensions,
+      sides,
       averages.tensions,
       this.model.tolerance,
     );
     this.tableView.updateAverages(averages.readings, averages.tensions);
-
-    // Update chart view
-    this.chartView.update(this.model.tensions.slice(0, this.model.nSpokes));
+    this.chartView.update(sides, tensions);
   }
 
   /**
@@ -198,14 +196,6 @@ export class WheelPresenter implements IWheelPresenter {
   handleSpokeCountChange(layout: SpokeLayout): void {
     this.model.setLayout(layout);
     this.renderTable();
-
-    // Initialize chart with new spoke count
-    this.chartView.init(
-      this.model.sides(),
-      config.DEFAULT_TENSION.ds,
-      config.DEFAULT_TENSION.nds,
-    );
-
     this.recalculate();
   }
 

@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    // DOM: src/types/interfaces.ts, which the scripts use, also declares the
+    // views' contracts
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts"]
+}

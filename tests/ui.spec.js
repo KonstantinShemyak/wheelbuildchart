@@ -51,13 +51,53 @@ test("switching tensometer to one without the spoke selects its first spoke", as
 }) => {
   await page.goto("http://localhost:8000");
   await page.selectOption("#spokeThickness", "1.5");
-  // Unior lists no straight 1.5 mm spoke; "1.8*0.9" comes first in its list
+  // Unior lists no straight 1.5 mm spoke; "1.8 - 1.4 - 1.8" comes first in
+  // its list
   await page.selectOption("#usedTensometer", "Unior");
-  await expect(page.locator("#spokeThickness")).toHaveValue("1.8*0.9");
+  await expect(page.locator("#spokeThickness")).toHaveValue("1.8 - 1.4 - 1.8");
   // The other side's spoke is listed, so it stays
-  await expect(page.locator("#spokeThicknessNDS")).toHaveValue(
-    "2.00 - 2.00 - 2.00",
+  await expect(page.locator("#spokeThicknessNDS")).toHaveValue("2.0");
+});
+
+test("the thickness list offers estimated spokes below a separator", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000");
+  const options = page.locator("#spokeThickness option");
+  const labels = await options.allTextContents();
+  // ParkTool's own spokes come first, in their usual order
+  expect(labels.slice(0, 5)).toEqual(["1.5", "1.6", "1.8", "2", "2.3"]);
+  const separator = options.nth(5);
+  await expect(separator).toHaveText("--- estimated ---");
+  // Not selectable (toBeDisabled() does not apply to an <option>)
+  await expect(separator).toHaveAttribute("disabled");
+  // ParkTool lists no 1.7 mm spoke, but can estimate one
+  expect(labels.slice(6)).toContain("1.7");
+});
+
+test("an estimated spoke's tension lies between its neighbours'", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000");
+  await page.selectOption("#spokeThickness", "1.7");
+  // ParkTool's chart: reading 20 means 128 kgf on a 1.6, 94 kgf on a 1.8
+  await expect(page.locator("#reading1")).toHaveValue("20");
+  const tension = Number(
+    await page.locator("#tension1 .tension-value").textContent(),
   );
+  expect(tension).toBeGreaterThan(94);
+  expect(tension).toBeLessThan(128);
+});
+
+test("switching tensometer keeps a spoke it can only estimate", async ({
+  page,
+}) => {
+  await page.goto("http://localhost:8000");
+  await page.selectOption("#usedTensometer", "Toopre TL-P03");
+  await page.selectOption("#spokeThickness", "1.7");
+  // ZTTO lists no 1.7 mm spoke, but can estimate it
+  await page.selectOption("#usedTensometer", "ZTTO TC-02");
+  await expect(page.locator("#spokeThickness")).toHaveValue("1.7");
 });
 
 test("switching tensometer before entering readings asks nothing", async ({

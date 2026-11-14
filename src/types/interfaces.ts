@@ -13,6 +13,23 @@ export interface Config {
   SUPPORTED_TOLERANCES: readonly number[]; // percents
   DEFAULT_TOLERANCE: number;
   ERROR_STRING_INVALID_INPUT: string;
+  /**
+   * Percent; a spoke the tensometer does not list is estimated only if the
+   * donor tensometer predicts the tensometer's own spokes at least this well
+   */
+  ESTIMATION_MAX_DONOR_ERROR: number;
+  /** kgf; the range of tensions in which a donor's error is measured */
+  ESTIMATION_SCORE_TENSIONS: readonly [number, number];
+  /**
+   * mm; a round spoke is estimated only through a reference spoke whose
+   * diameter differs by at most this much
+   */
+  ESTIMATION_MAX_REFERENCE_DISTANCE: number;
+  /**
+   * Unselectable entry of the spoke thickness lists, after the tensometer's
+   * own spokes and before the estimated ones
+   */
+  ESTIMATED_SPOKES_SEPARATOR: string;
 }
 
 // ============================================================================
@@ -43,6 +60,10 @@ export interface TensometerFile {
   spokes: TensometerData;
 }
 
+/** What a spoke is made of; the values src/data/spokes.schema.json allows. */
+export type SpokeMaterial =
+  "steel" | "aluminium" | "titanium" | "carbon" | "polyethylene";
+
 /**
  * One physical spoke in src/data/spokes.yaml, with the other names
  * tensometer charts use for it.
@@ -50,6 +71,50 @@ export interface TensometerFile {
 export interface SpokeEntry {
   spoke: string;
   alternative_names?: string[];
+  /** Omitted for steel */
+  material?: SpokeMaterial;
+}
+
+/**
+ * Dimensions of a spoke in mm, parsed from its key in spokes.yaml.
+ */
+export interface SpokeGeometry {
+  /** Diameter of a round spoke, or [width, thickness] of a blade */
+  middle: number | [number, number];
+  /** [head, thread] diameters; null when only the middle is known */
+  ends: [number, number] | null;
+}
+
+/**
+ * How to estimate the tension of a spoke the tensometer does not list:
+ * through a reference spoke both it and a donor tensometer list,
+ *
+ *     tension(r) = donorSpoke( donorReference⁻¹( reference(r) ) )
+ */
+export interface EstimatePlan {
+  /** Donor tensometer, which lists the spoke */
+  donor: string;
+  /** The spoke's name in the donor's chart */
+  donorSpokeName: string;
+  donorSpoke: TensionLookupTable;
+  /** The reference spoke's name in the tensometer's own chart */
+  referenceName: string;
+  reference: TensionLookupTable;
+  /** The reference spoke's name in the donor's chart */
+  donorReferenceName: string;
+  donorReference: TensionLookupTable;
+  /** The donor's error in predicting the tensometer's own spokes, percent */
+  score: number;
+}
+
+/** Limits on estimating spokes; see the ESTIMATION_* values in Config. */
+export interface EstimationOptions {
+  /** Percent */
+  maxDonorError: number;
+  /** kgf */
+  scoreTensions: readonly [number, number];
+  /** mm; round spokes only */
+  maxReferenceDistance: number;
 }
 
 // One spoke data point
@@ -172,6 +237,13 @@ export interface ITensionService {
   getSupportedThicknesses(): string[];
 
   /**
+   * Get the spokes the current tensometer does not list but whose tension
+   * can be estimated from another tensometer's chart, by their keys in
+   * spokes.yaml.
+   */
+  getEstimatedThicknesses(): string[];
+
+  /**
    * Get list of all available tensometer names
    */
   getTensometers(): string[];
@@ -188,8 +260,9 @@ export interface ITensionService {
 
   /**
    * Find the current tensometer's name for the same physical spoke as
-   * `thickness`, which may be any tensometer's name for it.
-   * @returns undefined if the current tensometer does not list that spoke
+   * `thickness`, which may be any tensometer's name for it: its own name if
+   * it lists the spoke, else the spoke's key if it can estimate it.
+   * @returns undefined if the current tensometer can do neither
    */
   findThickness(thickness: string): string | undefined;
 }

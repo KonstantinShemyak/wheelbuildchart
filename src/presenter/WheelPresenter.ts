@@ -104,15 +104,18 @@ export class WheelPresenter implements IWheelPresenter {
   }
 
   /**
-   * Populate the thickness dropdowns.
+   * Populate the thickness dropdowns: the tensometer's own spokes, then,
+   * below a separator, the spokes it can only estimate.
    */
   private populateThicknessSelects(): void {
     const thicknesses = this.tensionService.getSupportedThicknesses();
+    const estimated = this.tensionService.getEstimatedThicknesses();
     if (this.thicknessDSSelect) {
       this.fillSelect(
         this.thicknessDSSelect,
         thicknesses,
         this.model.spokeThicknessDS,
+        estimated,
       );
     }
     if (this.thicknessNDSSelect) {
@@ -120,6 +123,7 @@ export class WheelPresenter implements IWheelPresenter {
         this.thicknessNDSSelect,
         thicknesses,
         this.model.spokeThicknessNDS,
+        estimated,
       );
     }
   }
@@ -138,18 +142,29 @@ export class WheelPresenter implements IWheelPresenter {
 
   /**
    * Fill a select element with options.
+   * @param estimated Further values, listed after a separator which cannot
+   *   be selected; no separator when there are none
    */
   private fillSelect(
     select: HTMLSelectElement,
     values: (string | number)[],
     defaultValue: string | number,
+    estimated: string[] = [],
   ): void {
     select.innerHTML = "";
-    for (const value of values) {
+    const addOption = (value: string | number) => {
       const option = document.createElement("option");
       option.value = String(value);
       option.textContent = String(value);
       select.appendChild(option);
+      return option;
+    };
+    values.forEach(addOption);
+    if (estimated.length > 0) {
+      const separator = addOption(config.ESTIMATED_SPOKES_SEPARATOR);
+      separator.value = "";
+      separator.disabled = true;
+      estimated.forEach(addOption);
     }
     select.value = String(defaultValue);
   }

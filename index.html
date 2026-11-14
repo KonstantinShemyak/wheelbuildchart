@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="src/styles/base.css" />
     <link rel="stylesheet" href="src/styles/app.css" />
     <script src="src/app.ts" type="module"></script>
-    <title>Wheelbuilding chart</title>
+    <title>Wheel Tension Chart</title>
   </head>
 
   <body>
@@ -21,13 +21,8 @@
       title="Fork me on GitHub"
       >Fork me on GitHub</a
     >
-    <h1>Wheelbuilding chart</h1>
-    <p>
-      Select your tensometer, number of spokes and spoke thickness in the
-      dropdown lists. Input the readings from the tensometer into the table. The
-      chart visualizes the wheel condition.
-    </p>
-    <p><a href="about.html">What is this and how to use it?</a></p>
+    <h1>Wheel Tension Chart</h1>
+    <p>New to wheelbuilding? Read <a href="about.html">introduction</a>.</p>
 
     <div id="wheelchart">
       <div id="divStartButton" class="controls">
@@ -41,7 +36,7 @@
         ></label>
       </div>
       <div class="controls">
-        <span>Spoke thickness (mm):</span>
+        <span>Spokes (mm):</span>
         <label
           ><span class="driveSideColor">Drive side </span
           ><select id="spokeThickness"></select
@@ -118,12 +113,13 @@
 
     <p>
       Have some other tensometer model and want to add it here? Add a YAML file
-      under 'src/data/tensometers/' and open a Github pull request. If you don't
-      know how, just contact me: konstantin@shemyak.com
+      under <code>src/data/tensometers/</code> and open Github pull request. If
+      you don't know how, just contact me: konstantin@shemyak.com
     </p>
     <p>
-      Your tension meter is in the list, but spokes are not? Workaround
-      <a href="not-listed-spoke.html">here</a>.
+      WheelTensionChart shows
+      <strong>more spokes than tensometer vendors list</strong>. Read
+      <a href="not-listed-spoke.html">how</a>.
     </p>
   </body>
 </html>

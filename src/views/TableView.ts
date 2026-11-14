@@ -1,5 +1,6 @@
 import { ITableView, Side, SideAverages } from "../types/interfaces";
 import { statsService } from "../services/StatsService";
+import { config } from "../model/config";
 
 const SIDE_CLASSES: Record<Side, string> = {
   ds: "driveSideColor",
@@ -190,9 +191,7 @@ export class TableView implements ITableView {
   ): void {
     const value = parseFloat(input.value);
     if (isNaN(value)) {
-      alert(
-        `${input.value}: invalid input (a number like '23' or '23.2' expected)`,
-      );
+      alert(`${input.value}${config.ERROR_STRING_INVALID_INPUT}`);
       input.focus();
       input.select();
       return;
@@ -275,30 +274,6 @@ export class TableView implements ITableView {
     if (input) {
       input.focus();
       input.select();
-    }
-  }
-
-  /**
-   * Get the current reading value from an input.
-   */
-  getReading(spokeIndex: number): number {
-    const spokeNum = spokeIndex + 1;
-    const input = document.getElementById(
-      `reading${spokeNum}`,
-    ) as HTMLInputElement;
-    return input ? parseFloat(input.value) || 0 : 0;
-  }
-
-  /**
-   * Set a reading value in an input.
-   */
-  setReading(spokeIndex: number, value: number): void {
-    const spokeNum = spokeIndex + 1;
-    const input = document.getElementById(
-      `reading${spokeNum}`,
-    ) as HTMLInputElement;
-    if (input) {
-      input.value = String(value);
     }
   }
 }

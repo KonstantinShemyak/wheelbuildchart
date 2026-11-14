@@ -9,7 +9,6 @@ import * as spokeLayout from "./spokeLayout";
 
 /**
  * WheelModel - manages the state of wheel spoke data.
- * Implements the observer pattern to notify listeners of changes.
  */
 export class WheelModel implements IWheelModel {
   layout: SpokeLayout;
@@ -20,7 +19,6 @@ export class WheelModel implements IWheelModel {
   tensometer: string;
   tolerance: number;
 
-  private listeners: Array<() => void> = [];
   // The reading of a sensible tension depends on the tensometer, which the
   // model cannot convert; the presenter sets these with resetReadings().
   private defaultReadings: Record<Side, number> = { ds: 0, nds: 0 };
@@ -67,7 +65,6 @@ export class WheelModel implements IWheelModel {
   resetReadings(defaults: Record<Side, number>): void {
     this.defaultReadings = { ...defaults };
     this.initializeReadings();
-    this.notifyListeners();
   }
 
   /**
@@ -81,18 +78,6 @@ export class WheelModel implements IWheelModel {
         (reading, i) =>
           reading === this.defaultReadings[spokeLayout.sideOf(this.layout, i)],
       );
-  }
-
-  /**
-   * Set the reading for a specific spoke.
-   * @param index 0-based spoke index
-   * @param value Tensometer reading
-   */
-  setReading(index: number, value: number): void {
-    if (index >= 0 && index < this.readings.length) {
-      this.readings[index] = value;
-      this.notifyListeners();
-    }
   }
 
   /**
@@ -117,37 +102,6 @@ export class WheelModel implements IWheelModel {
     this.layout = layout;
     if (!sameAlternation) {
       this.initializeReadings();
-    }
-    this.notifyListeners();
-  }
-
-  /**
-   * Update the tensometer.
-   */
-  setTensometer(name: string): void {
-    this.tensometer = name;
-    this.notifyListeners();
-  }
-
-  /**
-   * Update spoke thickness for a side.
-   */
-  setSpokeThickness(side: Side, thickness: string): void {
-    if (side === "ds") {
-      this.spokeThicknessDS = thickness;
-    } else {
-      this.spokeThicknessNDS = thickness;
-    }
-    this.notifyListeners();
-  }
-
-  /**
-   * Update tolerance.
-   */
-  setTolerance(tolerance: number): void {
-    if (config.SUPPORTED_TOLERANCES.includes(tolerance)) {
-      this.tolerance = tolerance;
-      this.notifyListeners();
     }
   }
 
@@ -180,47 +134,6 @@ export class WheelModel implements IWheelModel {
         nds: sumTensionsNDS / this.layout.nds,
       },
     };
-  }
-
-  /**
-   * Check if a tension value is within tolerance for its side.
-   * @param index 0-based spoke index
-   * @param tension Tension value to check
-   */
-  isWithinTolerance(index: number, tension: number): boolean {
-    const averages = this.getAverages();
-    const avgTension = this.isDriveSide(index)
-      ? averages.tensions.ds
-      : averages.tensions.nds;
-
-    const minTolerated = avgTension * ((100 - this.tolerance) / 100);
-    const maxTolerated = avgTension * ((100 + this.tolerance) / 100);
-
-    return tension >= minTolerated && tension <= maxTolerated;
-  }
-
-  /**
-   * Subscribe to model changes.
-   * @param callback Function to call when model changes
-   * @returns Unsubscribe function
-   */
-  onChange(callback: () => void): () => void {
-    this.listeners.push(callback);
-    return () => {
-      const index = this.listeners.indexOf(callback);
-      if (index > -1) {
-        this.listeners.splice(index, 1);
-      }
-    };
-  }
-
-  /**
-   * Notify all listeners of a change.
-   */
-  private notifyListeners(): void {
-    for (const listener of this.listeners) {
-      listener();
-    }
   }
 
   /**

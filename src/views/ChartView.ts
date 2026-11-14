@@ -1,5 +1,5 @@
 import { IChartView, Side, SpokeDataPoint } from "../types/interfaces";
-import { RadarChart } from "../charts/RadarChart";
+import { drawRadarChart } from "../charts/RadarChart";
 import { SIDES } from "../model/spokeLayout";
 import { requireElement } from "./dom";
 
@@ -41,6 +41,6 @@ export class ChartView implements IChartView {
   }
 
   private draw(): void {
-    RadarChart.draw(this.container, this.nSpokes, this.series);
+    drawRadarChart(this.container, this.nSpokes, this.series);
   }
 }

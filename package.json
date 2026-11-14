@@ -13,7 +13,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.19.2",
     "js-yaml": "^5.5.0",
-    "playwright": "1.64.0",
+    "playwright": "1.65.0",
     "prettier": "^3.9.10",
     "typescript": "^7.0.2",
     "vite": "^8.3.8"

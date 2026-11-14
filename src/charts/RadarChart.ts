@@ -120,13 +120,17 @@ export function drawRadarChart(
       .style("fill", "none");
   });
 
+  // Faded by CSS rather than a d3 transition: selection.transition() exists
+  // only as a side effect of d3-transition, which the production build
+  // tree-shakes away, since nothing imports it by name.
   const tooltip = g
     .append("text")
     .style("opacity", 0)
+    .style("transition", "opacity 200ms")
     .style("font-family", "sans-serif")
     .style("font-size", `${13 * scale}px`);
   const hideTooltip = () => {
-    tooltip.transition().duration(200).style("opacity", 0);
+    tooltip.style("opacity", 0);
   };
 
   places.forEach((points, s) => {
@@ -167,8 +171,6 @@ export function drawRadarChart(
             .attr("x", cx - 10 * scale)
             .attr("y", cy - 5 * scale)
             .text(String(d.value))
-            .transition()
-            .duration(200)
             .style("opacity", 1);
         })
         // A finger leaves the moment it lifts, so a touch tooltip stays until

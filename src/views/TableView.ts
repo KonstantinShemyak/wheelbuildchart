@@ -1,5 +1,5 @@
 import { ITableView, Side, SideAverages } from "../types/interfaces";
-import { statsService } from "../services/StatsService";
+import { isWithinTolerance, round2 } from "../services/stats";
 import { config } from "../model/config";
 
 const SIDE_CLASSES: Record<Side, string> = {
@@ -221,13 +221,9 @@ export class TableView implements ITableView {
       if (!tensionCell) continue;
 
       const tension = tensions[i];
-      const roundedTension = statsService.round2(tension);
+      const roundedTension = round2(tension);
       const avgTension = avgTensions[sides[i]];
-      const isWithin = statsService.isWithinTolerance(
-        tension,
-        avgTension,
-        tolerance,
-      );
+      const isWithin = isWithinTolerance(tension, avgTension, tolerance);
 
       // Show warning symbol if out of tolerance
       const warning = isWithin ? "" : " &#9888;";
@@ -245,20 +241,16 @@ export class TableView implements ITableView {
     const avgNondriveTension = document.getElementById("avgNondriveTension");
 
     if (avgDriveReading) {
-      avgDriveReading.textContent = String(statsService.round2(avgReadings.ds));
+      avgDriveReading.textContent = String(round2(avgReadings.ds));
     }
     if (avgDriveTension) {
-      avgDriveTension.textContent = String(statsService.round2(avgTensions.ds));
+      avgDriveTension.textContent = String(round2(avgTensions.ds));
     }
     if (avgNondriveReading) {
-      avgNondriveReading.textContent = String(
-        statsService.round2(avgReadings.nds),
-      );
+      avgNondriveReading.textContent = String(round2(avgReadings.nds));
     }
     if (avgNondriveTension) {
-      avgNondriveTension.textContent = String(
-        statsService.round2(avgTensions.nds),
-      );
+      avgNondriveTension.textContent = String(round2(avgTensions.nds));
     }
   }
 

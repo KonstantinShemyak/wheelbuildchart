@@ -321,19 +321,31 @@ export interface IReadingsDialogView {
 }
 
 /**
- * View for dropdown/select controls.
+ * The dropdowns above the table: tensometer, spoke layout, spoke thickness
+ * of each side, tolerance.
  */
 export interface IControlsView {
+  /** List the tensometers and select one. */
+  showTensometers(names: string[], selected: string): void;
+
+  /** List the spoke layouts and select one. */
+  showLayouts(layouts: readonly SpokeLayout[], selected: SpokeLayout): void;
+
   /**
-   * Populate a select element with options.
-   * @param values Array of values to use as options
-   * @param defaultValue Initial selected value
+   * List the spoke thicknesses in both sides' dropdowns and select each
+   * side's own.
+   * @param listed The tensometer's own spokes
+   * @param estimated Spokes it can only estimate, listed below a separator
+   *   which cannot be selected; no separator when there are none
    */
-  fillSelect(
-    element: HTMLSelectElement,
-    values: (string | number)[],
-    defaultValue: string | number,
+  showThicknesses(
+    listed: string[],
+    estimated: string[],
+    selected: Record<Side, string>,
   ): void;
+
+  /** List the tolerances (percent) and select one. */
+  showTolerances(tolerances: readonly number[], selected: number): void;
 
   /** Callback when tensometer selection changes */
   onTensometerChange: ((name: string) => void) | null;

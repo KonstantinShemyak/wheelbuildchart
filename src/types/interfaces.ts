@@ -173,13 +173,6 @@ export interface IWheelModel {
   tolerance: number;
 
   /**
-   * Set the reading for a specific spoke.
-   * @param index 0-based spoke index
-   * @param value Tensometer reading
-   */
-  setReading(index: number, value: number): void;
-
-  /**
    * Set every reading to the default of its side, and remember these
    * defaults for when the readings are reset again.
    */
@@ -195,20 +188,6 @@ export interface IWheelModel {
    * Get the average readings and tensions for each side.
    */
   getAverages(): { readings: SideAverages; tensions: SideAverages };
-
-  /**
-   * Check if a tension value is within tolerance for its side.
-   * @param index 0-based spoke index
-   * @param tension Tension value to check
-   */
-  isWithinTolerance(index: number, tension: number): boolean;
-
-  /**
-   * Subscribe to model changes.
-   * @param callback Function to call when model changes
-   * @returns Unsubscribe function
-   */
-  onChange(callback: () => void): () => void;
 }
 
 // ============================================================================

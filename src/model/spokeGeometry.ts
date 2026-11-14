@@ -14,7 +14,7 @@ const DIMENSIONS = new RegExp(
 /**
  * Dimensions of a spoke from its key in spokes.yaml, e.g.
  * "2.0 - 2.2*0.9 - 2.0 (CX Ray)" or "1.8".
- * @returns null for a spoke of unknown dimensions, e.g. "(CX)"
+ * @returns null for a spoke of unknown dimensions, e.g. "CX"
  */
 export function parseSpoke(key: string): SpokeGeometry | null {
   const match = DIMENSIONS.exec(key);

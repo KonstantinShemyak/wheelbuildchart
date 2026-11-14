@@ -193,7 +193,7 @@ spokes:
     2.73: 200
 
   # The following spokes seem to not exist
-  "(CX)": # about as stiff as a 1.5 mm round spoke
+  "CX": # about as stiff as a 1.5 mm round spoke
     2.0: 50
     2.16: 60
     2.24: 70
@@ -210,7 +210,7 @@ spokes:
     2.66: 180
     2.72: 190
     2.76: 200
-  "(CX Speed)": # nearly identical to CX-Sprint
+  "CX Speed": # nearly identical to CX-Sprint
     # Original values are INCONSISTENT
     1.95: 50
     1.98: 60
@@ -228,7 +228,7 @@ spokes:
     2.6: 180
     2.61: 190
     2.62: 200
-  "(CX Force)": # nearly identical to 1.8 round spoke
+  "CX Force": # nearly identical to 1.8 round spoke
     2.31: 50
     2.41: 60
     2.48: 70

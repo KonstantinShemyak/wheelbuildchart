@@ -113,9 +113,9 @@
   material: aluminium
 - spoke: "3.8*1.5 (aluminium)"
   material: aluminium
-- spoke: "(Garbaruk aluminium)"
+- spoke: "Garbaruk aluminium"
   material: aluminium
-- spoke: "(Ksyrium aluminium)"
+- spoke: "Ksyrium aluminium"
   material: aluminium
 
 # Titanium spokes
@@ -129,13 +129,13 @@
   material: carbon
 - spoke: "4.0*1.1 (Vonoa carbon)"
   material: carbon
-- spoke: "(MTO-255 carbon)"
+- spoke: "MTO-255 carbon"
   material: carbon
 # Berd spokes are braided ultra-high-molecular-weight polyethylene
-- spoke: "(Berd PolyLight)"
+- spoke: "Berd PolyLight"
   material: polyethylene
 
 # Spokes of unknown dimensions
-- spoke: "(CX)"
-- spoke: "(CX Speed)"
-- spoke: "(CX Force)"
+- spoke: "CX"
+- spoke: "CX Speed"
+- spoke: "CX Force"

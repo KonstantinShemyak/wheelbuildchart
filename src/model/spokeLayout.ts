@@ -7,6 +7,13 @@ import { Side, SpokeLayout } from "../types/interfaces";
  * usual wheels, D D N D D N... for 2:1 lacing.
  */
 
+export const SIDES: readonly Side[] = ["ds", "nds"];
+
+/** One value per side, computed by `value`. */
+export function bySide<T>(value: (side: Side) => T): Record<Side, T> {
+  return { ds: value("ds"), nds: value("nds") };
+}
+
 export function totalSpokes(layout: SpokeLayout): number {
   return layout.ds + layout.nds;
 }

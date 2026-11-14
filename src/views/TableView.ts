@@ -1,10 +1,17 @@
 import { ITableView, Side, SideAverages } from "../types/interfaces";
 import { isWithinTolerance, round2 } from "../services/stats";
 import { config } from "../model/config";
+import { SIDES } from "../model/spokeLayout";
 
 const SIDE_CLASSES: Record<Side, string> = {
   ds: "driveSideColor",
   nds: "nonDriveSideColor",
+};
+
+/** Ids of the average row's cells, in index.html */
+const AVERAGE_IDS: Record<Side, { reading: string; tension: string }> = {
+  ds: { reading: "avgDriveReading", tension: "avgDriveTension" },
+  nds: { reading: "avgNondriveReading", tension: "avgNondriveTension" },
 };
 
 /**
@@ -75,7 +82,7 @@ export class TableView implements ITableView {
       { length: nRows },
       () => [],
     );
-    for (const column of ["ds", "nds"] as const) {
+    for (const column of SIDES) {
       let freeRow = 0;
       let ordinal = 0;
       sides.forEach((side, i) => {
@@ -235,22 +242,12 @@ export class TableView implements ITableView {
    * Update the average displays.
    */
   updateAverages(avgReadings: SideAverages, avgTensions: SideAverages): void {
-    const avgDriveReading = document.getElementById("avgDriveReading");
-    const avgDriveTension = document.getElementById("avgDriveTension");
-    const avgNondriveReading = document.getElementById("avgNondriveReading");
-    const avgNondriveTension = document.getElementById("avgNondriveTension");
-
-    if (avgDriveReading) {
-      avgDriveReading.textContent = String(round2(avgReadings.ds));
-    }
-    if (avgDriveTension) {
-      avgDriveTension.textContent = String(round2(avgTensions.ds));
-    }
-    if (avgNondriveReading) {
-      avgNondriveReading.textContent = String(round2(avgReadings.nds));
-    }
-    if (avgNondriveTension) {
-      avgNondriveTension.textContent = String(round2(avgTensions.nds));
+    for (const side of SIDES) {
+      const ids = AVERAGE_IDS[side];
+      const reading = document.getElementById(ids.reading);
+      const tension = document.getElementById(ids.tension);
+      if (reading) reading.textContent = String(round2(avgReadings[side]));
+      if (tension) tension.textContent = String(round2(avgTensions[side]));
     }
   }
 

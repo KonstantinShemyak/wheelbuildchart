@@ -175,7 +175,8 @@ function holdoutResults(tensometer: string): HoldoutResult[] {
       tensometer,
       options,
     );
-    const plan = plans.get(index.get(name));
+    const spoke = index.get(name);
+    const plan = spoke === undefined ? undefined : plans.get(spoke);
     if (!plan) {
       results.push({ name, plan: null, error: null });
       continue;

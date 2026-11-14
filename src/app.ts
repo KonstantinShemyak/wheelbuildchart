@@ -26,16 +26,9 @@ function initApp(): void {
 
   // Create views
   const tableView = new TableView();
-  const chartView = new ChartView("#radarChart");
+  const chartView = new ChartView();
   const readingsDialog = new ReadingsDialogView();
   const controlsView = new ControlsView();
-
-  // Initialize chart with default values
-  chartView.init(
-    model.sides(),
-    config.DEFAULT_TENSION.ds,
-    config.DEFAULT_TENSION.nds,
-  );
 
   // Create presenter and initialize
   const presenter = new WheelPresenter(

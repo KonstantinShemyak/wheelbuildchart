@@ -50,7 +50,7 @@ export const RadarChart = {
    *   need not have a point on every axis, its polygon joins the points it has
    */
   draw: function (
-    id: string,
+    container: HTMLElement,
     total: number,
     data: DataPoint[][],
     options: Partial<ChartConfig> = {},
@@ -76,9 +76,9 @@ export const RadarChart = {
     const allAxis = d3.range(total);
 
     // Remove existing SVG and create new one
-    d3.select(id).select("svg").remove();
+    d3.select(container).select("svg").remove();
     const svg = d3
-      .select(id)
+      .select(container)
       .append("svg")
       .attr("viewBox", `0 0 ${cfg.w} ${cfg.h}`);
     const g = svg.append("g");

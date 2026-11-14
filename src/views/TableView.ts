@@ -1,9 +1,18 @@
 import { ITableView, Side, SideAverages } from "../types/interfaces";
-import { statsService } from "../services/StatsService";
+import { isWithinTolerance, round2 } from "../services/stats";
+import { config } from "../model/config";
+import { SIDES } from "../model/spokeLayout";
+import { requireElement } from "./dom";
 
 const SIDE_CLASSES: Record<Side, string> = {
   ds: "driveSideColor",
   nds: "nonDriveSideColor",
+};
+
+/** Ids of the average row's cells, in index.html */
+const AVERAGE_IDS: Record<Side, { reading: string; tension: string }> = {
+  ds: { reading: "avgDriveReading", tension: "avgDriveTension" },
+  nds: { reading: "avgNondriveReading", tension: "avgNondriveTension" },
 };
 
 /**
@@ -24,18 +33,9 @@ export class TableView implements ITableView {
     | ((spokeIndex: number, value: number, advanceFocus: boolean) => void)
     | null = null;
 
-  constructor(tableSelector: string = "#valuesTable") {
-    const container = document.querySelector(tableSelector);
-    if (!container) {
-      throw new Error(`TableView: container "${tableSelector}" not found`);
-    }
-    this.tableContainer = container as HTMLElement;
-
-    const avgRow = document.querySelector("#average");
-    if (!avgRow) {
-      throw new Error('TableView: average row "#average" not found');
-    }
-    this.averageRow = avgRow as HTMLElement;
+  constructor() {
+    this.tableContainer = requireElement("valuesTable", HTMLTableElement);
+    this.averageRow = requireElement("average", HTMLTableRowElement);
   }
 
   /**
@@ -45,9 +45,9 @@ export class TableView implements ITableView {
    */
   render(sides: Side[], readings: number[]): void {
     // Remove existing value rows
-    const existingRows =
-      this.tableContainer.querySelectorAll('[role="valueRow"]');
-    existingRows.forEach((row) => row.remove());
+    this.tableContainer
+      .querySelectorAll(".valueRow")
+      .forEach((row) => row.remove());
 
     const nDriveSide = sides.filter((side) => side === "ds").length;
 
@@ -74,7 +74,7 @@ export class TableView implements ITableView {
       { length: nRows },
       () => [],
     );
-    for (const column of ["ds", "nds"] as const) {
+    for (const column of SIDES) {
       let freeRow = 0;
       let ordinal = 0;
       sides.forEach((side, i) => {
@@ -101,7 +101,7 @@ export class TableView implements ITableView {
 
     for (const cells of cellsByRow) {
       const row = document.createElement("tr");
-      row.setAttribute("role", "valueRow");
+      row.className = "valueRow";
       row.append(...cells);
       this.averageRow.parentNode?.insertBefore(row, this.averageRow);
     }
@@ -190,9 +190,7 @@ export class TableView implements ITableView {
   ): void {
     const value = parseFloat(input.value);
     if (isNaN(value)) {
-      alert(
-        `${input.value}: invalid input (a number like '23' or '23.2' expected)`,
-      );
+      alert(`${input.value}${config.ERROR_STRING_INVALID_INPUT}`);
       input.focus();
       input.select();
       return;
@@ -222,13 +220,9 @@ export class TableView implements ITableView {
       if (!tensionCell) continue;
 
       const tension = tensions[i];
-      const roundedTension = statsService.round2(tension);
+      const roundedTension = round2(tension);
       const avgTension = avgTensions[sides[i]];
-      const isWithin = statsService.isWithinTolerance(
-        tension,
-        avgTension,
-        tolerance,
-      );
+      const isWithin = isWithinTolerance(tension, avgTension, tolerance);
 
       // Show warning symbol if out of tolerance
       const warning = isWithin ? "" : " &#9888;";
@@ -240,26 +234,12 @@ export class TableView implements ITableView {
    * Update the average displays.
    */
   updateAverages(avgReadings: SideAverages, avgTensions: SideAverages): void {
-    const avgDriveReading = document.getElementById("avgDriveReading");
-    const avgDriveTension = document.getElementById("avgDriveTension");
-    const avgNondriveReading = document.getElementById("avgNondriveReading");
-    const avgNondriveTension = document.getElementById("avgNondriveTension");
-
-    if (avgDriveReading) {
-      avgDriveReading.textContent = String(statsService.round2(avgReadings.ds));
-    }
-    if (avgDriveTension) {
-      avgDriveTension.textContent = String(statsService.round2(avgTensions.ds));
-    }
-    if (avgNondriveReading) {
-      avgNondriveReading.textContent = String(
-        statsService.round2(avgReadings.nds),
-      );
-    }
-    if (avgNondriveTension) {
-      avgNondriveTension.textContent = String(
-        statsService.round2(avgTensions.nds),
-      );
+    for (const side of SIDES) {
+      const ids = AVERAGE_IDS[side];
+      const reading = document.getElementById(ids.reading);
+      const tension = document.getElementById(ids.tension);
+      if (reading) reading.textContent = String(round2(avgReadings[side]));
+      if (tension) tension.textContent = String(round2(avgTensions[side]));
     }
   }
 
@@ -275,30 +255,6 @@ export class TableView implements ITableView {
     if (input) {
       input.focus();
       input.select();
-    }
-  }
-
-  /**
-   * Get the current reading value from an input.
-   */
-  getReading(spokeIndex: number): number {
-    const spokeNum = spokeIndex + 1;
-    const input = document.getElementById(
-      `reading${spokeNum}`,
-    ) as HTMLInputElement;
-    return input ? parseFloat(input.value) || 0 : 0;
-  }
-
-  /**
-   * Set a reading value in an input.
-   */
-  setReading(spokeIndex: number, value: number): void {
-    const spokeNum = spokeIndex + 1;
-    const input = document.getElementById(
-      `reading${spokeNum}`,
-    ) as HTMLInputElement;
-    if (input) {
-      input.value = String(value);
     }
   }
 }

@@ -8,7 +8,9 @@ import { TensionService } from "./services/TensionService";
 import { TableView } from "./views/TableView";
 import { ChartView } from "./views/ChartView";
 import { ReadingsDialogView } from "./views/ReadingsDialogView";
+import { ControlsView } from "./views/ControlsView";
 import { keepChartInView } from "./views/pinChart";
+import { requireElement } from "./views/dom";
 import { WheelPresenter } from "./presenter/WheelPresenter";
 import { config } from "./model/config";
 
@@ -23,16 +25,10 @@ function initApp(): void {
   const tensionService = new TensionService();
 
   // Create views
-  const tableView = new TableView("#valuesTable");
-  const chartView = new ChartView("#radarChart");
-  const readingsDialog = new ReadingsDialogView("#readingsDialog");
-
-  // Initialize chart with default values
-  chartView.init(
-    model.sides(),
-    config.DEFAULT_TENSION_DRIVE_SIDE,
-    config.DEFAULT_TENSION_NON_DRIVE_SIDE,
-  );
+  const tableView = new TableView();
+  const chartView = new ChartView();
+  const readingsDialog = new ReadingsDialogView();
+  const controlsView = new ControlsView();
 
   // Create presenter and initialize
   const presenter = new WheelPresenter(
@@ -41,11 +37,11 @@ function initApp(): void {
     tableView,
     chartView,
     readingsDialog,
+    controlsView,
   );
   presenter.init();
 
-  const chartPane = document.getElementById("chartPane");
-  if (chartPane) keepChartInView(chartPane);
+  keepChartInView(requireElement("chartPane", HTMLElement));
 }
 
 // Wait for DOM to be ready

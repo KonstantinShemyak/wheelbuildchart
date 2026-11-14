@@ -3,9 +3,7 @@
  */
 export interface Config {
   /** kgf; the initial readings are what the tensometer shows at it */
-  DEFAULT_TENSION_DRIVE_SIDE: number;
-  /** kgf; the initial readings are what the tensometer shows at it */
-  DEFAULT_TENSION_NON_DRIVE_SIDE: number;
+  DEFAULT_TENSION: Readonly<Record<Side, number>>;
   /** In the order they are offered */
   SUPPORTED_SPOKE_LAYOUTS: readonly SpokeLayout[];
   DEFAULT_SPOKE_LAYOUT: SpokeLayout;
@@ -142,10 +140,7 @@ export interface SpokeLayout {
 /**
  * Averages for drive side and non-drive side.
  */
-export interface SideAverages {
-  ds: number;
-  nds: number;
-}
+export type SideAverages = Record<Side, number>;
 
 // ============================================================================
 // Model
@@ -163,21 +158,12 @@ export interface IWheelModel {
   readings: number[];
   /** Computed tensions in kgf for each spoke (0-indexed) */
   tensions: number[];
-  /** Spoke thickness for drive side (mm) */
-  spokeThicknessDS: string;
-  /** Spoke thickness for non-drive side (mm) */
-  spokeThicknessNDS: string;
+  /** Spoke thickness of each side, as the tensometer names it */
+  spokeThickness: Record<Side, string>;
   /** Currently selected tensometer name */
   tensometer: string;
   /** Tolerance percentage for warnings */
   tolerance: number;
-
-  /**
-   * Set the reading for a specific spoke.
-   * @param index 0-based spoke index
-   * @param value Tensometer reading
-   */
-  setReading(index: number, value: number): void;
 
   /**
    * Set every reading to the default of its side, and remember these
@@ -195,20 +181,6 @@ export interface IWheelModel {
    * Get the average readings and tensions for each side.
    */
   getAverages(): { readings: SideAverages; tensions: SideAverages };
-
-  /**
-   * Check if a tension value is within tolerance for its side.
-   * @param index 0-based spoke index
-   * @param tension Tension value to check
-   */
-  isWithinTolerance(index: number, tension: number): boolean;
-
-  /**
-   * Subscribe to model changes.
-   * @param callback Function to call when model changes
-   * @returns Unsubscribe function
-   */
-  onChange(callback: () => void): () => void;
 }
 
 // ============================================================================
@@ -216,32 +188,32 @@ export interface IWheelModel {
 // ============================================================================
 
 /**
- * Looking up tension values from tensometer readings
+ * Looking up tension values from tensometer readings. Every method that
+ * depends on the tensometer is given it; the service holds no selection.
  */
 export interface ITensionService {
   /**
    * Get tension (kgf) for a given spoke thickness and reading.
    * Uses interpolation/extrapolation for values not in the table.
    */
-  tension(spokeThickness: string, reading: number): number;
+  tension(tensometer: string, spokeThickness: string, reading: number): number;
 
   /**
    * Get the reading at a given tension (kgf) for a given spoke thickness,
    * rounded to the precision of the tensometer's table.
    */
-  reading(spokeThickness: string, tension: number): number;
+  reading(tensometer: string, spokeThickness: string, tension: number): number;
 
   /**
-   * Get list of supported spoke thicknesses for current tensometer
+   * Get list of spoke thicknesses the tensometer lists.
    */
-  getSupportedThicknesses(): string[];
+  getSupportedThicknesses(tensometer: string): string[];
 
   /**
-   * Get the spokes the current tensometer does not list but whose tension
-   * can be estimated from another tensometer's chart, by their keys in
-   * spokes.yaml.
+   * Get the spokes the tensometer does not list but whose tension can be
+   * estimated from another tensometer's chart, by their keys in spokes.yaml.
    */
-  getEstimatedThicknesses(): string[];
+  getEstimatedThicknesses(tensometer: string): string[];
 
   /**
    * Get list of all available tensometer names
@@ -249,44 +221,12 @@ export interface ITensionService {
   getTensometers(): string[];
 
   /**
-   * Set the current tensometer
+   * Find the tensometer's name for the same physical spoke as `thickness`,
+   * which may be any tensometer's name for it: its own name if it lists the
+   * spoke, else the spoke's key if it can estimate it.
+   * @returns undefined if the tensometer can do neither
    */
-  setTensometer(name: string): void;
-
-  /**
-   * Get the current tensometer name
-   */
-  getCurrentTensometer(): string;
-
-  /**
-   * Find the current tensometer's name for the same physical spoke as
-   * `thickness`, which may be any tensometer's name for it: its own name if
-   * it lists the spoke, else the spoke's key if it can estimate it.
-   * @returns undefined if the current tensometer can do neither
-   */
-  findThickness(thickness: string): string | undefined;
-}
-
-/**
- * Service for calculating statistics (averages, tolerance checks)
- */
-export interface IStatsService {
-  /**
-   * Check if a value is within tolerance of a reference value.
-   * @param value Value to check
-   * @param reference Reference value (typically average)
-   * @param tolerancePercent Tolerance in percent (e.g., 20 for ±20%)
-   */
-  isWithinTolerance(
-    value: number,
-    reference: number,
-    tolerancePercent: number,
-  ): boolean;
-
-  /**
-   * Round a number to 2 decimal places
-   */
-  round2(value: number): number;
+  findThickness(tensometer: string, thickness: string): string | undefined;
 }
 
 // ============================================================================
@@ -343,18 +283,11 @@ export interface ITableView {
  */
 export interface IChartView {
   /**
-   * Initialize the chart with the given parameters.
+   * Draw the chart with new tension values.
    * @param sides Side of each spoke, spoke 1 first
-   * @param tensionDS Initial drive side tension
-   * @param tensionNDS Initial non-drive side tension
+   * @param tensions Tension of each spoke, spoke 1 first
    */
-  init(sides: Side[], tensionDS: number, tensionNDS: number): void;
-
-  /**
-   * Update the chart with new tension values.
-   * @param tensions Array of tension values for all spokes
-   */
-  update(tensions: number[]): void;
+  update(sides: Side[], tensions: number[]): void;
 }
 
 /**
@@ -371,28 +304,38 @@ export interface IReadingsDialogView {
 }
 
 /**
- * View for dropdown/select controls.
+ * The dropdowns above the table: tensometer, spoke layout, spoke thickness
+ * of each side, tolerance.
  */
 export interface IControlsView {
+  /** List the tensometers and select one. */
+  showTensometers(names: string[], selected: string): void;
+
+  /** List the spoke layouts and select one. */
+  showLayouts(layouts: readonly SpokeLayout[], selected: SpokeLayout): void;
+
   /**
-   * Populate a select element with options.
-   * @param values Array of values to use as options
-   * @param defaultValue Initial selected value
+   * List the spoke thicknesses in both sides' dropdowns and select each
+   * side's own.
+   * @param listed The tensometer's own spokes
+   * @param estimated Spokes it can only estimate, listed below a separator
+   *   which cannot be selected; no separator when there are none
    */
-  fillSelect(
-    element: HTMLSelectElement,
-    values: (string | number)[],
-    defaultValue: string | number,
+  showThicknesses(
+    listed: string[],
+    estimated: string[],
+    selected: Record<Side, string>,
   ): void;
+
+  /** List the tolerances (percent) and select one. */
+  showTolerances(tolerances: readonly number[], selected: number): void;
 
   /** Callback when tensometer selection changes */
   onTensometerChange: ((name: string) => void) | null;
   /** Callback when spoke count changes */
   onSpokeCountChange: ((layout: SpokeLayout) => void) | null;
-  /** Callback when drive side spoke thickness changes */
-  onThicknessDSChange: ((thickness: string) => void) | null;
-  /** Callback when non-drive side spoke thickness changes */
-  onThicknessNDSChange: ((thickness: string) => void) | null;
+  /** Callback when the spoke thickness of a side changes */
+  onThicknessChange: ((side: Side, thickness: string) => void) | null;
   /** Callback when tolerance changes */
   onToleranceChange: ((tolerance: number) => void) | null;
 }

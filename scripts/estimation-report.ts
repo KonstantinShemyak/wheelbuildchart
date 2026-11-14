@@ -36,7 +36,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 import type {
   EstimatePlan,
   EstimationOptions,
@@ -175,7 +175,8 @@ function holdoutResults(tensometer: string): HoldoutResult[] {
       tensometer,
       options,
     );
-    const plan = plans.get(index.get(name));
+    const spoke = index.get(name);
+    const plan = spoke === undefined ? undefined : plans.get(spoke);
     if (!plan) {
       results.push({ name, plan: null, error: null });
       continue;

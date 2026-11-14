@@ -17,7 +17,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 import type { SpokeEntry, TensometerFile } from "../src/types/interfaces.ts";
 
 const DATA = path.join(import.meta.dirname, "..", "src", "data");
@@ -55,16 +55,17 @@ for (const file of fs.readdirSync(TENSOMETER_DIR).sort()) {
   // This tensometer's name for each spoke it lists
   const nameOf = new Map<string, string>();
   for (const name of Object.keys(tensometer.spokes)) {
-    if (!usedBy.has(name)) usedBy.set(name, []);
-    usedBy.get(name).push(tensometer.name);
-    if (!definedAt.has(name)) {
+    const users = usedBy.get(name) ?? [];
+    usedBy.set(name, users);
+    users.push(tensometer.name);
+    const spoke = spokeOf.get(name);
+    if (spoke === undefined) {
       errors.push(
         `${tensometer.name}: "${name}" is not in ${SPOKES_FILE}` +
           " — add it as a new spoke or to alternative_names of an existing one",
       );
       continue;
     }
-    const spoke = spokeOf.get(name);
     if (nameOf.has(spoke)) {
       errors.push(
         `${tensometer.name}: "${nameOf.get(spoke)}" and "${name}" are both` +

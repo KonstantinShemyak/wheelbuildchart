@@ -1,4 +1,5 @@
 import {
+  IControlsView,
   IReadingsDialogView,
   IWheelPresenter,
   Side,
@@ -9,7 +10,7 @@ import { TensionService } from "../services/TensionService";
 import { TableView } from "../views/TableView";
 import { ChartView } from "../views/ChartView";
 import { config } from "../model/config";
-import { layoutLabel } from "../model/spokeLayout";
+import { bySide } from "../model/spokeLayout";
 
 /**
  * WheelPresenter - coordinates the model and views.
@@ -21,13 +22,7 @@ export class WheelPresenter implements IWheelPresenter {
   private tableView: TableView;
   private chartView: ChartView;
   private readingsDialog: IReadingsDialogView;
-
-  // DOM elements for controls
-  private tensometerSelect: HTMLSelectElement | null = null;
-  private spokesSelect: HTMLSelectElement | null = null;
-  private thicknessDSSelect: HTMLSelectElement | null = null;
-  private thicknessNDSSelect: HTMLSelectElement | null = null;
-  private toleranceSelect: HTMLSelectElement | null = null;
+  private controls: IControlsView;
 
   constructor(
     model: WheelModel,
@@ -35,43 +30,46 @@ export class WheelPresenter implements IWheelPresenter {
     tableView: TableView,
     chartView: ChartView,
     readingsDialog: IReadingsDialogView,
+    controls: IControlsView,
   ) {
     this.model = model;
     this.tensionService = tensionService;
     this.tableView = tableView;
     this.chartView = chartView;
     this.readingsDialog = readingsDialog;
+    this.controls = controls;
   }
 
   /**
    * Initialize the presenter and render initial state.
    */
   init(): void {
-    // Get control elements
-    this.tensometerSelect = document.getElementById(
-      "usedTensometer",
-    ) as HTMLSelectElement;
-    this.spokesSelect = document.getElementById("nSpokes") as HTMLSelectElement;
-    this.thicknessDSSelect = document.getElementById(
-      "spokeThickness",
-    ) as HTMLSelectElement;
-    this.thicknessNDSSelect = document.getElementById(
-      "spokeThicknessNDS",
-    ) as HTMLSelectElement;
-    this.toleranceSelect = document.getElementById(
-      "toleranceInput",
-    ) as HTMLSelectElement;
+    this.controls.showTensometers(
+      this.tensionService.getTensometers(),
+      this.model.tensometer,
+    );
+    this.controls.showLayouts(
+      config.SUPPORTED_SPOKE_LAYOUTS,
+      this.model.layout,
+    );
+    this.showThicknesses();
+    this.controls.showTolerances(
+      config.SUPPORTED_TOLERANCES,
+      this.model.tolerance,
+    );
 
-    // Populate dropdowns
-    this.populateTensometerSelect();
-    this.populateSpokesSelect();
-    this.populateThicknessSelects();
-    this.populateToleranceSelect();
-
-    // Bind control events
-    this.bindControlEvents();
-
-    // Bind table view callback
+    this.controls.onTensometerChange = (name) => {
+      void this.handleTensometerChange(name);
+    };
+    this.controls.onSpokeCountChange = (layout) => {
+      this.handleSpokeCountChange(layout);
+    };
+    this.controls.onThicknessChange = (side, thickness) => {
+      this.handleThicknessChange(side, thickness);
+    };
+    this.controls.onToleranceChange = (tolerance) => {
+      this.handleToleranceChange(tolerance);
+    };
     this.tableView.onReadingChange = (index, value, advanceFocus) => {
       this.handleReadingChange(index, value, advanceFocus);
     };
@@ -83,134 +81,28 @@ export class WheelPresenter implements IWheelPresenter {
   }
 
   /**
-   * Populate the tensometer dropdown.
-   */
-  private populateTensometerSelect(): void {
-    if (!this.tensometerSelect) return;
-    const tensometers = this.tensionService.getTensometers();
-    this.fillSelect(this.tensometerSelect, tensometers, this.model.tensometer);
-  }
-
-  /**
-   * Populate the spokes dropdown.
-   */
-  private populateSpokesSelect(): void {
-    if (!this.spokesSelect) return;
-    this.fillSelect(
-      this.spokesSelect,
-      config.SUPPORTED_SPOKE_LAYOUTS.map(layoutLabel),
-      layoutLabel(this.model.layout),
-    );
-  }
-
-  /**
-   * Populate the thickness dropdowns: the tensometer's own spokes, then,
+   * Show the thicknesses of the current tensometer: its own spokes, then,
    * below a separator, the spokes it can only estimate.
    */
-  private populateThicknessSelects(): void {
-    const thicknesses = this.tensionService.getSupportedThicknesses();
-    const estimated = this.tensionService.getEstimatedThicknesses();
-    if (this.thicknessDSSelect) {
-      this.fillSelect(
-        this.thicknessDSSelect,
-        thicknesses,
-        this.model.spokeThicknessDS,
-        estimated,
-      );
-    }
-    if (this.thicknessNDSSelect) {
-      this.fillSelect(
-        this.thicknessNDSSelect,
-        thicknesses,
-        this.model.spokeThicknessNDS,
-        estimated,
-      );
-    }
-  }
-
-  /**
-   * Populate the tolerance dropdown.
-   */
-  private populateToleranceSelect(): void {
-    if (!this.toleranceSelect) return;
-    this.fillSelect(
-      this.toleranceSelect,
-      [...config.SUPPORTED_TOLERANCES],
-      this.model.tolerance,
+  private showThicknesses(): void {
+    this.controls.showThicknesses(
+      this.tensionService.getSupportedThicknesses(this.model.tensometer),
+      this.tensionService.getEstimatedThicknesses(this.model.tensometer),
+      this.model.spokeThickness,
     );
-  }
-
-  /**
-   * Fill a select element with options.
-   * @param estimated Further values, listed after a separator which cannot
-   *   be selected; no separator when there are none
-   */
-  private fillSelect(
-    select: HTMLSelectElement,
-    values: (string | number)[],
-    defaultValue: string | number,
-    estimated: string[] = [],
-  ): void {
-    select.innerHTML = "";
-    const addOption = (value: string | number) => {
-      const option = document.createElement("option");
-      option.value = String(value);
-      option.textContent = String(value);
-      select.appendChild(option);
-      return option;
-    };
-    values.forEach(addOption);
-    if (estimated.length > 0) {
-      const separator = addOption(config.ESTIMATED_SPOKES_SEPARATOR);
-      separator.value = "";
-      separator.disabled = true;
-      estimated.forEach(addOption);
-    }
-    select.value = String(defaultValue);
-  }
-
-  /**
-   * Bind event handlers for control elements.
-   */
-  private bindControlEvents(): void {
-    this.tensometerSelect?.addEventListener("change", () => {
-      void this.handleTensometerChange(this.tensometerSelect!.value);
-    });
-
-    this.spokesSelect?.addEventListener("change", () => {
-      const layout = config.SUPPORTED_SPOKE_LAYOUTS.find(
-        (layout) => layoutLabel(layout) === this.spokesSelect!.value,
-      );
-      if (layout) this.handleSpokeCountChange(layout);
-    });
-
-    this.thicknessDSSelect?.addEventListener("change", () => {
-      this.handleThicknessChange("ds", this.thicknessDSSelect!.value);
-    });
-
-    this.thicknessNDSSelect?.addEventListener("change", () => {
-      this.handleThicknessChange("nds", this.thicknessNDSSelect!.value);
-    });
-
-    this.toleranceSelect?.addEventListener("change", () => {
-      this.handleToleranceChange(Number(this.toleranceSelect!.value));
-    });
   }
 
   /**
    * What the current tensometer reads at the default tension of each side.
    */
   private defaultReadings(): Record<Side, number> {
-    return {
-      ds: this.tensionService.reading(
-        this.model.spokeThicknessDS,
-        config.DEFAULT_TENSION_DRIVE_SIDE,
+    return bySide((side) =>
+      this.tensionService.reading(
+        this.model.tensometer,
+        this.model.spokeThickness[side],
+        config.DEFAULT_TENSION[side],
       ),
-      nds: this.tensionService.reading(
-        this.model.spokeThicknessNDS,
-        config.DEFAULT_TENSION_NON_DRIVE_SIDE,
-      ),
-    };
+    );
   }
 
   /**
@@ -228,24 +120,26 @@ export class WheelPresenter implements IWheelPresenter {
     for (let i = 0; i < this.model.nSpokes; i++) {
       const thickness = this.model.getSpokeThickness(i);
       const reading = this.model.readings[i];
-      const tension = this.tensionService.tension(thickness, reading);
+      const tension = this.tensionService.tension(
+        this.model.tensometer,
+        thickness,
+        reading,
+      );
       this.model.setTension(i, tension);
     }
 
-    // Get averages
     const averages = this.model.getAverages();
+    const sides = this.model.sides();
+    const tensions = this.model.tensions.slice(0, this.model.nSpokes);
 
-    // Update table view
     this.tableView.updateTensions(
-      this.model.tensions.slice(0, this.model.nSpokes),
-      this.model.sides(),
+      tensions,
+      sides,
       averages.tensions,
       this.model.tolerance,
     );
     this.tableView.updateAverages(averages.readings, averages.tensions);
-
-    // Update chart view
-    this.chartView.update(this.model.tensions.slice(0, this.model.nSpokes));
+    this.chartView.update(sides, tensions);
   }
 
   /**
@@ -275,26 +169,24 @@ export class WheelPresenter implements IWheelPresenter {
     const replaceReadings =
       this.model.readingsAreDefault() ||
       (await this.readingsDialog.askToReplace(name));
-    this.tensionService.setTensometer(name);
     this.model.tensometer = name;
 
     // Thickness names are each tensometer's own, so the spoke chosen for the
     // previous tensometer may have another name here, or not be listed at
     // all. The model must hold a valid one before the dropdowns are filled,
     // or they show nothing.
-    const thicknesses = this.tensionService.getSupportedThicknesses();
-    const sameSpokeOrFirst = (thickness: string) =>
-      this.tensionService.findThickness(thickness) ?? thicknesses[0];
+    const thicknesses = this.tensionService.getSupportedThicknesses(name);
     if (thicknesses.length > 0) {
-      this.model.spokeThicknessDS = sameSpokeOrFirst(
-        this.model.spokeThicknessDS,
-      );
-      this.model.spokeThicknessNDS = sameSpokeOrFirst(
-        this.model.spokeThicknessNDS,
+      this.model.spokeThickness = bySide(
+        (side) =>
+          this.tensionService.findThickness(
+            name,
+            this.model.spokeThickness[side],
+          ) ?? thicknesses[0],
       );
     }
 
-    this.populateThicknessSelects();
+    this.showThicknesses();
 
     if (replaceReadings) {
       this.model.resetReadings(this.defaultReadings());
@@ -310,14 +202,6 @@ export class WheelPresenter implements IWheelPresenter {
   handleSpokeCountChange(layout: SpokeLayout): void {
     this.model.setLayout(layout);
     this.renderTable();
-
-    // Initialize chart with new spoke count
-    this.chartView.init(
-      this.model.sides(),
-      config.DEFAULT_TENSION_DRIVE_SIDE,
-      config.DEFAULT_TENSION_NON_DRIVE_SIDE,
-    );
-
     this.recalculate();
   }
 
@@ -325,11 +209,7 @@ export class WheelPresenter implements IWheelPresenter {
    * Handle spoke thickness change.
    */
   handleThicknessChange(side: Side, thickness: string): void {
-    if (side === "ds") {
-      this.model.spokeThicknessDS = thickness;
-    } else {
-      this.model.spokeThicknessNDS = thickness;
-    }
+    this.model.spokeThickness[side] = thickness;
     this.recalculate();
   }
 

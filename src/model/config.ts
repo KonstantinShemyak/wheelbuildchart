@@ -8,8 +8,7 @@ const evenlyLaced = (total: number): SpokeLayout => ({
 
 export const config: Config = {
   // A ParkTool TM-1 reads 20 and 18 at these on 2.0 mm spokes
-  DEFAULT_TENSION_DRIVE_SIDE: 70,
-  DEFAULT_TENSION_NON_DRIVE_SIDE: 58,
+  DEFAULT_TENSION: { ds: 70, nds: 58 },
   SUPPORTED_SPOKE_LAYOUTS: [
     ...[16, 18, 20, 24, 28, 32, 36, 40].map(evenlyLaced),
     // 2:1 lacing
@@ -30,6 +29,7 @@ export const config: Config = {
 };
 
 Object.freeze(config);
+Object.freeze(config.DEFAULT_TENSION);
 Object.freeze(config.SUPPORTED_SPOKE_LAYOUTS);
 config.SUPPORTED_SPOKE_LAYOUTS.forEach((layout) => Object.freeze(layout));
 Object.freeze(config.DEFAULT_SPOKE_LAYOUT);

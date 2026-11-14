@@ -3,9 +3,7 @@
  */
 export interface Config {
   /** kgf; the initial readings are what the tensometer shows at it */
-  DEFAULT_TENSION_DRIVE_SIDE: number;
-  /** kgf; the initial readings are what the tensometer shows at it */
-  DEFAULT_TENSION_NON_DRIVE_SIDE: number;
+  DEFAULT_TENSION: Readonly<Record<Side, number>>;
   /** In the order they are offered */
   SUPPORTED_SPOKE_LAYOUTS: readonly SpokeLayout[];
   DEFAULT_SPOKE_LAYOUT: SpokeLayout;
@@ -142,10 +140,7 @@ export interface SpokeLayout {
 /**
  * Averages for drive side and non-drive side.
  */
-export interface SideAverages {
-  ds: number;
-  nds: number;
-}
+export type SideAverages = Record<Side, number>;
 
 // ============================================================================
 // Model
@@ -163,10 +158,8 @@ export interface IWheelModel {
   readings: number[];
   /** Computed tensions in kgf for each spoke (0-indexed) */
   tensions: number[];
-  /** Spoke thickness for drive side (mm) */
-  spokeThicknessDS: string;
-  /** Spoke thickness for non-drive side (mm) */
-  spokeThicknessNDS: string;
+  /** Spoke thickness of each side, as the tensometer names it */
+  spokeThickness: Record<Side, string>;
   /** Currently selected tensometer name */
   tensometer: string;
   /** Tolerance percentage for warnings */
@@ -346,10 +339,8 @@ export interface IControlsView {
   onTensometerChange: ((name: string) => void) | null;
   /** Callback when spoke count changes */
   onSpokeCountChange: ((layout: SpokeLayout) => void) | null;
-  /** Callback when drive side spoke thickness changes */
-  onThicknessDSChange: ((thickness: string) => void) | null;
-  /** Callback when non-drive side spoke thickness changes */
-  onThicknessNDSChange: ((thickness: string) => void) | null;
+  /** Callback when the spoke thickness of a side changes */
+  onThicknessChange: ((side: Side, thickness: string) => void) | null;
   /** Callback when tolerance changes */
   onToleranceChange: ((tolerance: number) => void) | null;
 }

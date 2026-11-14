@@ -14,8 +14,7 @@ export class WheelModel implements IWheelModel {
   layout: SpokeLayout;
   readings: number[];
   tensions: number[];
-  spokeThicknessDS: string;
-  spokeThicknessNDS: string;
+  spokeThickness: Record<Side, string>;
   tensometer: string;
   tolerance: number;
 
@@ -27,8 +26,9 @@ export class WheelModel implements IWheelModel {
     this.layout = initialLayout;
     this.readings = [];
     this.tensions = [];
-    this.spokeThicknessDS = String(config.DEFAULT_SPOKE_THICKNESS);
-    this.spokeThicknessNDS = String(config.DEFAULT_SPOKE_THICKNESS);
+    this.spokeThickness = spokeLayout.bySide(() =>
+      String(config.DEFAULT_SPOKE_THICKNESS),
+    );
     this.tensometer = DEFAULT_TENSOMETER;
     this.tolerance = config.DEFAULT_TOLERANCE;
 
@@ -109,38 +109,19 @@ export class WheelModel implements IWheelModel {
    * Get the average readings and tensions for each side.
    */
   getAverages(): { readings: SideAverages; tensions: SideAverages } {
-    let sumReadingsDS = 0;
-    let sumReadingsNDS = 0;
-    let sumTensionsDS = 0;
-    let sumTensionsNDS = 0;
-
-    for (let i = 0; i < this.nSpokes; i++) {
-      if (this.isDriveSide(i)) {
-        sumReadingsDS += this.readings[i];
-        sumTensionsDS += this.tensions[i];
-      } else {
-        sumReadingsNDS += this.readings[i];
-        sumTensionsNDS += this.tensions[i];
-      }
-    }
-
+    const sides = this.sides();
+    const average = (values: number[]): SideAverages =>
+      spokeLayout.bySide((side) => {
+        let sum = 0;
+        sides.forEach((s, i) => {
+          if (s === side) sum += values[i];
+        });
+        return sum / this.layout[side];
+      });
     return {
-      readings: {
-        ds: sumReadingsDS / this.layout.ds,
-        nds: sumReadingsNDS / this.layout.nds,
-      },
-      tensions: {
-        ds: sumTensionsDS / this.layout.ds,
-        nds: sumTensionsNDS / this.layout.nds,
-      },
+      readings: average(this.readings),
+      tensions: average(this.tensions),
     };
-  }
-
-  /**
-   * @param index 0-based spoke index
-   */
-  isDriveSide(index: number): boolean {
-    return spokeLayout.sideOf(this.layout, index) === "ds";
   }
 
   /**
@@ -158,9 +139,10 @@ export class WheelModel implements IWheelModel {
     return spokeLayout.nextSameSide(this.layout, index);
   }
 
+  /**
+   * @param index 0-based spoke index
+   */
   getSpokeThickness(index: number): string {
-    return this.isDriveSide(index)
-      ? this.spokeThicknessDS
-      : this.spokeThicknessNDS;
+    return this.spokeThickness[spokeLayout.sideOf(this.layout, index)];
   }
 }

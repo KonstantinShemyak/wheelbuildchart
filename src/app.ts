@@ -30,8 +30,8 @@ function initApp(): void {
   // Initialize chart with default values
   chartView.init(
     model.sides(),
-    config.DEFAULT_TENSION_DRIVE_SIDE,
-    config.DEFAULT_TENSION_NON_DRIVE_SIDE,
+    config.DEFAULT_TENSION.ds,
+    config.DEFAULT_TENSION.nds,
   );
 
   // Create presenter and initialize

@@ -86,8 +86,8 @@ export class WheelPresenter implements IWheelPresenter {
    */
   private showThicknesses(): void {
     this.controls.showThicknesses(
-      this.tensionService.getSupportedThicknesses(),
-      this.tensionService.getEstimatedThicknesses(),
+      this.tensionService.getSupportedThicknesses(this.model.tensometer),
+      this.tensionService.getEstimatedThicknesses(this.model.tensometer),
       this.model.spokeThickness,
     );
   }
@@ -98,6 +98,7 @@ export class WheelPresenter implements IWheelPresenter {
   private defaultReadings(): Record<Side, number> {
     return bySide((side) =>
       this.tensionService.reading(
+        this.model.tensometer,
         this.model.spokeThickness[side],
         config.DEFAULT_TENSION[side],
       ),
@@ -119,7 +120,11 @@ export class WheelPresenter implements IWheelPresenter {
     for (let i = 0; i < this.model.nSpokes; i++) {
       const thickness = this.model.getSpokeThickness(i);
       const reading = this.model.readings[i];
-      const tension = this.tensionService.tension(thickness, reading);
+      const tension = this.tensionService.tension(
+        this.model.tensometer,
+        thickness,
+        reading,
+      );
       this.model.setTension(i, tension);
     }
 
@@ -164,19 +169,20 @@ export class WheelPresenter implements IWheelPresenter {
     const replaceReadings =
       this.model.readingsAreDefault() ||
       (await this.readingsDialog.askToReplace(name));
-    this.tensionService.setTensometer(name);
     this.model.tensometer = name;
 
     // Thickness names are each tensometer's own, so the spoke chosen for the
     // previous tensometer may have another name here, or not be listed at
     // all. The model must hold a valid one before the dropdowns are filled,
     // or they show nothing.
-    const thicknesses = this.tensionService.getSupportedThicknesses();
+    const thicknesses = this.tensionService.getSupportedThicknesses(name);
     if (thicknesses.length > 0) {
       this.model.spokeThickness = bySide(
         (side) =>
-          this.tensionService.findThickness(this.model.spokeThickness[side]) ??
-          thicknesses[0],
+          this.tensionService.findThickness(
+            name,
+            this.model.spokeThickness[side],
+          ) ?? thicknesses[0],
       );
     }
 

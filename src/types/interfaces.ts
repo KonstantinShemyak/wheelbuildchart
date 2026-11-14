@@ -188,32 +188,32 @@ export interface IWheelModel {
 // ============================================================================
 
 /**
- * Looking up tension values from tensometer readings
+ * Looking up tension values from tensometer readings. Every method that
+ * depends on the tensometer is given it; the service holds no selection.
  */
 export interface ITensionService {
   /**
    * Get tension (kgf) for a given spoke thickness and reading.
    * Uses interpolation/extrapolation for values not in the table.
    */
-  tension(spokeThickness: string, reading: number): number;
+  tension(tensometer: string, spokeThickness: string, reading: number): number;
 
   /**
    * Get the reading at a given tension (kgf) for a given spoke thickness,
    * rounded to the precision of the tensometer's table.
    */
-  reading(spokeThickness: string, tension: number): number;
+  reading(tensometer: string, spokeThickness: string, tension: number): number;
 
   /**
-   * Get list of supported spoke thicknesses for current tensometer
+   * Get list of spoke thicknesses the tensometer lists.
    */
-  getSupportedThicknesses(): string[];
+  getSupportedThicknesses(tensometer: string): string[];
 
   /**
-   * Get the spokes the current tensometer does not list but whose tension
-   * can be estimated from another tensometer's chart, by their keys in
-   * spokes.yaml.
+   * Get the spokes the tensometer does not list but whose tension can be
+   * estimated from another tensometer's chart, by their keys in spokes.yaml.
    */
-  getEstimatedThicknesses(): string[];
+  getEstimatedThicknesses(tensometer: string): string[];
 
   /**
    * Get list of all available tensometer names
@@ -221,22 +221,12 @@ export interface ITensionService {
   getTensometers(): string[];
 
   /**
-   * Set the current tensometer
+   * Find the tensometer's name for the same physical spoke as `thickness`,
+   * which may be any tensometer's name for it: its own name if it lists the
+   * spoke, else the spoke's key if it can estimate it.
+   * @returns undefined if the tensometer can do neither
    */
-  setTensometer(name: string): void;
-
-  /**
-   * Get the current tensometer name
-   */
-  getCurrentTensometer(): string;
-
-  /**
-   * Find the current tensometer's name for the same physical spoke as
-   * `thickness`, which may be any tensometer's name for it: its own name if
-   * it lists the spoke, else the spoke's key if it can estimate it.
-   * @returns undefined if the current tensometer can do neither
-   */
-  findThickness(thickness: string): string | undefined;
+  findThickness(tensometer: string, thickness: string): string | undefined;
 }
 
 // ============================================================================

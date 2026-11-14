@@ -2,6 +2,7 @@ import { ITableView, Side, SideAverages } from "../types/interfaces";
 import { isWithinTolerance, round2 } from "../services/stats";
 import { config } from "../model/config";
 import { SIDES } from "../model/spokeLayout";
+import { requireElement } from "./dom";
 
 const SIDE_CLASSES: Record<Side, string> = {
   ds: "driveSideColor",
@@ -32,18 +33,9 @@ export class TableView implements ITableView {
     | ((spokeIndex: number, value: number, advanceFocus: boolean) => void)
     | null = null;
 
-  constructor(tableSelector: string = "#valuesTable") {
-    const container = document.querySelector(tableSelector);
-    if (!container) {
-      throw new Error(`TableView: container "${tableSelector}" not found`);
-    }
-    this.tableContainer = container as HTMLElement;
-
-    const avgRow = document.querySelector("#average");
-    if (!avgRow) {
-      throw new Error('TableView: average row "#average" not found');
-    }
-    this.averageRow = avgRow as HTMLElement;
+  constructor() {
+    this.tableContainer = requireElement("valuesTable", HTMLTableElement);
+    this.averageRow = requireElement("average", HTMLTableRowElement);
   }
 
   /**

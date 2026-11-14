@@ -10,6 +10,7 @@ import { TableView } from "../views/TableView";
 import { ChartView } from "../views/ChartView";
 import { config } from "../model/config";
 import { bySide, layoutLabel } from "../model/spokeLayout";
+import { requireElement } from "../views/dom";
 
 /**
  * WheelPresenter - coordinates the model and views.
@@ -23,11 +24,20 @@ export class WheelPresenter implements IWheelPresenter {
   private readingsDialog: IReadingsDialogView;
 
   // DOM elements for controls
-  private tensometerSelect: HTMLSelectElement | null = null;
-  private spokesSelect: HTMLSelectElement | null = null;
-  private thicknessDSSelect: HTMLSelectElement | null = null;
-  private thicknessNDSSelect: HTMLSelectElement | null = null;
-  private toleranceSelect: HTMLSelectElement | null = null;
+  private tensometerSelect = requireElement(
+    "usedTensometer",
+    HTMLSelectElement,
+  );
+  private spokesSelect = requireElement("nSpokes", HTMLSelectElement);
+  private thicknessDSSelect = requireElement(
+    "spokeThickness",
+    HTMLSelectElement,
+  );
+  private thicknessNDSSelect = requireElement(
+    "spokeThicknessNDS",
+    HTMLSelectElement,
+  );
+  private toleranceSelect = requireElement("toleranceInput", HTMLSelectElement);
 
   constructor(
     model: WheelModel,
@@ -47,21 +57,6 @@ export class WheelPresenter implements IWheelPresenter {
    * Initialize the presenter and render initial state.
    */
   init(): void {
-    // Get control elements
-    this.tensometerSelect = document.getElementById(
-      "usedTensometer",
-    ) as HTMLSelectElement;
-    this.spokesSelect = document.getElementById("nSpokes") as HTMLSelectElement;
-    this.thicknessDSSelect = document.getElementById(
-      "spokeThickness",
-    ) as HTMLSelectElement;
-    this.thicknessNDSSelect = document.getElementById(
-      "spokeThicknessNDS",
-    ) as HTMLSelectElement;
-    this.toleranceSelect = document.getElementById(
-      "toleranceInput",
-    ) as HTMLSelectElement;
-
     // Populate dropdowns
     this.populateTensometerSelect();
     this.populateSpokesSelect();
@@ -86,7 +81,6 @@ export class WheelPresenter implements IWheelPresenter {
    * Populate the tensometer dropdown.
    */
   private populateTensometerSelect(): void {
-    if (!this.tensometerSelect) return;
     const tensometers = this.tensionService.getTensometers();
     this.fillSelect(this.tensometerSelect, tensometers, this.model.tensometer);
   }
@@ -95,7 +89,6 @@ export class WheelPresenter implements IWheelPresenter {
    * Populate the spokes dropdown.
    */
   private populateSpokesSelect(): void {
-    if (!this.spokesSelect) return;
     this.fillSelect(
       this.spokesSelect,
       config.SUPPORTED_SPOKE_LAYOUTS.map(layoutLabel),
@@ -110,29 +103,24 @@ export class WheelPresenter implements IWheelPresenter {
   private populateThicknessSelects(): void {
     const thicknesses = this.tensionService.getSupportedThicknesses();
     const estimated = this.tensionService.getEstimatedThicknesses();
-    if (this.thicknessDSSelect) {
-      this.fillSelect(
-        this.thicknessDSSelect,
-        thicknesses,
-        this.model.spokeThickness.ds,
-        estimated,
-      );
-    }
-    if (this.thicknessNDSSelect) {
-      this.fillSelect(
-        this.thicknessNDSSelect,
-        thicknesses,
-        this.model.spokeThickness.nds,
-        estimated,
-      );
-    }
+    this.fillSelect(
+      this.thicknessDSSelect,
+      thicknesses,
+      this.model.spokeThickness.ds,
+      estimated,
+    );
+    this.fillSelect(
+      this.thicknessNDSSelect,
+      thicknesses,
+      this.model.spokeThickness.nds,
+      estimated,
+    );
   }
 
   /**
    * Populate the tolerance dropdown.
    */
   private populateToleranceSelect(): void {
-    if (!this.toleranceSelect) return;
     this.fillSelect(
       this.toleranceSelect,
       [...config.SUPPORTED_TOLERANCES],
@@ -173,27 +161,27 @@ export class WheelPresenter implements IWheelPresenter {
    * Bind event handlers for control elements.
    */
   private bindControlEvents(): void {
-    this.tensometerSelect?.addEventListener("change", () => {
-      void this.handleTensometerChange(this.tensometerSelect!.value);
+    this.tensometerSelect.addEventListener("change", () => {
+      void this.handleTensometerChange(this.tensometerSelect.value);
     });
 
-    this.spokesSelect?.addEventListener("change", () => {
+    this.spokesSelect.addEventListener("change", () => {
       const layout = config.SUPPORTED_SPOKE_LAYOUTS.find(
-        (layout) => layoutLabel(layout) === this.spokesSelect!.value,
+        (layout) => layoutLabel(layout) === this.spokesSelect.value,
       );
       if (layout) this.handleSpokeCountChange(layout);
     });
 
-    this.thicknessDSSelect?.addEventListener("change", () => {
-      this.handleThicknessChange("ds", this.thicknessDSSelect!.value);
+    this.thicknessDSSelect.addEventListener("change", () => {
+      this.handleThicknessChange("ds", this.thicknessDSSelect.value);
     });
 
-    this.thicknessNDSSelect?.addEventListener("change", () => {
-      this.handleThicknessChange("nds", this.thicknessNDSSelect!.value);
+    this.thicknessNDSSelect.addEventListener("change", () => {
+      this.handleThicknessChange("nds", this.thicknessNDSSelect.value);
     });
 
-    this.toleranceSelect?.addEventListener("change", () => {
-      this.handleToleranceChange(Number(this.toleranceSelect!.value));
+    this.toleranceSelect.addEventListener("change", () => {
+      this.handleToleranceChange(Number(this.toleranceSelect.value));
     });
   }
 

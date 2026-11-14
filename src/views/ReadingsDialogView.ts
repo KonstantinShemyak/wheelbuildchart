@@ -1,4 +1,5 @@
 import { IReadingsDialogView } from "../types/interfaces";
+import { requireElement } from "./dom";
 
 /**
  * Modal dialog asking whether to replace the entered readings when the
@@ -9,11 +10,12 @@ export class ReadingsDialogView implements IReadingsDialogView {
   private dialog: HTMLDialogElement;
   private tensometerName: HTMLElement;
 
-  constructor(dialogSelector: string = "#readingsDialog") {
-    this.dialog = document.querySelector(dialogSelector) as HTMLDialogElement;
-    this.tensometerName = this.dialog.querySelector(
-      ".tensometerName",
-    ) as HTMLElement;
+  constructor() {
+    this.dialog = requireElement("readingsDialog", HTMLDialogElement);
+    this.tensometerName = requireElement(
+      "readingsDialogTensometer",
+      HTMLElement,
+    );
   }
 
   /**

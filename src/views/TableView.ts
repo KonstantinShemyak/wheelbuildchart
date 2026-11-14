@@ -45,9 +45,9 @@ export class TableView implements ITableView {
    */
   render(sides: Side[], readings: number[]): void {
     // Remove existing value rows
-    const existingRows =
-      this.tableContainer.querySelectorAll('[role="valueRow"]');
-    existingRows.forEach((row) => row.remove());
+    this.tableContainer
+      .querySelectorAll(".valueRow")
+      .forEach((row) => row.remove());
 
     const nDriveSide = sides.filter((side) => side === "ds").length;
 
@@ -101,7 +101,7 @@ export class TableView implements ITableView {
 
     for (const cells of cellsByRow) {
       const row = document.createElement("tr");
-      row.setAttribute("role", "valueRow");
+      row.className = "valueRow";
       row.append(...cells);
       this.averageRow.parentNode?.insertBefore(row, this.averageRow);
     }
